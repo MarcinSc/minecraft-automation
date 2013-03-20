@@ -10,29 +10,33 @@ public class LangTest {
     public static void main(String[] args) throws IllegalSyntaxException {
         ScriptExecutable exec = new ScriptExecutable();
         FunctionExecutable function = new FunctionExecutable(new String[]{"param"});
-        function.appendStatement(
-                new ReturnStatement(
-                        new ArithmeticStatement(
-                                Arrays.asList(
-                                        new VariableStatement("param"), new ConstantStatement(new Variable(" from function"))),
-                                Arrays.asList(
-                                        ArithmeticStatement.Oper.ADD))));
-        function.appendStatement(
-                new ExecutableStatement() {
-                    public Execution createExecution() {
-                        throw new RuntimeException("Should never get here");
-                    }
-                });
+        function.setStatement(
+                new BlockStatement(
+                        Arrays.asList(
+                                new ReturnStatement(
+                                        new ArithmeticStatement(
+                                                Arrays.asList(
+                                                        new VariableStatement("param"), new ConstantStatement(new Variable(" from function"))),
+                                                Arrays.asList(
+                                                        ArithmeticStatement.Oper.ADD))),
+                                new ExecutableStatement() {
+                                    public Execution createExecution() {
+                                        throw new RuntimeException("Should never get here");
+                                    }
+                                }
+                        )));
         exec.addFunction("func", function);
 
-        exec.appendStatement(
-                new AssignStatement(true, "val", new ConstantStatement(new Variable("Hello world"))));
-        exec.appendStatement(
-                new AssignStatement(true, "result",
-                        new CallFunctionStatement("func",
-                                Collections.<ExecutableStatement>singletonList(
-                                        new VariableStatement("val")
-                                ))));
+        exec.setStatement(
+                new BlockStatement(
+                        Arrays.<ExecutableStatement>asList(
+                                new AssignStatement(true, "val", new ConstantStatement(new Variable("Hello world"))),
+                                new AssignStatement(true, "result",
+                                        new CallFunctionStatement("func",
+                                                Collections.<ExecutableStatement>singletonList(
+                                                        new VariableStatement("val")
+                                                )))
+                        )));
 
         for (int i = 0; i < 100000; i++)
             executeScript(exec);

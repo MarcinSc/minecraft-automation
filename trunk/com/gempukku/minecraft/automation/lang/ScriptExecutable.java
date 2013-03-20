@@ -1,15 +1,11 @@
 package com.gempukku.minecraft.automation.lang;
 
-import com.gempukku.minecraft.automation.lang.execution.MultiStatementExecution;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ScriptExecutable {
     private Map<String, FunctionExecutable> _functions = new HashMap<String, FunctionExecutable>();
-    private List<ExecutableStatement> _statements = new ArrayList<ExecutableStatement>();
+    private ExecutableStatement _statement;
 
     public void addFunction(String name, FunctionExecutable function) throws IllegalSyntaxException {
         if (_functions.containsKey(name))
@@ -17,14 +13,14 @@ public class ScriptExecutable {
         _functions.put(name, function);
     }
 
-    public void appendStatement(ExecutableStatement statement) {
-        _statements.add(statement);
+    public void setStatement(ExecutableStatement statement) {
+        _statement = statement;
     }
 
     public Execution createExecution(CallContext context) {
         for (Map.Entry<String, FunctionExecutable> functionDef: _functions.entrySet())
             context.addFunction(functionDef.getKey(), functionDef.getValue());
 
-        return new MultiStatementExecution(_statements);
+        return _statement.createExecution();
     }
 }
