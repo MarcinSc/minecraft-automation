@@ -1,11 +1,11 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.computer.ComputerData;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.world.World;
 
 import java.util.List;
 
@@ -16,6 +16,7 @@ public class ComputerItemBlock extends ItemBlock {
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
         this.setCreativeTab(CreativeTabs.tabBlock);
+        System.out.println("Computer item block created");
     }
 
     @Override
@@ -27,12 +28,19 @@ public class ComputerItemBlock extends ItemBlock {
     }
 
     private String getComputerLabel(ItemStack itemStack) {
-        int computerId = itemStack.getItemDamage();
-        if (computerId == 0)
-            return null;
-        ComputerData computerData = AutomationRegistry.getComputerData(computerId);
-        if (computerData == null || computerData.getLabel() == null)
-            return null;
-        return computerData.getLabel();
+        return String.valueOf(itemStack.getItemDamage());
+//        int computerId = itemStack.getItemDamage();
+//        if (computerId == 0)
+//            return null;
+//        ComputerData computerData = AutomationRegistry.getComputerData(computerId);
+//        if (computerData == null || computerData.getLabel() == null)
+//            return null;
+//        return computerData.getLabel();
+    }
+
+    @Override
+    public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer) {
+        System.out.println("Item right clicked");
+        return super.onItemRightClick(par1ItemStack, par2World, par3EntityPlayer);
     }
 }
