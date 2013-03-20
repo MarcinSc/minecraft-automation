@@ -84,7 +84,7 @@ public class ArithmeticExecution implements Execution {
                 } else if (operator == ArithmeticStatement.Oper.MOD) {
                     if (nextValue.getType() == Variable.Type.NUMBER
                             && result.getType() == Variable.Type.NUMBER) {
-                        result = new Variable(((Number) result.getValue()).intValue() % ((Number) nextValue.getValue()).intValue());
+                        result = new Variable(((Number) result.getValue()).floatValue() % ((Number) nextValue.getValue()).floatValue());
                     } else {
                         throw new IllegalSyntaxException("Unable to mod values of types " + result.getType() + " and " + nextValue.getType());
                     }

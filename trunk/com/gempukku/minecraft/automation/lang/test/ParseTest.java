@@ -13,11 +13,11 @@ public class ParseTest {
     public static void main(String[] args) throws IllegalSyntaxException, IOException {
         final StringWriter out = new StringWriter();
         PrintWriter writer = new PrintWriter(out);
-        writer.println("var value = \"Hello world\";");
-        writer.println("var result = func(value);");
+        writer.println("var value = \"Hello world\"; var result = func(value);");
         writer.println("function func(param) {");
         writer.println("  return param + \" from function\";");
         writer.println("}");
+        writer.println("os.print(result);");
 
         ScriptParser parser = new ScriptParser();
         final ScriptExecutable scriptExecutable = parser.parseScript(new StringReader(out.toString()));

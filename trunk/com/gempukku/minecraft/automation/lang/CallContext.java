@@ -5,9 +5,9 @@ import java.util.Map;
 
 public class CallContext {
     private CallContext _parentContext;
+    private boolean _functionContext;
     private Map<String, FunctionExecutable> _functions = new HashMap<String, FunctionExecutable>();
     private Map<String, Variable> _variables = new HashMap<String, Variable>();
-    private Variable _returnValue;
 
     public CallContext() {
         this(null);
@@ -21,12 +21,12 @@ public class CallContext {
         return _parentContext;
     }
 
-    public Variable getReturnValue() {
-        return _returnValue;
+    public boolean isFunctionContext() {
+        return _functionContext;
     }
 
-    public void setReturnValue(Variable returnValue) {
-        _returnValue = returnValue;
+    public void setFunctionContext(boolean functionContext) {
+        _functionContext = functionContext;
     }
 
     public void addFunction(String functionName, FunctionExecutable executable) {

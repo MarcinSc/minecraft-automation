@@ -31,18 +31,18 @@ public class LangTest {
                 new BlockStatement(
                         Arrays.<ExecutableStatement>asList(
                                 new AssignStatement(true, "val", new ConstantStatement(new Variable("Hello world"))),
-                                new AssignStatement(true, "result",
+                                new ReturnStatement(
                                         new CallFunctionStatement("func",
                                                 Collections.<ExecutableStatement>singletonList(
                                                         new VariableStatement("val")
                                                 )))
                         )));
 
-        for (int i = 0; i < 100000; i++)
+//        for (int i = 0; i < 100000; i++)
             executeScript(exec);
 
         long start = System.currentTimeMillis();
-        for (int i = 0; i < 100000; i++)
+//        for (int i = 0; i < 100000; i++)
             executeScript(exec);
 
         System.out.println("time: " + (System.currentTimeMillis() - start));
@@ -51,10 +51,13 @@ public class LangTest {
 
     private static void executeScript(ScriptExecutable exec) throws IllegalSyntaxException {
         CallContext context = new CallContext();
+        context.setFunctionContext(true);
         ExecutionContext executionContext = new ExecutionContext();
-        executionContext.stackFunctionCall(context, exec.createExecution(context));
+        executionContext.stackBlockCall(context, exec.createExecution(context));
 
         while (!executionContext.isFinished())
             executionContext.executeNext();
+
+        System.out.println(executionContext.getContextValue().getValue());
     }
 }

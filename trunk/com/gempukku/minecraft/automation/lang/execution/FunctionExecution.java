@@ -49,6 +49,7 @@ public class FunctionExecution implements Execution {
             final CallContext parentContext = callContext.getContextForFunction(_functionName);
             
             CallContext functionContext = new CallContext(parentContext);
+            functionContext.setFunctionContext(true);
             final String[] parameterNames = function.getParameterNames();
             for (int i=0; i<parameterNames.length; i++) {
                 final String name = parameterNames[i];
@@ -58,7 +59,7 @@ public class FunctionExecution implements Execution {
                     value = _parameterValues.get(i).getValue();
                 functionContext.setVariableValue(name, value);
             }
-            context.stackFunctionCall(functionContext, function.createExecution(functionContext));
+            context.stackBlockCall(functionContext, function.createExecution(functionContext));
             _stackedFunctionCall = true;
             return new ExecutionProgress(100);
         }

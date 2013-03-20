@@ -27,7 +27,7 @@ public class ReturnExecution implements Execution {
             return new ExecutionProgress(100);
         }
         if (!_assignedReturnValue) {
-            executionContext.peekCallContext().setReturnValue(executionContext.getContextValue());
+            executionContext.returnFromFunction();
             _assignedReturnValue = true;
             return new ExecutionProgress(100);
         }

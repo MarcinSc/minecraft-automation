@@ -3,36 +3,60 @@ package com.gempukku.minecraft.automation.lang;
 import java.util.LinkedList;
 
 public class ExecutionContext {
-    private LinkedList<LinkedList<Execution>> _executionsInFunctions = new LinkedList<LinkedList<Execution>>();
+    private LinkedList<LinkedList<Execution>> _executionsInBlocks = new LinkedList<LinkedList<Execution>>();
     private Variable _contextValue;
-    private LinkedList<CallContext> _callContexts = new LinkedList<CallContext>();
+    private boolean _returnFromFunction;
+    private boolean _breakFromBlock;
+    private LinkedList<CallContext> _blocksCallContext = new LinkedList<CallContext>();
 
     public void stackExecution(Execution execution) {
-        _executionsInFunctions.getLast().add(execution);
+        _executionsInBlocks.getLast().add(execution);
     }
 
     public ExecutionProgress executeNext() throws IllegalSyntaxException {
-        while (!_executionsInFunctions.isEmpty()) {
-            final LinkedList<Execution> inFunctionExecutionStack = _executionsInFunctions.getLast();
-            while (!inFunctionExecutionStack.isEmpty()) {
-                final Execution execution = inFunctionExecutionStack.getLast();
+        while (!_executionsInBlocks.isEmpty()) {
+            final LinkedList<Execution> inBlockExecutionStack = _executionsInBlocks.getLast();
+            while (!inBlockExecutionStack.isEmpty()) {
+                final Execution execution = inBlockExecutionStack.getLast();
                 if (execution.hasNextExecution(this)) {
                     final ExecutionProgress executionProgress = execution.executeNextStatement(this);
-                    if (_callContexts.getLast().getReturnValue() != null)
-                        exitFunction();
+                    if (_breakFromBlock)
+                        exitBlock();
+                    if (_returnFromFunction)
+                        exitFunction(true);
                     return executionProgress;
                 } else
-                    inFunctionExecutionStack.removeLast();
+                    inBlockExecutionStack.removeLast();
             }
-            exitFunction();
+            exitFunction(false);
         }
         return null;
     }
 
-    private void exitFunction() {
-        _executionsInFunctions.removeLast();
-        final Variable returnValue = _callContexts.removeLast().getReturnValue();
-        setContextValue(returnValue);
+    public void breakFromBlock() {
+        _breakFromBlock = true;
+    }
+
+    public void returnFromFunction() {
+        _returnFromFunction = true;
+    }
+
+    private void exitBlock() {
+        _executionsInBlocks.removeLast();
+        _blocksCallContext.removeLast();
+        _contextValue = null;
+        _breakFromBlock = false;
+    }
+
+    private void exitFunction(boolean returnResult) {
+        boolean exited = false;
+        while (!exited) {
+            _executionsInBlocks.removeLast();
+            exited = _blocksCallContext.removeLast().isFunctionContext();
+        }
+        if (!returnResult)
+            _contextValue = null;
+        _returnFromFunction = false;
     }
 
     public Variable getContextValue() {
@@ -44,17 +68,17 @@ public class ExecutionContext {
     }
 
     public CallContext peekCallContext() {
-        return _callContexts.getLast();
+        return _blocksCallContext.getLast();
     }
 
-    public void stackFunctionCall(CallContext callContext, Execution execution) {
-        _callContexts.add(callContext);
+    public void stackBlockCall(CallContext callContext, Execution execution) {
+        _blocksCallContext.add(callContext);
         LinkedList<Execution> functionExecutionStack = new LinkedList<Execution>();
         functionExecutionStack.add(execution);
-        _executionsInFunctions.add(functionExecutionStack);
+        _executionsInBlocks.add(functionExecutionStack);
     }
 
     public boolean isFinished() {
-        return _executionsInFunctions.isEmpty();
+        return _executionsInBlocks.isEmpty();
     }
 }
