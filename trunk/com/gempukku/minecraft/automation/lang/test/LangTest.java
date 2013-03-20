@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.lang.test;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.statement.*;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 public class LangTest {
@@ -11,7 +12,17 @@ public class LangTest {
         FunctionExecutable function = new FunctionExecutable(new String[]{"param"});
         function.appendStatement(
                 new ReturnStatement(
-                        new VariableStatement("param")));
+                        new ArithmeticStatement(
+                                Arrays.asList(
+                                        new VariableStatement("param"), new ConstantStatement(new Variable(" from function"))),
+                                Arrays.asList(
+                                        ArithmeticStatement.Oper.ADD))));
+        function.appendStatement(
+                new ExecutableStatement() {
+                    public Execution createExecution() {
+                        throw new RuntimeException("Should never get here");
+                    }
+                });
         exec.addFunction("func", function);
 
         exec.appendStatement(
@@ -23,14 +34,14 @@ public class LangTest {
                                         new VariableStatement("val")
                                 ))));
 
-        for (int i=0; i<100000; i++)
+        for (int i = 0; i < 100000; i++)
             executeScript(exec);
 
         long start = System.currentTimeMillis();
-        for (int i=0; i<100000; i++)
+        for (int i = 0; i < 100000; i++)
             executeScript(exec);
-        
-        System.out.println("time: "+(System.currentTimeMillis()-start));
+
+        System.out.println("time: " + (System.currentTimeMillis() - start));
 
     }
 
@@ -41,7 +52,5 @@ public class LangTest {
 
         while (!executionContext.isFinished())
             executionContext.executeNext();
-
-//        System.out.println(context.getVariableValue("result").getValue());
     }
 }
