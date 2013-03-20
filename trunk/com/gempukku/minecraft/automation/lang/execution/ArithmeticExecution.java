@@ -35,7 +35,7 @@ public class ArithmeticExecution implements Execution {
             _nextStatementToStack++;
             return new ExecutionProgress(100);
         }
-        // For now, just go left to right
+        // TODO For now, just go left to right
         Variable result = _statementResults.get(0);
 
         for (int i = 1; i < _statementResults.size(); i++) {
