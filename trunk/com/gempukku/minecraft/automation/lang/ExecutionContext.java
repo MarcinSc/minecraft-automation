@@ -1,6 +1,7 @@
 package com.gempukku.minecraft.automation.lang;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class ExecutionContext {
     private LinkedList<LinkedList<Execution>> _executionsInBlocks = new LinkedList<LinkedList<Execution>>();
@@ -80,5 +81,10 @@ public class ExecutionContext {
 
     public boolean isFinished() {
         return _executionsInBlocks.isEmpty();
+    }
+
+    public ExecutionProgress executeMethod(Variable object, String methodName, List<Variable> parameterValues) {
+        // TODO
+        return new ExecutionProgress(100);
     }
 }
