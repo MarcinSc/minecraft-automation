@@ -161,10 +161,22 @@ public class ScriptParser {
                 } else {
                     String functionOrVariableName = getFirstLiteral(value);
                     consumeCharactersFromTerm(termIterator, term, value, functionOrVariableName.length());
+                    if (functionOrVariableName.equals("true"))
+                        return new ConstantStatement(new Variable(true));
+                    else if (functionOrVariableName.equals("false"))
+                        return new ConstantStatement(new Variable(false));
+                    else if (functionOrVariableName.equals("null"))
+                        return new ConstantStatement(new Variable(null));
                     Term nextTerm = peekNextProgramTermSafely(termIterator);
                     boolean first = true;
                     String nextTermValue = nextTerm.getValue();
+                    if (nextTermValue.startsWith("=")) {
+                        consumeCharactersFromTerm(termIterator, nextTerm, nextTermValue, 1);
+                        return new AssignStatement(false, functionOrVariableName, produceValueReturningStatementFromIterator(termIterator));
+                    }
                     while (true) {
+                        if (first)
+                            result = new VariableStatement(functionOrVariableName);
                         if (nextTermValue.startsWith("(")) {
                             if (!first)
                                 throw new IllegalArgumentException("Function call not expected");
@@ -173,9 +185,6 @@ public class ScriptParser {
                         } else if (nextTermValue.startsWith(";")) {
                             return result;
                         } else {
-                            if (first) {
-                                result = new VariableStatement(functionOrVariableName);
-                            }
                             if (nextTermValue.startsWith(".")) {
                                 consumeCharactersFromTerm(termIterator, nextTerm, nextTermValue, 1);
                                 result = produceMethodCallFromIterator(result, termIterator);
@@ -322,7 +331,6 @@ public class ScriptParser {
             return new WhileStatement(condition, executableStatements);
         } else {
             final ExecutableStatement executableStatement = produceStatementFromIterator(termIterator);
-            consumeSemicolon(termIterator);
             return new WhileStatement(condition, Collections.singletonList(executableStatement));
         }
     }

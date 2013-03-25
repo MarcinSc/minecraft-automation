@@ -24,6 +24,8 @@ public class Variable {
             _type = Type.MAP;
         } else if (value.getClass().isArray()) {
             _type = Type.ARRAY;
+        } else if (value instanceof Boolean) {
+            _type = Type.BOOLEAN;
         } else
             throw new UnsupportedOperationException("Unkown type of variable value: "+value.getClass().getSimpleName());
     }
