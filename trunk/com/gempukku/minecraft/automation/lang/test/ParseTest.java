@@ -22,13 +22,16 @@ public class ParseTest {
     private static String progressScript() {
         final StringWriter out = new StringWriter();
         PrintWriter writer = new PrintWriter(out);
-        writer.println("var variable = a;");
-        writer.println("var string = \"Hello world\";");
-        writer.println("var functionResult=func(value);");
-        writer.println("var methodResult = object.method(param1, param2);");
-        writer.println("var combinationResult = func(object.method(param1,param2)).method(param3);");
-        writer.println("return ;");
-        writer.println("return object.method(param1, param2);");
+//        writer.println("var variable = a;");
+//        writer.println("var string = \"Hello world\";");
+//        writer.println("var functionResult=func(value);");
+//        writer.println("var methodResult = object.method(param1, param2);");
+//        writer.println("var combinationResult = func(object.method(param1,param2)).method(param3);");
+//        writer.println("return ;");
+//        writer.println("return object.method(param1, param2);");
+//        writer.println("while (variable)");
+//        writer.println("object.method(param1, param2);");
+        writer.println("while (variable) { object.method(param1, param2); object2.method(param3, param4); }");
 
         return out.toString();
     }

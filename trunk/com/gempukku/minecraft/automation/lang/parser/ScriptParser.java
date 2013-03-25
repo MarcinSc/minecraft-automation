@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -74,9 +75,9 @@ public class ScriptParser {
                 } else if (literal.equals("while")) {
                     consumeCharactersFromTerm(termIterator, firstTerm, termText, 5);
                     return produceWhileStatementFromIterator(termIterator);
-                } else if (literal.equals("do")) {
-                    consumeCharactersFromTerm(termIterator, firstTerm, termText, 2);
-                    return produceDoStatementFromIterator(termIterator);
+//                } else if (literal.equals("do")) {
+//                    consumeCharactersFromTerm(termIterator, firstTerm, termText, 2);
+//                    return produceDoStatementFromIterator(termIterator);
                 } else if (literal.equals("return")) {
                     consumeCharactersFromTerm(termIterator, firstTerm, termText, 6);
                     return produceReturnStatementFromIterator(termIterator);
@@ -276,8 +277,8 @@ public class ScriptParser {
         return null;  //To change body of created methods use File | Settings | File Templates.
     }
 
-    private ExecutableStatement produceOtherStatementFromIterator(PeekingIterator<TermBlock> termIterator) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
+    private ExecutableStatement produceOtherStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        return produceValueReturningStatementFromIterator(termIterator);
     }
 
     private ExecutableStatement produceReturnStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -294,12 +295,36 @@ public class ScriptParser {
         //To change body of created methods use File | Settings | File Templates.
     }
 
-    private ExecutableStatement produceDoStatementFromIterator(PeekingIterator<TermBlock> termIterator) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
-    }
+    private ExecutableStatement produceWhileStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        final Term term = peekNextProgramTermSafely(termIterator);
+        final String termValue = term.getValue();
+        if (!termValue.startsWith("("))
+            throw new IllegalSyntaxException("( expected");
 
-    private ExecutableStatement produceWhileStatementFromIterator(PeekingIterator<TermBlock> termIterator) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        consumeCharactersFromTerm(termIterator, term, termValue, 1);
+        ExecutableStatement condition = produceValueReturningStatementFromIterator(termIterator);
+
+        final Term afterCondition = peekNextProgramTermSafely(termIterator);
+        String afterConditionValue = afterCondition.getValue();
+        if (!afterConditionValue.startsWith(")"))
+            throw new IllegalSyntaxException(") expected");
+
+        consumeCharactersFromTerm(termIterator, afterCondition, afterConditionValue, 1);
+
+        if (!termIterator.hasNext())
+            throw new IllegalSyntaxException("Expression expected");
+        final TermBlock statementsTerm = termIterator.peek();
+
+        if (!statementsTerm.isTerm()) {
+            final List<ExecutableStatement> executableStatements = seekStatementsInBlock(statementsTerm);
+            // Consume the block
+            termIterator.next();
+            return new WhileStatement(condition, executableStatements);
+        } else {
+            final ExecutableStatement executableStatement = produceStatementFromIterator(termIterator);
+            consumeSemicolon(termIterator);
+            return new WhileStatement(condition, Collections.singletonList(executableStatement));
+        }
     }
 
     private ExecutableStatement produceIfStatementFromIterator(PeekingIterator<TermBlock> termIterator) {
@@ -369,8 +394,8 @@ public class ScriptParser {
                     int open = value.indexOf('{');
                     int close = value.indexOf('}');
                     if (open > -1 && (close < 0 || open < close)) {
-                        String before = term.getValue().substring(0, open);
-                        String after = term.getValue().substring(open + 1);
+                        String before = value.substring(0, open);
+                        String after = value.substring(open + 1);
                         if (before.length() > 0)
                             appendProgramTerm(currentBlock, before.trim(), term.getLine());
                         termBlocksStack.add(currentBlock);
@@ -379,8 +404,8 @@ public class ScriptParser {
                         currentBlock = childBlock;
                         value = after;
                     } else if (close > -1 && (open < 0 || close < open)) {
-                        String before = term.getValue().substring(0, close);
-                        String after = term.getValue().substring(close + 1);
+                        String before = value.substring(0, close);
+                        String after = value.substring(close + 1);
                         if (before.length() > 0)
                             appendProgramTerm(currentBlock, before.trim(), term.getLine());
                         if (termBlocksStack.size() == 0)
