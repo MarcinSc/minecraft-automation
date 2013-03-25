@@ -190,9 +190,7 @@ public class ScriptParser {
                 return result;
             }
         } else {
-            ExecutableStatement mapStatement = produceMapStatementFromBlock(termBlock);
-            consumeSemicolon(termIterator);
-            return mapStatement;
+            return produceMapStatementFromBlock(termBlock);
         }
 
     }
@@ -282,8 +280,14 @@ public class ScriptParser {
         return null;  //To change body of created methods use File | Settings | File Templates.
     }
 
-    private ExecutableStatement produceReturnStatementFromIterator(PeekingIterator<TermBlock> termIterator) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
+    private ExecutableStatement produceReturnStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        if (!termIterator.hasNext())
+            throw new IllegalSyntaxException("Expected expression");
+        final TermBlock term = termIterator.peek();
+        if (term.isTerm() && term.getTerm().getType() == Term.Type.PROGRAM && term.getTerm().getValue().startsWith(";"))
+            return new ReturnStatement(new ConstantStatement(new Variable(null)));
+
+        return new ReturnStatement(produceValueReturningStatementFromIterator(termIterator));
     }
 
     private void appendFunctionFromIterator(PeekingIterator<TermBlock> termIterator) {

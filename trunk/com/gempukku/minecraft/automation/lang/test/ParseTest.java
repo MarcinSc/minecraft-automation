@@ -27,6 +27,8 @@ public class ParseTest {
         writer.println("var functionResult=func(value);");
         writer.println("var methodResult = object.method(param1, param2);");
         writer.println("var combinationResult = func(object.method(param1,param2)).method(param3);");
+        writer.println("return ;");
+        writer.println("return object.method(param1, param2);");
 
         return out.toString();
     }
