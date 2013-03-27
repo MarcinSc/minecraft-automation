@@ -69,6 +69,25 @@ public class ScriptParser {
                     return produceVarStatement(termIterator);
                 } else if (literal.equals("function")) {
                     return produceDefineFunctionStatement(termIterator);
+                } else if (literal.equals("if")) {
+                    consumeCharactersFromTerm(termIterator, 2);
+
+                    if (!isNextTermStartingWith(termIterator, "("))
+                        throw new IllegalSyntaxException("( expected");
+                    consumeCharactersFromTerm(termIterator, 1);
+
+                    ExecutableStatement condition = produceValueReturningStatementFromIterator(termIterator);
+
+                    if (!isNextTermStartingWith(termIterator, ")"))
+                        throw new IllegalSyntaxException(") expected");
+                    consumeCharactersFromTerm(termIterator, 1);
+
+                    final TermBlock peek = termIterator.peek();
+                    if (peek.isTerm()) {
+                        final ExecutableStatement statement = produceStatementFromIterator(termIterator);
+                        consumeSemicolonIfProgramTermIsNext(termIterator);
+                        return new IfStatement(condition, statement);
+                    }
                 }
 
                 consumeCharactersFromTerm(termIterator, literal.length());
@@ -197,6 +216,13 @@ public class ScriptParser {
 
                     return new FunctionCallStatement(literal, parameters);
                 } else {
+                    if (literal.equals("true"))
+                        return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(true)));
+                    if (literal.equals("false"))
+                        return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(false)));
+                    if (literal.equals("null"))
+                        return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(null)));
+                    
                     ExecutableStatement statement = new VariableStatement(literal);
                     return wrapInPossibleMethods(termIterator, statement);
                 }
