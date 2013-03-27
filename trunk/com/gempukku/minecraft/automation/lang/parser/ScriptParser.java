@@ -74,6 +74,14 @@ public class ScriptParser {
 
                     if (isNextTermStartingWithSemicolon(termIterator))
                         return new DefineStatement(variableName);
+
+                    if (!isNextTermStartingWith(termIterator, "="))
+                        throw new IllegalSyntaxException("Expected =");
+
+                    consumeCharactersFromTerm(termIterator, 1);
+
+                    final ExecutableStatement value = produceValueReturningStatementFromIterator(termIterator);
+                    return new AssignStatement(true, variableName, value);
                 }
                 // TODO
                 return null;

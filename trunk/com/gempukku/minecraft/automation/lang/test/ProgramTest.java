@@ -31,7 +31,7 @@ public class ProgramTest {
     private static String helloWorldScript() {
         final StringWriter out = new StringWriter();
         PrintWriter writer = new PrintWriter(out);
-        writer.println("var result;");
+        writer.println("var result = \"Hello world\";");
         writer.println("return result;");
         return out.toString();
     }
