@@ -68,31 +68,7 @@ public class ScriptParser {
                 } else if (literal.equals("var")) {
                     return produceVarStatement(termIterator);
                 } else if (literal.equals("function")) {
-                    consumeCharactersFromTerm(termIterator, 8);
-                    Term functionDefTerm = peekNextProgramTermSafely(termIterator);
-
-                    String functionName = getFirstLiteral(functionDefTerm.getValue());
-                    consumeCharactersFromTerm(termIterator, functionName.length());
-
-                    if (!isNextTermStartingWith(termIterator, "("))
-                        throw new IllegalSyntaxException("( expected");
-                    consumeCharactersFromTerm(termIterator, 1);
-
-                    List<String> parameterNames = new ArrayList<String>();
-                    while (!isNextTermStartingWith(termIterator, ")")) {
-                        String parameterName = getFirstLiteral(functionDefTerm.getValue());
-                        parameterNames.add(parameterName);
-                        if (isNextTermStartingWith(termIterator, ","))
-                            consumeCharactersFromTerm(termIterator, 1);
-                    }
-                    consumeCharactersFromTerm(termIterator, 1);
-
-                    final TermBlock functionBodyBlock = termIterator.next();
-                    if (functionBodyBlock.isTerm())
-                        throw new IllegalSyntaxException("{ expected");
-
-                    final List<ExecutableStatement> functionBody = seekStatementsInBlock(functionBodyBlock);
-                    return new DefineFunctionStatement(functionName, parameterNames, functionBody);
+                    return produceDefineFunctionStatement(termIterator);
                 }
 
                 consumeCharactersFromTerm(termIterator, literal.length());
@@ -107,6 +83,35 @@ public class ScriptParser {
         } else {
             return new BlockStatement(seekStatementsInBlock(firstTermBlock), true, false);
         }
+    }
+
+    private ExecutableStatement produceDefineFunctionStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        consumeCharactersFromTerm(termIterator, 8);
+        Term functionDefTerm = peekNextProgramTermSafely(termIterator);
+
+        String functionName = getFirstLiteral(functionDefTerm.getValue());
+        consumeCharactersFromTerm(termIterator, functionName.length());
+
+        if (!isNextTermStartingWith(termIterator, "("))
+            throw new IllegalSyntaxException("( expected");
+        consumeCharactersFromTerm(termIterator, 1);
+
+        List<String> parameterNames = new ArrayList<String>();
+        while (!isNextTermStartingWith(termIterator, ")")) {
+            String parameterName = getFirstLiteral(functionDefTerm.getValue());
+            consumeCharactersFromTerm(termIterator, parameterName.length());
+            parameterNames.add(parameterName);
+            if (isNextTermStartingWith(termIterator, ","))
+                consumeCharactersFromTerm(termIterator, 1);
+        }
+        consumeCharactersFromTerm(termIterator, 1);
+
+        final TermBlock functionBodyBlock = termIterator.next();
+        if (functionBodyBlock.isTerm())
+            throw new IllegalSyntaxException("{ expected");
+
+        final List<ExecutableStatement> functionBody = seekStatementsInBlock(functionBodyBlock);
+        return new DefineFunctionStatement(functionName, parameterNames, functionBody);
     }
 
     private ExecutableStatement produceVarStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -184,12 +189,17 @@ public class ScriptParser {
 
                 if (isNextTermStartingWith(termIterator, "(")) {
                     // It's a function call
+                    consumeCharactersFromTerm(termIterator, 1);
+                    List<ExecutableStatement> parameters = new ArrayList<ExecutableStatement>();
+                    while (!isNextTermStartingWith(termIterator, ")"))
+                        parameters.add(produceValueReturningStatementFromIterator(termIterator));
+                    consumeCharactersFromTerm(termIterator, 1);
+
+                    return new FunctionCallStatement(literal, parameters);
                 } else {
                     ExecutableStatement statement = new VariableStatement(literal);
                     return wrapInPossibleMethods(termIterator, statement);
                 }
-
-                return null;
             }
         } else {
             // TODO
@@ -198,10 +208,7 @@ public class ScriptParser {
     }
 
     private ExecutableStatement wrapInPossibleMethods(PeekingIterator<TermBlock> termIterator, ExecutableStatement statement) {
-        if (isNextTermStartingWithSemicolon(termIterator))
-            return statement;
-        // TODO
-        return null;
+        return statement;
     }
 
     private String getFirstLiteral(String text) throws IllegalSyntaxException {

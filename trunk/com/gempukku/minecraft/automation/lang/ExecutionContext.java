@@ -71,6 +71,11 @@ public class ExecutionContext {
         _returnFromFunction = true;
     }
 
+    public void resetReturnValue() {
+        _returnValue = null;
+        _returnFromFunction = false;
+    }
+
     public CallContext peekCallContext() {
         return _groupCallContexts.getLast();
     }

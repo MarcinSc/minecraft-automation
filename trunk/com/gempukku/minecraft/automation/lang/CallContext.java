@@ -16,6 +16,10 @@ public class CallContext {
         _consumesReturn = consumesReturn;
     }
 
+    public CallContext getParentContext() {
+        return _parentContext;
+    }
+
     public boolean isConsumesBreak() {
         return _consumesBreak;
     }

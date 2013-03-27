@@ -31,11 +31,11 @@ public class ProgramTest {
     private static String helloWorldScript() {
         final StringWriter out = new StringWriter();
         PrintWriter writer = new PrintWriter(out);
-        writer.println("function func() {");
-        writer.println("  var result = \"Hello world\";");
+        writer.println("function echo(toReturn) {");
+        writer.println("  var result = toReturn;");
         writer.println("  return result;");
         writer.println("}");
-        writer.println("return \"a\";");
+        writer.println("return echo(\"Hello world\");");
         return out.toString();
     }
 }
