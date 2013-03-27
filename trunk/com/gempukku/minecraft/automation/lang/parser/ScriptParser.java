@@ -70,28 +70,7 @@ public class ScriptParser {
                 } else if (literal.equals("function")) {
                     return produceDefineFunctionStatement(termIterator);
                 } else if (literal.equals("if")) {
-                    consumeCharactersFromTerm(termIterator, 2);
-
-                    if (!isNextTermStartingWith(termIterator, "("))
-                        throw new IllegalSyntaxException("( expected");
-                    consumeCharactersFromTerm(termIterator, 1);
-
-                    ExecutableStatement condition = produceValueReturningStatementFromIterator(termIterator);
-
-                    if (!isNextTermStartingWith(termIterator, ")"))
-                        throw new IllegalSyntaxException(") expected");
-                    consumeCharactersFromTerm(termIterator, 1);
-
-                    final TermBlock ifExecute = termIterator.peek();
-                    if (ifExecute.isTerm()) {
-                        final ExecutableStatement statement = produceStatementFromIterator(termIterator);
-                        consumeSemicolon(termIterator);
-                        return new IfStatement(condition, statement);
-                    } else {
-                        termIterator.next();
-                        final List<ExecutableStatement> statements = seekStatementsInBlock(ifExecute);
-                        return new IfStatement(condition, new BlockStatement(statements, true, false));
-                    }
+                    return produceIfStatement(termIterator);
                 }
 
                 consumeCharactersFromTerm(termIterator, literal.length());
@@ -105,6 +84,31 @@ public class ScriptParser {
             }
         } else {
             return new BlockStatement(seekStatementsInBlock(firstTermBlock), true, false);
+        }
+    }
+
+    private ExecutableStatement produceIfStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        consumeCharactersFromTerm(termIterator, 2);
+
+        if (!isNextTermStartingWith(termIterator, "("))
+            throw new IllegalSyntaxException("( expected");
+        consumeCharactersFromTerm(termIterator, 1);
+
+        ExecutableStatement condition = produceValueReturningStatementFromIterator(termIterator);
+
+        if (!isNextTermStartingWith(termIterator, ")"))
+            throw new IllegalSyntaxException(") expected");
+        consumeCharactersFromTerm(termIterator, 1);
+
+        final TermBlock ifExecute = termIterator.peek();
+        if (ifExecute.isTerm()) {
+            final ExecutableStatement statement = produceStatementFromIterator(termIterator);
+            consumeSemicolon(termIterator);
+            return new IfStatement(condition, statement);
+        } else {
+            termIterator.next();
+            final List<ExecutableStatement> statements = seekStatementsInBlock(ifExecute);
+            return new IfStatement(condition, new BlockStatement(statements, true, false));
         }
     }
 
