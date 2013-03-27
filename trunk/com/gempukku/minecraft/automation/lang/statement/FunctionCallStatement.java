@@ -7,17 +7,17 @@ import com.gempukku.minecraft.automation.lang.execution.FunctionCallExecution;
 import java.util.List;
 
 public class FunctionCallStatement implements ExecutableStatement {
-    private String _name;
+    private ExecutableStatement _function;
     private List<ExecutableStatement> _parameters;
 
-    public FunctionCallStatement(String name, List<ExecutableStatement> parameters) {
-        _name = name;
+    public FunctionCallStatement(ExecutableStatement function, List<ExecutableStatement> parameters) {
+        _function = function;
         _parameters = parameters;
     }
 
     @Override
     public Execution createExecution() {
-        return new FunctionCallExecution(_name, _parameters);
+        return new FunctionCallExecution(_function, _parameters);
     }
 
     @Override

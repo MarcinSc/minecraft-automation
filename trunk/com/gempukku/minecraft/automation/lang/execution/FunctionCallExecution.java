@@ -6,23 +6,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionCallExecution implements Execution {
-    private String _name;
+    private ExecutableStatement _function;
     private List<ExecutableStatement> _parameters;
 
+    private boolean _functionStacked;
+    private boolean _functionResolved;
     private int _nextParameterIndexStacked;
     private int _nextParameterValueStored;
     private boolean _functionCalled;
     private boolean _returnResultRead;
 
+    private Variable _functionVar;
     private List<Variable> _parameterValues = new ArrayList<Variable>();
 
-    public FunctionCallExecution(String name, List<ExecutableStatement> parameters) {
-        _name = name;
+    public FunctionCallExecution(ExecutableStatement function, List<ExecutableStatement> parameters) {
+        _function = function;
         _parameters = parameters;
     }
 
     @Override
     public boolean hasNextExecution(ExecutionContext executionContext) {
+        if (!_functionStacked)
+            return true;
+        if (!_functionResolved)
+            return true;
         if (_nextParameterValueStored < _nextParameterIndexStacked)
             return true;
         if (_nextParameterIndexStacked < _parameters.size())
@@ -36,6 +43,16 @@ public class FunctionCallExecution implements Execution {
 
     @Override
     public ExecutionProgress executeNextStatement(ExecutionContext executionContext) throws ExecutionException {
+        if (!_functionStacked) {
+            executionContext.stackExecution(_function.createExecution());
+            _functionStacked = true;
+            return new ExecutionProgress(100);
+        }
+        if (!_functionResolved) {
+            _functionVar = executionContext.getContextValue();
+            _functionResolved = true;
+            return new ExecutionProgress(100);
+        }
         if (_nextParameterValueStored < _nextParameterIndexStacked) {
             _parameterValues.add(executionContext.getContextValue());
             _nextParameterValueStored++;
@@ -48,8 +65,10 @@ public class FunctionCallExecution implements Execution {
         }
         if (!_functionCalled) {
             final CallContext currentContext = executionContext.peekCallContext();
-            final FunctionExecutable function = currentContext.getFunction(_name);
-            final CallContext functionContextParent = currentContext.getContextForFunction(_name);
+            if (_functionVar.getType() != Variable.Type.FUNCTION)
+                throw new ExecutionException("Expected function");
+            FunctionExecutable function = (FunctionExecutable) _functionVar.getValue();
+            final CallContext functionContextParent = currentContext.getContextForVariable(_functionVar);
             final String[] parameterNames = function.getParameterNames();
             if (_parameterValues.size() > parameterNames.length)
                 throw new ExecutionException("Function does not accept as many parameters");

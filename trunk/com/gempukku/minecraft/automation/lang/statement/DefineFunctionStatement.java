@@ -24,7 +24,9 @@ public class DefineFunctionStatement implements ExecutableStatement {
                 final FunctionExecutable functionExecutable = new FunctionExecutable(_parameterNames.toArray(new String[_parameterNames.size()]));
                 functionExecutable.setStatement(
                         new BlockStatement(_statements, false, true));
-                context.peekCallContext().addFunction(_name, functionExecutable);
+                final CallContext callContext = context.peekCallContext();
+                callContext.defineVariable(_name);
+                callContext.setVariableValue(_name, functionExecutable);
                 return new ExecutionProgress(100);
             }
         };

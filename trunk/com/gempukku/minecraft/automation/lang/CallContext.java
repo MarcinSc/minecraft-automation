@@ -7,7 +7,6 @@ public class CallContext {
     private CallContext _parentContext;
     private boolean _consumesReturn;
     private boolean _consumesBreak;
-    private Map<String, FunctionExecutable> _functions = new HashMap<String, FunctionExecutable>();
     private Map<String, Variable> _variables = new HashMap<String, Variable>();
 
     public CallContext(CallContext parentContext, boolean consumesBreak, boolean consumesReturn) {
@@ -26,10 +25,6 @@ public class CallContext {
 
     public boolean isConsumesReturn() {
         return _consumesReturn;
-    }
-
-    public void addFunction(String functionName, FunctionExecutable executable) {
-        _functions.put(functionName, executable);
     }
 
     public Variable getVariableValue(String name) throws ExecutionException {
@@ -60,22 +55,12 @@ public class CallContext {
             throw new ExecutionException("Variable with this name is not defined in this scope: " + name);
     }
 
-    public FunctionExecutable getFunction(String name) throws ExecutionException {
-        final FunctionExecutable functionExecutable = _functions.get(name);
-        if (functionExecutable != null)
-            return functionExecutable;
-        else if (_parentContext != null)
-            return _parentContext.getFunction(name);
-        else
-            throw new ExecutionException("Function with this name is not defined in this scope: " + name);
-    }
-
-    public CallContext getContextForFunction(String name) throws ExecutionException {
-        if (_functions.containsKey(name))
+    public CallContext getContextForVariable(Variable variable) throws ExecutionException {
+        if (_variables.containsValue(variable))
             return this;
         else if (_parentContext != null)
-            return _parentContext.getContextForFunction(name);
+            return _parentContext.getContextForVariable(variable);
         else
-            throw new ExecutionException("Function doesn't seem to have a context");
+            throw new ExecutionException("Variable doesn't seem to have a context");
     }
 }

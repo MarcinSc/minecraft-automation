@@ -1,9 +1,6 @@
 package com.gempukku.minecraft.automation.lang.parser;
 
-import com.gempukku.minecraft.automation.lang.ExecutableStatement;
-import com.gempukku.minecraft.automation.lang.IllegalSyntaxException;
-import com.gempukku.minecraft.automation.lang.ScriptExecutable;
-import com.gempukku.minecraft.automation.lang.Variable;
+import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.statement.*;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
@@ -12,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -72,15 +70,7 @@ public class ScriptParser {
                 } else if (literal.equals("if")) {
                     return produceIfStatement(termIterator);
                 } else {
-                    // Assignment
-                    consumeCharactersFromTerm(termIterator, literal.length());
-                    if (!isNextTermStartingWith(termIterator, "="))
-                        throw new IllegalSyntaxException("Expected =");
-
-                    consumeCharactersFromTerm(termIterator, 1);
-
-                    final ExecutableStatement value = produceValueReturningStatementFromIterator(termIterator);
-                    return new AssignStatement(false, literal, value);
+                    return produceValueReturningStatementFromIterator(termIterator);
                 }
             }
         } else {
@@ -157,7 +147,8 @@ public class ScriptParser {
         consumeCharactersFromTerm(termIterator, 1);
 
         final ExecutableStatement value = produceValueReturningStatementFromIterator(termIterator);
-        return new AssignStatement(true, variableName, value);
+        return new BlockStatement(Arrays.asList(new DefineStatement(variableName), new AssignStatement(new ConstantStatement(new Variable(variableName)), value)),
+                false, false);
     }
 
     private ExecutableStatement produceReturnStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -195,39 +186,31 @@ public class ScriptParser {
                 // Consume the String
                 termIterator.next();
 
-                return wrapInPossibleMethods(termIterator, statement);
+                return withStatement(termIterator, statement);
             } else {
                 // PROGRAM term
+                ExecutableStatement statement;
                 String termValue = term.getValue();
                 if (Character.isDigit(termValue.charAt(0))) {
                     String numberInStr = getNumber(termValue);
                     consumeCharactersFromTerm(termIterator, numberInStr.length());
-                    return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(Float.parseFloat(numberInStr))));
-                }
-                String literal = getFirstLiteral(termValue);
-
-                consumeCharactersFromTerm(termIterator, literal.length());
-
-                if (isNextTermStartingWith(termIterator, "(")) {
-                    // It's a function call
-                    consumeCharactersFromTerm(termIterator, 1);
-                    List<ExecutableStatement> parameters = new ArrayList<ExecutableStatement>();
-                    while (!isNextTermStartingWith(termIterator, ")"))
-                        parameters.add(produceValueReturningStatementFromIterator(termIterator));
-                    consumeCharactersFromTerm(termIterator, 1);
-
-                    return new FunctionCallStatement(literal, parameters);
+                    statement = new ConstantStatement(new Variable(Float.parseFloat(numberInStr)));
                 } else {
-                    if (literal.equals("true"))
-                        return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(true)));
-                    if (literal.equals("false"))
-                        return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(false)));
-                    if (literal.equals("null"))
-                        return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(null)));
+                    String literal = getFirstLiteral(termValue);
 
-                    ExecutableStatement statement = new VariableStatement(literal);
-                    return wrapInPossibleMethods(termIterator, statement);
+                    consumeCharactersFromTerm(termIterator, literal.length());
+
+                    if (literal.equals("true"))
+                        statement = new ConstantStatement(new Variable(true));
+                    else if (literal.equals("false"))
+                        statement = new ConstantStatement(new Variable(false));
+                    else if (literal.equals("null"))
+                        statement = new ConstantStatement(new Variable(null));
+                    else
+                        statement = new VariableStatement(literal);
                 }
+
+                return withStatement(termIterator, statement);
             }
         } else {
             // TODO
@@ -251,8 +234,34 @@ public class ScriptParser {
         return result.toString();
     }
 
-    private ExecutableStatement wrapInPossibleMethods(PeekingIterator<TermBlock> termIterator, ExecutableStatement statement) {
+    private ExecutableStatement withStatement(PeekingIterator<TermBlock> termIterator, ExecutableStatement statement) throws IllegalSyntaxException {
+        final Term term = peekNextProgramTermSafely(termIterator);
+        String termValue = term.getValue();
+        final Operator operation = getArithmeticOperation(termValue);
+        if (operation == null)
+            return statement;
+        if (operation == Operator.ASSIGNMENT) {
+            consumeCharactersFromTerm(termIterator, 1);
+            return new AssignStatement(statement, produceValueReturningStatementFromIterator(termIterator));
+        } else if (operation == Operator.FUNCTION_CALL) {
+            consumeCharactersFromTerm(termIterator, 1);
+
+            List<ExecutableStatement> parameters = new ArrayList<ExecutableStatement>();
+            while (!isNextTermStartingWith(termIterator, ")"))
+                parameters.add(produceValueReturningStatementFromIterator(termIterator));
+            consumeCharactersFromTerm(termIterator, 1);
+
+            return new FunctionCallStatement(statement, parameters);
+        }
         return statement;
+    }
+
+    private Operator getArithmeticOperation(String termValue) {
+        if (termValue.startsWith("="))
+            return Operator.ASSIGNMENT;
+        else if (termValue.startsWith("("))
+            return Operator.FUNCTION_CALL;
+        return null;
     }
 
     private String getFirstLiteral(String text) throws IllegalSyntaxException {

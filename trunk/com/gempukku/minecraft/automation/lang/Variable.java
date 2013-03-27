@@ -3,7 +3,7 @@ package com.gempukku.minecraft.automation.lang;
 import java.util.Map;
 
 public class Variable {
-    public enum Type { NULL, STRING, NUMBER, BOOLEAN, ARRAY, MAP }
+    public enum Type { NULL, STRING, NUMBER, BOOLEAN, FUNCTION, ARRAY, MAP }
 
     private Object _value;
     private Type _type;
@@ -26,6 +26,8 @@ public class Variable {
             _type = Type.ARRAY;
         } else if (value instanceof Boolean) {
             _type = Type.BOOLEAN;
+        } else if (value instanceof FunctionExecutable) {
+            _type = Type.FUNCTION;
         } else
             throw new UnsupportedOperationException("Unkown type of variable value: "+value.getClass().getSimpleName());
     }
