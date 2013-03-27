@@ -5,13 +5,14 @@ import com.gempukku.minecraft.automation.lang.Execution;
 import com.gempukku.minecraft.automation.lang.execution.ReturnExecution;
 
 public class ReturnStatement implements ExecutableStatement {
-    private ExecutableStatement _value;
+    private ExecutableStatement _result;
 
-    public ReturnStatement(ExecutableStatement value) {
-        _value = value;
+    public ReturnStatement(ExecutableStatement result) {
+        _result = result;
     }
 
+    @Override
     public Execution createExecution() {
-        return new ReturnExecution(_value);
+        return new ReturnExecution(_result);
     }
 }

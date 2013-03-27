@@ -1,9 +1,6 @@
 package com.gempukku.minecraft.automation.lang.test;
 
-import com.gempukku.minecraft.automation.lang.CallContext;
-import com.gempukku.minecraft.automation.lang.ExecutionContext;
-import com.gempukku.minecraft.automation.lang.IllegalSyntaxException;
-import com.gempukku.minecraft.automation.lang.ScriptExecutable;
+import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 
 import java.io.IOException;
@@ -12,7 +9,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 public class ProgramTest {
-    public static void main(String[] args) throws IllegalSyntaxException, IOException {
+    public static void main(String[] args) throws ExecutionException, IOException, IllegalSyntaxException {
         String script = helloWorldScript();
 
         ScriptParser parser = new ScriptParser();
@@ -20,11 +17,10 @@ public class ProgramTest {
         executeScript(scriptExecutable);
     }
 
-    private static void executeScript(ScriptExecutable exec) throws IllegalSyntaxException {
-        CallContext context = new CallContext();
-        context.setFunctionContext(true);
+    private static void executeScript(ScriptExecutable exec) throws ExecutionException {
+        CallContext context = new CallContext(null, false, true);
         ExecutionContext executionContext = new ExecutionContext();
-        executionContext.stackBlockCall(context, exec.createExecution(context));
+        executionContext.stackExecutionGroup(context, exec.createExecution(context));
 
         while (!executionContext.isFinished())
             executionContext.executeNext();
@@ -35,10 +31,7 @@ public class ProgramTest {
     private static String helloWorldScript() {
         final StringWriter out = new StringWriter();
         PrintWriter writer = new PrintWriter(out);
-        writer.println("var value = \"Hello world\";");
-        writer.println("var replace = \"Replaced hello world\";");
-        writer.println("while (true) value=replace;");
-        writer.println("return value;");
+        writer.println("return \"Hello world\";");
         return out.toString();
     }
 }

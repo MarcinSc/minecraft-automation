@@ -3,34 +3,36 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class ReturnExecution implements Execution {
-    private ExecutableStatement _value;
+    private ExecutableStatement _result;
 
-    private boolean _stackedValueCall;
-    private boolean _assignedReturnValue;
+    private boolean _stackedExecution;
+    private boolean _returnedResult;
 
-    public ReturnExecution(ExecutableStatement value) {
-        _value = value;
+    public ReturnExecution(ExecutableStatement result) {
+        _result = result;
     }
 
+    @Override
     public boolean hasNextExecution(ExecutionContext executionContext) {
-        if (!_stackedValueCall)
+        if (!_stackedExecution)
             return true;
-        if (!_assignedReturnValue)
+        if (!_returnedResult)
             return true;
         return false;
     }
 
-    public ExecutionProgress executeNextStatement(ExecutionContext executionContext) throws IllegalSyntaxException {
-        if (!_stackedValueCall) {
-            executionContext.stackExecution(_value.createExecution());
-            _stackedValueCall = true;
+    @Override
+    public ExecutionProgress executeNextStatement(ExecutionContext executionContext) throws ExecutionException {
+        if (!_stackedExecution) {
+            executionContext.stackExecution(_result.createExecution());
+            _stackedExecution = true;
             return new ExecutionProgress(100);
         }
-        if (!_assignedReturnValue) {
-            executionContext.returnFromFunction();
-            _assignedReturnValue = true;
+        if (!_returnedResult) {
+            executionContext.setReturnValue(executionContext.getContextValue());
+            _returnedResult = true;
             return new ExecutionProgress(100);
         }
-        throw new IllegalStateException("Should not get here");
+        return null;
     }
 }

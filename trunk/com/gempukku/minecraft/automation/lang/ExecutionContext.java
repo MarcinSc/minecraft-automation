@@ -4,60 +4,54 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ExecutionContext {
-    private LinkedList<LinkedList<Execution>> _executionsInBlocks = new LinkedList<LinkedList<Execution>>();
+    private LinkedList<LinkedList<Execution>> _executionGroups = new LinkedList<LinkedList<Execution>>();
     private Variable _contextValue;
+    private Variable _returnValue;
+
     private boolean _returnFromFunction;
     private boolean _breakFromBlock;
-    private LinkedList<CallContext> _blocksCallContext = new LinkedList<CallContext>();
+
+    private LinkedList<CallContext> _groupCallContexts = new LinkedList<CallContext>();
 
     public void stackExecution(Execution execution) {
-        _executionsInBlocks.getLast().add(execution);
+        _executionGroups.getLast().add(execution);
     }
 
-    public ExecutionProgress executeNext() throws IllegalSyntaxException {
-        while (!_executionsInBlocks.isEmpty()) {
-            final LinkedList<Execution> inBlockExecutionStack = _executionsInBlocks.getLast();
+    public ExecutionProgress executeNext() throws ExecutionException {
+        while (!_executionGroups.isEmpty()) {
+            final LinkedList<Execution> inBlockExecutionStack = _executionGroups.getLast();
             while (!inBlockExecutionStack.isEmpty()) {
                 final Execution execution = inBlockExecutionStack.getLast();
                 if (execution.hasNextExecution(this)) {
                     final ExecutionProgress executionProgress = execution.executeNextStatement(this);
                     if (_breakFromBlock)
-                        exitBlock();
+                        doTheBreak();
                     if (_returnFromFunction)
-                        exitFunction(true);
+                        doTheReturn();
                     return executionProgress;
                 } else
                     inBlockExecutionStack.removeLast();
             }
-            exitFunction(false);
+            _executionGroups.removeLast();
+            _groupCallContexts.removeLast();
         }
         return null;
     }
 
-    public void breakFromBlock() {
-        _breakFromBlock = true;
+    private void doTheBreak() {
+        CallContext callContext;
+        do {
+            callContext = _groupCallContexts.removeLast();
+            _executionGroups.removeLast();
+        } while (!callContext.isConsumesBreak());
     }
 
-    public void returnFromFunction() {
-        _returnFromFunction = true;
-    }
-
-    private void exitBlock() {
-        _executionsInBlocks.removeLast();
-        _blocksCallContext.removeLast();
-        _contextValue = null;
-        _breakFromBlock = false;
-    }
-
-    private void exitFunction(boolean returnResult) {
-        boolean exited = false;
-        while (!exited) {
-            _executionsInBlocks.removeLast();
-            exited = _blocksCallContext.removeLast().isFunctionContext();
-        }
-        if (!returnResult)
-            _contextValue = null;
-        _returnFromFunction = false;
+    private void doTheReturn() {
+        CallContext callContext;
+        do {
+            callContext = _groupCallContexts.removeLast();
+            _executionGroups.removeLast();
+        } while (!callContext.isConsumesReturn());
     }
 
     public Variable getContextValue() {
@@ -68,19 +62,28 @@ public class ExecutionContext {
         _contextValue = contextValue;
     }
 
-    public CallContext peekCallContext() {
-        return _blocksCallContext.getLast();
+    public Variable getReturnValue() {
+        return _returnValue;
     }
 
-    public void stackBlockCall(CallContext callContext, Execution execution) {
-        _blocksCallContext.add(callContext);
+    public void setReturnValue(Variable returnValue) {
+        _returnValue = returnValue;
+        _returnFromFunction = true;
+    }
+
+    public CallContext peekCallContext() {
+        return _groupCallContexts.getLast();
+    }
+
+    public void stackExecutionGroup(CallContext callContext, Execution execution) {
+        _groupCallContexts.add(callContext);
         LinkedList<Execution> functionExecutionStack = new LinkedList<Execution>();
         functionExecutionStack.add(execution);
-        _executionsInBlocks.add(functionExecutionStack);
+        _executionGroups.add(functionExecutionStack);
     }
 
     public boolean isFinished() {
-        return _executionsInBlocks.isEmpty();
+        return _executionGroups.isEmpty();
     }
 
     public ExecutionProgress executeMethod(Variable object, String methodName, List<Variable> parameterValues) {

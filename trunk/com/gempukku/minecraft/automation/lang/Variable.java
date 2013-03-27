@@ -34,7 +34,7 @@ public class Variable {
         return _type;
     }
 
-    public Object getValue() throws IllegalSyntaxException {
+    public Object getValue() {
         return _value;
     }
 }

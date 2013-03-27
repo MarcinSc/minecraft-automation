@@ -13,7 +13,7 @@ public class VariableStatement implements ExecutableStatement {
     public Execution createExecution() {
         return new SimpleExecution() {
             @Override
-            protected ExecutionProgress execute(ExecutionContext context) throws IllegalSyntaxException {
+            protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
                 context.setContextValue(context.peekCallContext().getVariableValue(_name));
                 return new ExecutionProgress(100);
             }

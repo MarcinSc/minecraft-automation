@@ -4,7 +4,9 @@ import com.gempukku.minecraft.automation.lang.ExecutableStatement;
 import com.gempukku.minecraft.automation.lang.IllegalSyntaxException;
 import com.gempukku.minecraft.automation.lang.ScriptExecutable;
 import com.gempukku.minecraft.automation.lang.Variable;
-import com.gempukku.minecraft.automation.lang.statement.*;
+import com.gempukku.minecraft.automation.lang.statement.BlockStatement;
+import com.gempukku.minecraft.automation.lang.statement.ConstantStatement;
+import com.gempukku.minecraft.automation.lang.statement.ReturnStatement;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
@@ -12,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class ScriptParser {
         printTerms(0, termBlockStructure);
 
         List<ExecutableStatement> statements = seekStatementsInBlock(termBlockStructure);
-        result.setStatement(new BlockStatement(statements));
+        result.setStatement(new BlockStatement(statements, false, true));
 
         return result;
     }
@@ -61,60 +62,29 @@ public class ScriptParser {
                 throw new IllegalSyntaxException("Illegal start of statement");
             } else {
                 // It's a program term
-                String termText = firstTerm.getValue();
-                String literal = getFirstLiteral(termText);
-                if (literal.equals("function")) {
-                    appendFunctionFromIterator(termIterator);
-                    return null;
-                } else if (literal.equals("for")) {
-                    consumeCharactersFromTerm(termIterator, firstTerm, termText, 3);
-                    return produceForStatementFromIterator(termIterator);
-                } else if (literal.equals("if")) {
-                    consumeCharactersFromTerm(termIterator, firstTerm, termText, 2);
-                    return produceIfStatementFromIterator(termIterator);
-                } else if (literal.equals("while")) {
-                    consumeCharactersFromTerm(termIterator, firstTerm, termText, 5);
-                    return produceWhileStatementFromIterator(termIterator);
-//                } else if (literal.equals("do")) {
-//                    consumeCharactersFromTerm(termIterator, firstTerm, termText, 2);
-//                    return produceDoStatementFromIterator(termIterator);
-                } else if (literal.equals("return")) {
-                    consumeCharactersFromTerm(termIterator, firstTerm, termText, 6);
-                    return produceReturnStatementFromIterator(termIterator);
-                } else if (literal.equals("var")) {
-                    consumeCharactersFromTerm(termIterator, firstTerm, termText, 3);
-                    return produceAssignmentStatementFromIterator(termIterator);
-                } else
-                    return produceOtherStatementFromIterator(termIterator);
+                String literal = getFirstLiteral(firstTerm.getValue());
+                if (literal.equals("return")) {
+                    consumeCharactersFromTerm(termIterator, 6);
+                    if (isNextTermStartingWithSemicolon(termIterator))
+                        return new ReturnStatement(new ConstantStatement(new Variable(null)));
+                    return new ReturnStatement(produceValueReturningStatementFromIterator(termIterator));
+                }
+                // TODO
+                return null;
             }
         } else {
-            return new BlockStatement(seekStatementsInBlock(firstTermBlock));
+            return new BlockStatement(seekStatementsInBlock(firstTermBlock), true, false);
         }
     }
 
-    private void consumeCharactersFromTerm(PeekingIterator<TermBlock> termIterator, Term term, String termText, int charCount) {
+    private void consumeCharactersFromTerm(PeekingIterator<TermBlock> termIterator, int charCount) {
+        final Term term = termIterator.peek().getTerm();
+        String termText = term.getValue();
         String termRemainder = termText.substring(charCount).trim();
         if (termRemainder.length() > 0)
             term.setValue(termRemainder);
         else
             termIterator.next();
-    }
-
-    private ExecutableStatement produceAssignmentStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        String variableName = consumeLiteral(termIterator);
-        Term term = peekNextProgramTermSafely(termIterator);
-        String value = term.getValue();
-        if (value.startsWith(";")) {
-            return new DefineStatement(variableName);
-        }
-        if (!value.startsWith("="))
-            throw new IllegalSyntaxException("Invalid assignment");
-
-        consumeCharactersFromTerm(termIterator, term, value, 1);
-
-        ExecutableStatement executableStatement = produceValueReturningStatementFromIterator(termIterator);
-
-        return new AssignStatement(true, variableName, executableStatement);
     }
 
     private void consumeSemicolonIfThere(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -134,7 +104,7 @@ public class ScriptParser {
         String value = term.getValue();
         if (!value.startsWith(";"))
             throw new IllegalSyntaxException("; expected");
-        consumeCharactersFromTerm(termIterator, term, value, 1);
+        consumeCharactersFromTerm(termIterator, 1);
     }
 
     private ExecutableStatement produceValueReturningStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -147,196 +117,31 @@ public class ScriptParser {
                 // Consume the String
                 termIterator.next();
 
-                return wrapInPossibleMethodCalls(stringStatement, termIterator);
+                return wrapInPossibleMethods(termIterator, stringStatement);
             } else {
                 // PROGRAM term
-                ExecutableStatement result = null;
-                String value = term.getValue();
-                if (value.startsWith(";"))
-                    throw new IllegalSyntaxException("Statement expected");
-
-                if (value.startsWith("[")) {
-                    consumeCharactersFromTerm(termIterator, term, value, 1);
-                    result = produceArrayStatementFromIterator(termIterator);
-                } else {
-                    String functionOrVariableName = getFirstLiteral(value);
-                    consumeCharactersFromTerm(termIterator, term, value, functionOrVariableName.length());
-                    if (functionOrVariableName.equals("true"))
-                        return new ConstantStatement(new Variable(true));
-                    else if (functionOrVariableName.equals("false"))
-                        return new ConstantStatement(new Variable(false));
-                    else if (functionOrVariableName.equals("null"))
-                        return new ConstantStatement(new Variable(null));
-                    Term nextTerm = peekNextProgramTermSafely(termIterator);
-                    boolean first = true;
-                    String nextTermValue = nextTerm.getValue();
-                    if (nextTermValue.startsWith("=")) {
-                        consumeCharactersFromTerm(termIterator, nextTerm, nextTermValue, 1);
-                        return new AssignStatement(false, functionOrVariableName, produceValueReturningStatementFromIterator(termIterator));
-                    }
-                    while (true) {
-                        if (first)
-                            result = new VariableStatement(functionOrVariableName);
-                        if (nextTermValue.startsWith("(")) {
-                            if (!first)
-                                throw new IllegalArgumentException("Function call not expected");
-                            consumeCharactersFromTerm(termIterator, nextTerm, nextTermValue, 1);
-                            result = produceFunctionCallFromIterator(functionOrVariableName, termIterator);
-                        } else if (nextTermValue.startsWith(";")) {
-                            return result;
-                        } else {
-                            if (nextTermValue.startsWith(".")) {
-                                consumeCharactersFromTerm(termIterator, nextTerm, nextTermValue, 1);
-                                result = produceMethodCallFromIterator(result, termIterator);
-                            } else {
-                                return result;
-                            }
-                        }
-                        nextTerm = peekNextProgramTermSafely(termIterator);
-                        nextTermValue = nextTerm.getValue();
-                        first = false;
-                    }
-                }
-                return result;
+                // TODO
+                return null;
             }
         } else {
-            return produceMapStatementFromBlock(termBlock);
+            // TODO
+            return null;
         }
-
     }
 
-    private ExecutableStatement produceFunctionCallFromIterator(String functionName, PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        List<ExecutableStatement> parameters = produceParametersFromIterator(termIterator);
-        return new CallFunctionStatement(functionName, parameters);
-    }
-
-    private ExecutableStatement produceArrayStatementFromIterator(PeekingIterator<TermBlock> termIterator) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
-    }
-
-    private ExecutableStatement wrapInPossibleMethodCalls(ExecutableStatement statement, PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        Term nextTerm = peekNextProgramTermSafely(termIterator);
-        String nextTermValue = nextTerm.getValue();
-        if (nextTermValue.startsWith(";"))
+    private ExecutableStatement wrapInPossibleMethods(PeekingIterator<TermBlock> termIterator, ExecutableStatement statement) {
+        if (isNextTermStartingWithSemicolon(termIterator))
             return statement;
-        else if (nextTermValue.startsWith(".")) {
-            ExecutableStatement current = statement;
-            String followingTermValue;
-            do {
-                consumeCharactersFromTerm(termIterator, nextTerm, nextTermValue, 1);
-
-                current = produceMethodCallFromIterator(current, termIterator);
-                Term followingTerm = peekNextProgramTermSafely(termIterator);
-                followingTermValue = followingTerm.getValue();
-            } while (followingTermValue.startsWith("."));
-            return current;
-        } else
-            throw new IllegalSyntaxException("Statement expected");
-    }
-
-    private ExecutableStatement produceMethodCallFromIterator(ExecutableStatement object, PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        String methodName = consumeLiteral(termIterator);
-        Term term = peekNextProgramTermSafely(termIterator);
-        String termValue = term.getValue();
-        if (!termValue.startsWith("("))
-            throw new IllegalSyntaxException("Method parameters expected");
-        consumeCharactersFromTerm(termIterator, term, termValue, 1);
-
-        List<ExecutableStatement> parameters = produceParametersFromIterator(termIterator);
-        return new MethodCallStatement(object, methodName, parameters);
-    }
-
-    private List<ExecutableStatement> produceParametersFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        List<ExecutableStatement> parameters = new ArrayList<ExecutableStatement>();
-        while (true) {
-            parameters.add(produceValueReturningStatementFromIterator(termIterator));
-            Term nextTerm = peekNextProgramTermSafely(termIterator);
-            String nextTermValue = nextTerm.getValue();
-
-            if (nextTermValue.startsWith(",")) {
-                consumeCharactersFromTerm(termIterator, nextTerm, nextTermValue, 1);
-            } else if (nextTermValue.startsWith(")")) {
-                consumeCharactersFromTerm(termIterator, nextTerm, nextTermValue, 1);
-                break;
-            } else {
-                throw new IllegalSyntaxException(", or ) expected in parameters");
-            }
-        }
-        return parameters;
+        // TODO
+        return null;
     }
 
     private String consumeLiteral(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
         Term term = peekNextProgramTermSafely(termIterator);
         String value = term.getValue();
         String literal = getFirstLiteral(value);
-        consumeCharactersFromTerm(termIterator, term, value, literal.length());
+        consumeCharactersFromTerm(termIterator, literal.length());
         return literal;
-    }
-
-    private ExecutableStatement produceForStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        Term term = peekNextProgramTermSafely(termIterator);
-        String termValue = term.getValue();
-        if (!termValue.startsWith("("))
-            throw new IllegalSyntaxException("Invalid for statement syntax");
-
-        return null;  //To change body of created methods use File | Settings | File Templates.
-    }
-
-    private ExecutableStatement produceMapStatementFromBlock(TermBlock termBlock) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
-    }
-
-    private ExecutableStatement produceOtherStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        return produceValueReturningStatementFromIterator(termIterator);
-    }
-
-    private ExecutableStatement produceReturnStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        if (!termIterator.hasNext())
-            throw new IllegalSyntaxException("Expected expression");
-        final TermBlock term = termIterator.peek();
-        if (term.isTerm() && term.getTerm().getType() == Term.Type.PROGRAM && term.getTerm().getValue().startsWith(";"))
-            return new ReturnStatement(new ConstantStatement(new Variable(null)));
-
-        return new ReturnStatement(produceValueReturningStatementFromIterator(termIterator));
-    }
-
-    private void appendFunctionFromIterator(PeekingIterator<TermBlock> termIterator) {
-        //To change body of created methods use File | Settings | File Templates.
-    }
-
-    private ExecutableStatement produceWhileStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        final Term term = peekNextProgramTermSafely(termIterator);
-        final String termValue = term.getValue();
-        if (!termValue.startsWith("("))
-            throw new IllegalSyntaxException("( expected");
-
-        consumeCharactersFromTerm(termIterator, term, termValue, 1);
-        ExecutableStatement condition = produceValueReturningStatementFromIterator(termIterator);
-
-        final Term afterCondition = peekNextProgramTermSafely(termIterator);
-        String afterConditionValue = afterCondition.getValue();
-        if (!afterConditionValue.startsWith(")"))
-            throw new IllegalSyntaxException(") expected");
-
-        consumeCharactersFromTerm(termIterator, afterCondition, afterConditionValue, 1);
-
-        if (!termIterator.hasNext())
-            throw new IllegalSyntaxException("Expression expected");
-        final TermBlock statementsTerm = termIterator.peek();
-
-        if (!statementsTerm.isTerm()) {
-            final List<ExecutableStatement> executableStatements = seekStatementsInBlock(statementsTerm);
-            // Consume the block
-            termIterator.next();
-            return new WhileStatement(condition, executableStatements);
-        } else {
-            final ExecutableStatement executableStatement = produceStatementFromIterator(termIterator);
-            return new WhileStatement(condition, Collections.singletonList(executableStatement));
-        }
-    }
-
-    private ExecutableStatement produceIfStatementFromIterator(PeekingIterator<TermBlock> termIterator) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
     }
 
     private String getFirstLiteral(String text) throws IllegalSyntaxException {
@@ -372,6 +177,19 @@ public class ScriptParser {
             return termIterator.peek();
         } else
             throw new IllegalSyntaxException("Expression expected");
+    }
+
+    private boolean isNextTermStartingWithSemicolon(PeekingIterator<TermBlock> termIterator) {
+        if (termIterator.hasNext()) {
+            final TermBlock termBlock = termIterator.peek();
+            if (termBlock.isTerm()) {
+                final Term term = termBlock.getTerm();
+                if (term.getType() == Term.Type.PROGRAM) {
+                    return term.getValue().startsWith(";");
+                }
+            }
+        }
+        return false;
     }
 
     private void printTerms(int indent, TermBlock block) {
