@@ -71,16 +71,17 @@ public class ScriptParser {
                     return produceDefineFunctionStatement(termIterator);
                 } else if (literal.equals("if")) {
                     return produceIfStatement(termIterator);
+                } else {
+                    // Assignment
+                    consumeCharactersFromTerm(termIterator, literal.length());
+                    if (!isNextTermStartingWith(termIterator, "="))
+                        throw new IllegalSyntaxException("Expected =");
+
+                    consumeCharactersFromTerm(termIterator, 1);
+
+                    final ExecutableStatement value = produceValueReturningStatementFromIterator(termIterator);
+                    return new AssignStatement(false, literal, value);
                 }
-
-                consumeCharactersFromTerm(termIterator, literal.length());
-                if (!isNextTermStartingWith(termIterator, "="))
-                    throw new IllegalSyntaxException("Expected =");
-
-                consumeCharactersFromTerm(termIterator, 1);
-
-                final ExecutableStatement value = produceValueReturningStatementFromIterator(termIterator);
-                return new AssignStatement(false, literal, value);
             }
         } else {
             return new BlockStatement(seekStatementsInBlock(firstTermBlock), true, false);
@@ -223,7 +224,7 @@ public class ScriptParser {
                         return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(false)));
                     if (literal.equals("null"))
                         return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(null)));
-                    
+
                     ExecutableStatement statement = new VariableStatement(literal);
                     return wrapInPossibleMethods(termIterator, statement);
                 }
@@ -238,11 +239,11 @@ public class ScriptParser {
         StringBuilder result = new StringBuilder();
         boolean hasDot = false;
         final char[] chars = termValue.toCharArray();
-        for (int i=0; i<chars.length; i++) {
+        for (int i = 0; i < chars.length; i++) {
             if (Character.isDigit(chars[i]))
                 result.append(chars[i]);
-            else if (chars[i]=='.' && !hasDot) {
-                hasDot=true;
+            else if (chars[i] == '.' && !hasDot) {
+                hasDot = true;
                 result.append('.');
             } else
                 return result.toString();
