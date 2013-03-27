@@ -33,4 +33,9 @@ public class BlockStatement implements ExecutableStatement {
             }
         };
     }
+
+    @Override
+    public boolean requiresSemicolon() {
+        return true;
+    }
 }

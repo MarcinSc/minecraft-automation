@@ -19,4 +19,9 @@ public class AssignStatement implements ExecutableStatement {
     public Execution createExecution() {
         return new AssignExecution(_define, _name, _value);
     }
+
+    @Override
+    public boolean requiresSemicolon() {
+        return true;
+    }
 }

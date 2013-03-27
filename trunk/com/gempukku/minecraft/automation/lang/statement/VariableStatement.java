@@ -19,4 +19,9 @@ public class VariableStatement implements ExecutableStatement {
             }
         };
     }
+
+    @Override
+    public boolean requiresSemicolon() {
+        return true;
+    }
 }

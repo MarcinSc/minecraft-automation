@@ -20,4 +20,9 @@ public class DefineStatement implements ExecutableStatement {
             }
         };
     }
+
+    @Override
+    public boolean requiresSemicolon() {
+        return true;
+    }
 }

@@ -19,4 +19,9 @@ public class ConstantStatement implements ExecutableStatement {
             }
         };
     }
+
+    @Override
+    public boolean requiresSemicolon() {
+        return true;
+    }
 }

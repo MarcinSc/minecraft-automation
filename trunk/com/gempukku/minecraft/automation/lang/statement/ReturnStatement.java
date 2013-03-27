@@ -15,4 +15,9 @@ public class ReturnStatement implements ExecutableStatement {
     public Execution createExecution() {
         return new ReturnExecution(_result);
     }
+
+    @Override
+    public boolean requiresSemicolon() {
+        return true;
+    }
 }

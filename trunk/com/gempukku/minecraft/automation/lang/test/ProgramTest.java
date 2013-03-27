@@ -31,9 +31,11 @@ public class ProgramTest {
     private static String helloWorldScript() {
         final StringWriter out = new StringWriter();
         PrintWriter writer = new PrintWriter(out);
-        writer.println("var result;");
-        writer.println("result = \"Hello world\";");
-        writer.println("return result;");
+        writer.println("function func() {");
+        writer.println("  var result = \"Hello world\";");
+        writer.println("  return result;");
+        writer.println("}");
+        writer.println("return \"a\";");
         return out.toString();
     }
 }

@@ -44,8 +44,10 @@ public class ScriptParser {
             List<TermBlock> blocks = termBlock.getTermBlocks();
             PeekingIterator<TermBlock> termBlockIter = Iterators.peekingIterator(blocks.iterator());
             while (termBlockIter.hasNext()) {
-                result.add(produceStatementFromIterator(termBlockIter));
-                consumeSemicolonIfProgramTermIsNext(termBlockIter);
+                final ExecutableStatement resultStatement = produceStatementFromIterator(termBlockIter);
+                result.add(resultStatement);
+                if (resultStatement.requiresSemicolon())
+                    consumeSemicolonIfProgramTermIsNext(termBlockIter);
             }
             return result;
         }
@@ -65,6 +67,32 @@ public class ScriptParser {
                     return produceReturnStatement(termIterator);
                 } else if (literal.equals("var")) {
                     return produceVarStatement(termIterator);
+                } else if (literal.equals("function")) {
+                    consumeCharactersFromTerm(termIterator, 8);
+                    Term functionDefTerm = peekNextProgramTermSafely(termIterator);
+
+                    String functionName = getFirstLiteral(functionDefTerm.getValue());
+                    consumeCharactersFromTerm(termIterator, functionName.length());
+
+                    if (!isNextTermStartingWith(termIterator, "("))
+                        throw new IllegalSyntaxException("( expected");
+                    consumeCharactersFromTerm(termIterator, 1);
+
+                    List<String> parameterNames = new ArrayList<String>();
+                    while (!isNextTermStartingWith(termIterator, ")")) {
+                        String parameterName = getFirstLiteral(functionDefTerm.getValue());
+                        parameterNames.add(parameterName);
+                        if (isNextTermStartingWith(termIterator, ","))
+                            consumeCharactersFromTerm(termIterator, 1);
+                    }
+                    consumeCharactersFromTerm(termIterator, 1);
+
+                    final TermBlock functionBodyBlock = termIterator.next();
+                    if (functionBodyBlock.isTerm())
+                        throw new IllegalSyntaxException("{ expected");
+
+                    final List<ExecutableStatement> functionBody = seekStatementsInBlock(functionBodyBlock);
+                    return new DefineFunctionStatement(functionName, parameterNames, functionBody);
                 }
 
                 consumeCharactersFromTerm(termIterator, literal.length());
