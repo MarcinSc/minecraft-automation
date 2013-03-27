@@ -194,6 +194,11 @@ public class ScriptParser {
             } else {
                 // PROGRAM term
                 String termValue = term.getValue();
+                if (Character.isDigit(termValue.charAt(0))) {
+                    String numberInStr = getNumber(termValue);
+                    consumeCharactersFromTerm(termIterator, numberInStr.length());
+                    return wrapInPossibleMethods(termIterator, new ConstantStatement(new Variable(Float.parseFloat(numberInStr))));
+                }
                 String literal = getFirstLiteral(termValue);
 
                 consumeCharactersFromTerm(termIterator, literal.length());
@@ -223,6 +228,22 @@ public class ScriptParser {
             // TODO
             return null;
         }
+    }
+
+    private String getNumber(String termValue) {
+        StringBuilder result = new StringBuilder();
+        boolean hasDot = false;
+        final char[] chars = termValue.toCharArray();
+        for (int i=0; i<chars.length; i++) {
+            if (Character.isDigit(chars[i]))
+                result.append(chars[i]);
+            else if (chars[i]=='.' && !hasDot) {
+                hasDot=true;
+                result.append('.');
+            } else
+                return result.toString();
+        }
+        return result.toString();
     }
 
     private ExecutableStatement wrapInPossibleMethods(PeekingIterator<TermBlock> termIterator, ExecutableStatement statement) {

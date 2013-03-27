@@ -37,6 +37,7 @@ public class ProgramTest {
         writer.println("  return result;");
         writer.println("}");
         writer.println("if (false) { return echo(\"What?!\"); }");
+        writer.println("var nr = 12.4;");
         writer.println("return echo(\"Hello world\");");
         return out.toString();
     }
