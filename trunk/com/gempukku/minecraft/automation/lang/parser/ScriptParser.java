@@ -4,9 +4,7 @@ import com.gempukku.minecraft.automation.lang.ExecutableStatement;
 import com.gempukku.minecraft.automation.lang.IllegalSyntaxException;
 import com.gempukku.minecraft.automation.lang.ScriptExecutable;
 import com.gempukku.minecraft.automation.lang.Variable;
-import com.gempukku.minecraft.automation.lang.statement.BlockStatement;
-import com.gempukku.minecraft.automation.lang.statement.ConstantStatement;
-import com.gempukku.minecraft.automation.lang.statement.ReturnStatement;
+import com.gempukku.minecraft.automation.lang.statement.*;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
@@ -47,7 +45,7 @@ public class ScriptParser {
             PeekingIterator<TermBlock> termBlockIter = Iterators.peekingIterator(blocks.iterator());
             while (termBlockIter.hasNext()) {
                 result.add(produceStatementFromIterator(termBlockIter));
-                consumeSemicolonIfThere(termBlockIter);
+                consumeSemicolonIfProgramTermIsNext(termBlockIter);
             }
             return result;
         }
@@ -68,6 +66,14 @@ public class ScriptParser {
                     if (isNextTermStartingWithSemicolon(termIterator))
                         return new ReturnStatement(new ConstantStatement(new Variable(null)));
                     return new ReturnStatement(produceValueReturningStatementFromIterator(termIterator));
+                } else if (literal.equals("var")) {
+                    consumeCharactersFromTerm(termIterator, 3);
+                    final Term variableTerm = peekNextProgramTermSafely(termIterator);
+                    String variableName = getFirstLiteral(variableTerm.getValue());
+                    consumeCharactersFromTerm(termIterator, variableName.length());
+
+                    if (isNextTermStartingWithSemicolon(termIterator))
+                        return new DefineStatement(variableName);
                 }
                 // TODO
                 return null;
@@ -87,7 +93,7 @@ public class ScriptParser {
             termIterator.next();
     }
 
-    private void consumeSemicolonIfThere(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+    private void consumeSemicolonIfProgramTermIsNext(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
         if (termIterator.hasNext()) {
             TermBlock nextTerm = termIterator.peek();
             if (nextTerm.isTerm()) {
@@ -113,14 +119,25 @@ public class ScriptParser {
             Term term = termBlock.getTerm();
             if (term.getType() == Term.Type.STRING) {
                 String value = term.getValue();
-                ExecutableStatement stringStatement = new ConstantStatement(new Variable(value));
+                ExecutableStatement statement = new ConstantStatement(new Variable(value));
                 // Consume the String
                 termIterator.next();
 
-                return wrapInPossibleMethods(termIterator, stringStatement);
+                return wrapInPossibleMethods(termIterator, statement);
             } else {
                 // PROGRAM term
-                // TODO
+                String termValue = term.getValue();
+                String literal = getFirstLiteral(termValue);
+
+                consumeCharactersFromTerm(termIterator, literal.length());
+
+                if (isNextTermStartingWith(termIterator, "(")) {
+                    // It's a function call
+                } else {
+                    ExecutableStatement statement = new VariableStatement(literal);
+                    return wrapInPossibleMethods(termIterator, statement);
+                }
+
                 return null;
             }
         } else {
@@ -134,14 +151,6 @@ public class ScriptParser {
             return statement;
         // TODO
         return null;
-    }
-
-    private String consumeLiteral(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        Term term = peekNextProgramTermSafely(termIterator);
-        String value = term.getValue();
-        String literal = getFirstLiteral(value);
-        consumeCharactersFromTerm(termIterator, literal.length());
-        return literal;
     }
 
     private String getFirstLiteral(String text) throws IllegalSyntaxException {
@@ -180,12 +189,16 @@ public class ScriptParser {
     }
 
     private boolean isNextTermStartingWithSemicolon(PeekingIterator<TermBlock> termIterator) {
+        return isNextTermStartingWith(termIterator, ";");
+    }
+
+    private boolean isNextTermStartingWith(PeekingIterator<TermBlock> termIterator, String text) {
         if (termIterator.hasNext()) {
             final TermBlock termBlock = termIterator.peek();
             if (termBlock.isTerm()) {
                 final Term term = termBlock.getTerm();
                 if (term.getType() == Term.Type.PROGRAM) {
-                    return term.getValue().startsWith(";");
+                    return term.getValue().startsWith(text);
                 }
             }
         }
