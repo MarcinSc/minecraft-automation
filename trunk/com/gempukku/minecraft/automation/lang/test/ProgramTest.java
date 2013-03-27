@@ -32,10 +32,11 @@ public class ProgramTest {
         final StringWriter out = new StringWriter();
         PrintWriter writer = new PrintWriter(out);
         writer.println("function echo(toReturn) {");
-        writer.println("  var result = toReturn;");
+        writer.println("  var result;");
+        writer.println("  if (true) result = toReturn;");
         writer.println("  return result;");
         writer.println("}");
-        writer.println("if (false) return echo(\"What?!\");");
+        writer.println("if (false) { return echo(\"What?!\"); }");
         writer.println("return echo(\"Hello world\");");
         return out.toString();
     }

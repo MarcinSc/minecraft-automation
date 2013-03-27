@@ -82,11 +82,15 @@ public class ScriptParser {
                         throw new IllegalSyntaxException(") expected");
                     consumeCharactersFromTerm(termIterator, 1);
 
-                    final TermBlock peek = termIterator.peek();
-                    if (peek.isTerm()) {
+                    final TermBlock ifExecute = termIterator.peek();
+                    if (ifExecute.isTerm()) {
                         final ExecutableStatement statement = produceStatementFromIterator(termIterator);
                         consumeSemicolon(termIterator);
                         return new IfStatement(condition, statement);
+                    } else {
+                        termIterator.next();
+                        final List<ExecutableStatement> statements = seekStatementsInBlock(ifExecute);
+                        return new IfStatement(condition, new BlockStatement(statements, true, false));
                     }
                 }
 
@@ -324,7 +328,7 @@ public class ScriptParser {
                         currentBlock = termBlocksStack.removeLast();
                         value = after;
                     } else {
-                        appendProgramTerm(currentBlock, term.getValue().trim(), term.getLine());
+                        appendProgramTerm(currentBlock, value.trim(), term.getLine());
                         value = "";
                     }
                 }
