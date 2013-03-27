@@ -62,33 +62,48 @@ public class ScriptParser {
                 // It's a program term
                 String literal = getFirstLiteral(firstTerm.getValue());
                 if (literal.equals("return")) {
-                    consumeCharactersFromTerm(termIterator, 6);
-                    if (isNextTermStartingWithSemicolon(termIterator))
-                        return new ReturnStatement(new ConstantStatement(new Variable(null)));
-                    return new ReturnStatement(produceValueReturningStatementFromIterator(termIterator));
+                    return produceReturnStatement(termIterator);
                 } else if (literal.equals("var")) {
-                    consumeCharactersFromTerm(termIterator, 3);
-                    final Term variableTerm = peekNextProgramTermSafely(termIterator);
-                    String variableName = getFirstLiteral(variableTerm.getValue());
-                    consumeCharactersFromTerm(termIterator, variableName.length());
-
-                    if (isNextTermStartingWithSemicolon(termIterator))
-                        return new DefineStatement(variableName);
-
-                    if (!isNextTermStartingWith(termIterator, "="))
-                        throw new IllegalSyntaxException("Expected =");
-
-                    consumeCharactersFromTerm(termIterator, 1);
-
-                    final ExecutableStatement value = produceValueReturningStatementFromIterator(termIterator);
-                    return new AssignStatement(true, variableName, value);
+                    return produceVarStatement(termIterator);
                 }
-                // TODO
-                return null;
+
+                consumeCharactersFromTerm(termIterator, literal.length());
+                if (!isNextTermStartingWith(termIterator, "="))
+                    throw new IllegalSyntaxException("Expected =");
+
+                consumeCharactersFromTerm(termIterator, 1);
+
+                final ExecutableStatement value = produceValueReturningStatementFromIterator(termIterator);
+                return new AssignStatement(false, literal, value);
             }
         } else {
             return new BlockStatement(seekStatementsInBlock(firstTermBlock), true, false);
         }
+    }
+
+    private ExecutableStatement produceVarStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        consumeCharactersFromTerm(termIterator, 3);
+        final Term variableTerm = peekNextProgramTermSafely(termIterator);
+        String variableName = getFirstLiteral(variableTerm.getValue());
+        consumeCharactersFromTerm(termIterator, variableName.length());
+
+        if (isNextTermStartingWithSemicolon(termIterator))
+            return new DefineStatement(variableName);
+
+        if (!isNextTermStartingWith(termIterator, "="))
+            throw new IllegalSyntaxException("Expected =");
+
+        consumeCharactersFromTerm(termIterator, 1);
+
+        final ExecutableStatement value = produceValueReturningStatementFromIterator(termIterator);
+        return new AssignStatement(true, variableName, value);
+    }
+
+    private ExecutableStatement produceReturnStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        consumeCharactersFromTerm(termIterator, 6);
+        if (isNextTermStartingWithSemicolon(termIterator))
+            return new ReturnStatement(new ConstantStatement(new Variable(null)));
+        return new ReturnStatement(produceValueReturningStatementFromIterator(termIterator));
     }
 
     private void consumeCharactersFromTerm(PeekingIterator<TermBlock> termIterator, int charCount) {
