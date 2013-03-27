@@ -47,7 +47,7 @@ public class ScriptParser {
                 final ExecutableStatement resultStatement = produceStatementFromIterator(termBlockIter);
                 result.add(resultStatement);
                 if (resultStatement.requiresSemicolon())
-                    consumeSemicolonIfProgramTermIsNext(termBlockIter);
+                    consumeSemicolon(termBlockIter);
             }
             return result;
         }
@@ -85,7 +85,7 @@ public class ScriptParser {
                     final TermBlock peek = termIterator.peek();
                     if (peek.isTerm()) {
                         final ExecutableStatement statement = produceStatementFromIterator(termIterator);
-                        consumeSemicolonIfProgramTermIsNext(termIterator);
+                        consumeSemicolon(termIterator);
                         return new IfStatement(condition, statement);
                     }
                 }
@@ -166,18 +166,6 @@ public class ScriptParser {
             term.setValue(termRemainder);
         else
             termIterator.next();
-    }
-
-    private void consumeSemicolonIfProgramTermIsNext(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        if (termIterator.hasNext()) {
-            TermBlock nextTerm = termIterator.peek();
-            if (nextTerm.isTerm()) {
-                Term term = nextTerm.getTerm();
-                if (term.getType() == Term.Type.PROGRAM) {
-                    consumeSemicolon(termIterator);
-                }
-            }
-        }
     }
 
     private void consumeSemicolon(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
