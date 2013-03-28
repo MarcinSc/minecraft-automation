@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.lang;
 
 public enum Operator {
-    MEMBER_ACCESS(1, 1, true, true, false), FUNCTION_CALL(1, 1, true, false, true),
+    MEMBER_ACCESS(1, 1, true, true, false), MAPPED_ACCESS(1, 1, true, true, false), FUNCTION_CALL(1, 1, true, false, true),
     MULTIPLY(1, 3, true, true, false), DIVIDE(1, 3, true, true, false), MOD(1, 3, true, true, false),
     ADD(1, 4, true, true, false), SUBTRACT(1, 4, true, true, false),
     EQUALS(2, 7, true, true, false), NOT_EQUALS(2, 7, true, true, false),
