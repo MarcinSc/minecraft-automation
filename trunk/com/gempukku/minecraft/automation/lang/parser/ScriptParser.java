@@ -177,14 +177,14 @@ public class ScriptParser {
     }
 
     private ExecutableStatement produceExpressionFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        return parseExpression(termIterator, parseNextOperationToken(termIterator), 0);
+        return parseExpression(termIterator, parseNextOperationToken(termIterator), Integer.MAX_VALUE);
     }
 
-    private ExecutableStatement parseExpression(PeekingIterator<TermBlock> termIterator, ExecutableStatement left, int minPriority) throws IllegalSyntaxException {
+    private ExecutableStatement parseExpression(PeekingIterator<TermBlock> termIterator, ExecutableStatement left, int maxPriority) throws IllegalSyntaxException {
         // Based on algorithm from http://en.wikipedia.org/wiki/Operator-precedence_parser on March 28, 2013
         Operator operator;
         while ((operator = peekNextOperator(termIterator)) != null && operator.isBinary() &&
-                operator.getPriority() >= minPriority) {
+                operator.getPriority() <= maxPriority) {
             consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
 
             List<ExecutableStatement> parameters = null;
@@ -194,9 +194,8 @@ public class ScriptParser {
             ExecutableStatement right = parseNextOperationToken(termIterator);
             Operator nextOperator;
             while ((nextOperator = peekNextOperator(termIterator)) != null && operator.isBinary() &&
-                    (nextOperator.getPriority() > operator.getPriority() ||
+                    (nextOperator.getPriority() < operator.getPriority() ||
                             (nextOperator.getPriority() == operator.getPriority() && !nextOperator.isLeftAssociative()))) {
-                consumeCharactersFromTerm(termIterator, nextOperator.getConsumeLength());
                 right = parseExpression(termIterator, right, nextOperator.getPriority());
             }
 
@@ -234,6 +233,8 @@ public class ScriptParser {
             operator = Operator.ASSIGNMENT;
         else if (termValue.startsWith("("))
             operator = Operator.FUNCTION_CALL;
+        else if (termValue.startsWith("+"))
+            operator = Operator.ADD;
 
         return operator;
     }
@@ -241,9 +242,10 @@ public class ScriptParser {
     private ExecutableStatement produceOperation(ExecutableStatement left, Operator operator, ExecutableStatement right, List<ExecutableStatement> parameters) {
         if (operator == Operator.ASSIGNMENT)
             return new AssignStatement(left, right);
-        else if (operator == Operator.FUNCTION_CALL) {
+        else if (operator == Operator.FUNCTION_CALL)
             return new FunctionCallStatement(left, parameters);
-        }
+        else if (operator == Operator.ADD)
+            return new AddStatement(left, right);
         return null;
     }
 
@@ -261,6 +263,14 @@ public class ScriptParser {
             } else {
                 // PROGRAM term
                 String termValue = term.getValue();
+                if (termValue.charAt(0) == '(') {
+                    consumeCharactersFromTerm(termIterator, 1);
+                    final ExecutableStatement result = produceExpressionFromIterator(termIterator);
+                    if (!isNextTermStartingWith(termIterator, ")"))
+                        throw new IllegalSyntaxException(") expected");
+                    consumeCharactersFromTerm(termIterator, 1);
+                    return result;
+                }
                 if (Character.isDigit(termValue.charAt(0)) || termValue.charAt(0) == '-') {
                     String numberInStr = getNumber(termValue);
                     consumeCharactersFromTerm(termIterator, numberInStr.length());

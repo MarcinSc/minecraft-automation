@@ -33,7 +33,7 @@ public class ProgramTest {
         PrintWriter writer = new PrintWriter(out);
         writer.println("function echo(toReturn) {");
         writer.println("  var result;");
-        writer.println("  if (true) result = toReturn;");
+        writer.println("  if (true) result = toReturn + (123 + 1);");
         writer.println("  return result;");
         writer.println("}");
         writer.println("if (false) { return echo(\"What?!\"); }");
