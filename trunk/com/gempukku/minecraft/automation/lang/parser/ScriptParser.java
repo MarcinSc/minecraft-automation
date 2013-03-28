@@ -235,6 +235,14 @@ public class ScriptParser {
             operator = Operator.FUNCTION_CALL;
         else if (termValue.startsWith("+"))
             operator = Operator.ADD;
+        else if (termValue.startsWith("-"))
+            operator = Operator.SUBTRACT;
+        else if (termValue.startsWith("*"))
+            operator = Operator.MULTIPLY;
+        else if (termValue.startsWith("/"))
+            operator = Operator.DIVIDE;
+        else if (termValue.startsWith("%"))
+            operator = Operator.MOD;
 
         return operator;
     }
@@ -246,7 +254,8 @@ public class ScriptParser {
             return new FunctionCallStatement(left, parameters);
         else if (operator == Operator.ADD)
             return new AddStatement(left, right);
-        return null;
+        else
+            return new MathStatement(left, operator, right);
     }
 
     private ExecutableStatement parseNextOperationToken(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -302,7 +311,9 @@ public class ScriptParser {
         boolean hasDot = false;
         final char[] chars = termValue.toCharArray();
         for (int i = 0; i < chars.length; i++) {
-            if (Character.isDigit(chars[i]))
+            if (i == 0 && chars[i] == '-')
+                result.append(chars[i]);
+            else if (Character.isDigit(chars[i]))
                 result.append(chars[i]);
             else if (chars[i] == '.' && !hasDot) {
                 hasDot = true;
