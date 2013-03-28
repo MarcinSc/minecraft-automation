@@ -70,7 +70,7 @@ public class ScriptParser {
                 } else if (literal.equals("if")) {
                     return produceIfStatement(termIterator);
                 } else {
-                    return produceValueReturningStatementFromIterator(termIterator);
+                    return produceExpressionFromIterator(termIterator);
                 }
             }
         } else {
@@ -85,7 +85,7 @@ public class ScriptParser {
             throw new IllegalSyntaxException("( expected");
         consumeCharactersFromTerm(termIterator, 1);
 
-        ExecutableStatement condition = produceValueReturningStatementFromIterator(termIterator);
+        ExecutableStatement condition = produceExpressionFromIterator(termIterator);
 
         if (!isNextTermStartingWith(termIterator, ")"))
             throw new IllegalSyntaxException(") expected");
@@ -146,7 +146,7 @@ public class ScriptParser {
 
         consumeCharactersFromTerm(termIterator, 1);
 
-        final ExecutableStatement value = produceValueReturningStatementFromIterator(termIterator);
+        final ExecutableStatement value = produceExpressionFromIterator(termIterator);
         return new BlockStatement(Arrays.asList(new DefineStatement(variableName), new AssignStatement(new ConstantStatement(new Variable(variableName)), value)),
                 false, false);
     }
@@ -155,7 +155,7 @@ public class ScriptParser {
         consumeCharactersFromTerm(termIterator, 6);
         if (isNextTermStartingWithSemicolon(termIterator))
             return new ReturnStatement(new ConstantStatement(new Variable(null)));
-        return new ReturnStatement(produceValueReturningStatementFromIterator(termIterator));
+        return new ReturnStatement(produceExpressionFromIterator(termIterator));
     }
 
     private void consumeCharactersFromTerm(PeekingIterator<TermBlock> termIterator, int charCount) {
@@ -176,46 +176,115 @@ public class ScriptParser {
         consumeCharactersFromTerm(termIterator, 1);
     }
 
-    private ExecutableStatement produceValueReturningStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+    private ExecutableStatement produceExpressionFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        return parseExpression(termIterator, parseNextOperationToken(termIterator), 0);
+    }
+
+    private ExecutableStatement parseExpression(PeekingIterator<TermBlock> termIterator, ExecutableStatement left, int minPriority) throws IllegalSyntaxException {
+        // Based on algorithm from http://en.wikipedia.org/wiki/Operator-precedence_parser on March 28, 2013
+        Operator operator;
+        while ((operator = peekNextOperator(termIterator)) != null && operator.isBinary() &&
+                operator.getPriority() >= minPriority) {
+            consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+
+            List<ExecutableStatement> parameters = null;
+            if (operator.isHasParameters())
+                parameters = parseParameters(termIterator);
+
+            ExecutableStatement right = parseNextOperationToken(termIterator);
+            Operator nextOperator;
+            while ((nextOperator = peekNextOperator(termIterator)) != null && operator.isBinary() &&
+                    (nextOperator.getPriority() > operator.getPriority() ||
+                            (nextOperator.getPriority() == operator.getPriority() && !nextOperator.isLeftAssociative()))) {
+                consumeCharactersFromTerm(termIterator, nextOperator.getConsumeLength());
+                right = parseExpression(termIterator, right, nextOperator.getPriority());
+            }
+
+            // Time for unary operators
+            if (nextOperator != null && !nextOperator.isBinary()) {
+                consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+                right = produceOperation(right, nextOperator, null, parseParameters(termIterator));
+            }
+
+            left = produceOperation(left, operator, right, parameters);
+        }
+
+        // Time for unary operators
+        if (operator != null && !operator.isBinary()) {
+            consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+            left = produceOperation(left, operator, null, parseParameters(termIterator));
+        }
+        return left;
+    }
+
+    private List<ExecutableStatement> parseParameters(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        List<ExecutableStatement> parameters;
+        parameters = new ArrayList<ExecutableStatement>();
+        while (!isNextTermStartingWith(termIterator, ")"))
+            parameters.add(produceExpressionFromIterator(termIterator));
+        consumeCharactersFromTerm(termIterator, 1);
+        return parameters;
+    }
+
+    private Operator peekNextOperator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        final Term term = peekNextProgramTermSafely(termIterator);
+        String termValue = term.getValue();
+        Operator operator = null;
+        if (termValue.startsWith("="))
+            operator = Operator.ASSIGNMENT;
+        else if (termValue.startsWith("("))
+            operator = Operator.FUNCTION_CALL;
+
+        return operator;
+    }
+
+    private ExecutableStatement produceOperation(ExecutableStatement left, Operator operator, ExecutableStatement right, List<ExecutableStatement> parameters) {
+        if (operator == Operator.ASSIGNMENT)
+            return new AssignStatement(left, right);
+        else if (operator == Operator.FUNCTION_CALL) {
+            return new FunctionCallStatement(left, parameters);
+        }
+        return null;
+    }
+
+    private ExecutableStatement parseNextOperationToken(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        ExecutableStatement lastExpression;
         TermBlock termBlock = peekNextTermBlockSafely(termIterator);
         if (termBlock.isTerm()) {
+
             Term term = termBlock.getTerm();
             if (term.getType() == Term.Type.STRING) {
                 String value = term.getValue();
-                ExecutableStatement statement = new ConstantStatement(new Variable(value));
+                lastExpression = new ConstantStatement(new Variable(value));
                 // Consume the String
                 termIterator.next();
-
-                return withStatement(termIterator, statement);
             } else {
                 // PROGRAM term
-                ExecutableStatement statement;
                 String termValue = term.getValue();
-                if (Character.isDigit(termValue.charAt(0))) {
+                if (Character.isDigit(termValue.charAt(0)) || termValue.charAt(0) == '-') {
                     String numberInStr = getNumber(termValue);
                     consumeCharactersFromTerm(termIterator, numberInStr.length());
-                    statement = new ConstantStatement(new Variable(Float.parseFloat(numberInStr)));
+                    lastExpression = new ConstantStatement(new Variable(Float.parseFloat(numberInStr)));
                 } else {
                     String literal = getFirstLiteral(termValue);
 
                     consumeCharactersFromTerm(termIterator, literal.length());
 
                     if (literal.equals("true"))
-                        statement = new ConstantStatement(new Variable(true));
+                        lastExpression = new ConstantStatement(new Variable(true));
                     else if (literal.equals("false"))
-                        statement = new ConstantStatement(new Variable(false));
+                        lastExpression = new ConstantStatement(new Variable(false));
                     else if (literal.equals("null"))
-                        statement = new ConstantStatement(new Variable(null));
+                        lastExpression = new ConstantStatement(new Variable(null));
                     else
-                        statement = new VariableStatement(literal);
+                        lastExpression = new VariableStatement(literal);
                 }
-
-                return withStatement(termIterator, statement);
             }
         } else {
             // TODO
-            return null;
+            lastExpression = null;
         }
+        return lastExpression;
     }
 
     private String getNumber(String termValue) {
@@ -232,36 +301,6 @@ public class ScriptParser {
                 return result.toString();
         }
         return result.toString();
-    }
-
-    private ExecutableStatement withStatement(PeekingIterator<TermBlock> termIterator, ExecutableStatement statement) throws IllegalSyntaxException {
-        final Term term = peekNextProgramTermSafely(termIterator);
-        String termValue = term.getValue();
-        final Operator operation = getArithmeticOperation(termValue);
-        if (operation == null)
-            return statement;
-        if (operation == Operator.ASSIGNMENT) {
-            consumeCharactersFromTerm(termIterator, 1);
-            return new AssignStatement(statement, produceValueReturningStatementFromIterator(termIterator));
-        } else if (operation == Operator.FUNCTION_CALL) {
-            consumeCharactersFromTerm(termIterator, 1);
-
-            List<ExecutableStatement> parameters = new ArrayList<ExecutableStatement>();
-            while (!isNextTermStartingWith(termIterator, ")"))
-                parameters.add(produceValueReturningStatementFromIterator(termIterator));
-            consumeCharactersFromTerm(termIterator, 1);
-
-            return new FunctionCallStatement(statement, parameters);
-        }
-        return statement;
-    }
-
-    private Operator getArithmeticOperation(String termValue) {
-        if (termValue.startsWith("="))
-            return Operator.ASSIGNMENT;
-        else if (termValue.startsWith("("))
-            return Operator.FUNCTION_CALL;
-        return null;
     }
 
     private String getFirstLiteral(String text) throws IllegalSyntaxException {

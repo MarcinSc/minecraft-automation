@@ -1,20 +1,24 @@
 package com.gempukku.minecraft.automation.lang;
 
 public enum Operator {
-    MEMBER_ACCESS(1, 1, true), FUNCTION_CALL(0, 1, true),
-    MULTIPLY(1, 3, true), DIVIDE(1, 3, true), MOD(1, 3, true),
-    ADD(1, 4, true), SUBTRACT(1, 4, true),
-    EQUALS(2, 7, true), NOT_EQUALS(2, 7, true),
-    ASSIGNMENT(1, 14, true);
+    MEMBER_ACCESS(1, 1, true, true, false), FUNCTION_CALL(1, 1, true, false, true),
+    MULTIPLY(1, 3, true, true, false), DIVIDE(1, 3, true, true, false), MOD(1, 3, true, true, false),
+    ADD(1, 4, true, true, false), SUBTRACT(1, 4, true, true, false),
+    EQUALS(2, 7, true, true, false), NOT_EQUALS(2, 7, true, true, false),
+    ASSIGNMENT(1, 14, true, true, false);
 
     private int _priority;
     private int _consumeLength;
     private boolean _leftAssociative;
+    private boolean _binary;
+    private boolean _hasParameters;
 
-    private Operator(int consumeLength, int priority, boolean leftAssociative) {
+    private Operator(int consumeLength, int priority, boolean leftAssociative, boolean binary, boolean hasParameters) {
         _consumeLength = consumeLength;
         _priority = priority;
         _leftAssociative = leftAssociative;
+        _binary = binary;
+        _hasParameters = hasParameters;
     }
 
     public int getConsumeLength() {
@@ -27,5 +31,13 @@ public enum Operator {
 
     public int getPriority() {
         return _priority;
+    }
+
+    public boolean isBinary() {
+        return _binary;
+    }
+
+    public boolean isHasParameters() {
+        return _hasParameters;
     }
 }
