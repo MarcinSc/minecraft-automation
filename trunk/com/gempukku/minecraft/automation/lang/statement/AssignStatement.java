@@ -5,17 +5,19 @@ import com.gempukku.minecraft.automation.lang.Execution;
 import com.gempukku.minecraft.automation.lang.execution.AssignExecution;
 
 public class AssignStatement implements ExecutableStatement {
+    private boolean _define;
     private ExecutableStatement _name;
     private ExecutableStatement _value;
 
-    public AssignStatement(ExecutableStatement name, ExecutableStatement value) {
+    public AssignStatement(boolean define, ExecutableStatement name, ExecutableStatement value) {
+        _define = define;
         _name = name;
         _value = value;
     }
 
     @Override
     public Execution createExecution() {
-        return new AssignExecution(_name, _value);
+        return new AssignExecution(_define, _name, _value);
     }
 
     @Override

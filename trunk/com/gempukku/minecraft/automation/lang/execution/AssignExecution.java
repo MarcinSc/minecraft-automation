@@ -3,9 +3,11 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class AssignExecution implements Execution {
+    private boolean _define;
     private ExecutableStatement _variable;
     private ExecutableStatement _value;
 
+    private boolean _definedIfNeeded;
     private boolean _stackedVariable;
     private boolean _extractedVariable;
     private boolean _stackedValue;
@@ -13,7 +15,8 @@ public class AssignExecution implements Execution {
 
     private Variable _variablePointer;
 
-    public AssignExecution(ExecutableStatement variable, ExecutableStatement value) {
+    public AssignExecution(boolean define, ExecutableStatement variable, ExecutableStatement value) {
+        _define = define;
         _variable = variable;
         _value = value;
     }
@@ -23,6 +26,8 @@ public class AssignExecution implements Execution {
         if (!_stackedVariable)
             return true;
         if (!_extractedVariable)
+            return true;
+        if (!_definedIfNeeded && _define)
             return true;
         if (!_stackedValue)
             return true;
@@ -41,6 +46,11 @@ public class AssignExecution implements Execution {
         if (!_extractedVariable) {
             _variablePointer = executionContext.getContextValue();
             _extractedVariable = true;
+            return new ExecutionProgress(100);
+        }
+        if (!_definedIfNeeded && _define) {
+            executionContext.peekCallContext().defineVariable((String) _variablePointer.getValue());
+            _definedIfNeeded = true;
             return new ExecutionProgress(100);
         }
         if (!_stackedValue) {

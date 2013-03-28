@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -147,8 +146,7 @@ public class ScriptParser {
         consumeCharactersFromTerm(termIterator, 1);
 
         final ExecutableStatement value = produceExpressionFromIterator(termIterator);
-        return new BlockStatement(Arrays.asList(new DefineStatement(variableName), new AssignStatement(new ConstantStatement(new Variable(variableName)), value)),
-                false, false);
+        return new AssignStatement(true, new ConstantStatement(new Variable(variableName)), value);
     }
 
     private ExecutableStatement produceReturnStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -229,7 +227,11 @@ public class ScriptParser {
         final Term term = peekNextProgramTermSafely(termIterator);
         String termValue = term.getValue();
         Operator operator = null;
-        if (termValue.startsWith("="))
+        if (termValue.startsWith("=="))
+            operator = Operator.EQUALS;
+        else if (termValue.startsWith("!="))
+            operator = Operator.NOT_EQUALS;
+        else if (termValue.startsWith("="))
             operator = Operator.ASSIGNMENT;
         else if (termValue.startsWith("("))
             operator = Operator.FUNCTION_CALL;
@@ -257,11 +259,13 @@ public class ScriptParser {
 
     private ExecutableStatement produceOperation(ExecutableStatement left, Operator operator, ExecutableStatement right, List<ExecutableStatement> parameters) {
         if (operator == Operator.ASSIGNMENT)
-            return new AssignStatement(left, right);
+            return new AssignStatement(false, left, right);
         else if (operator == Operator.FUNCTION_CALL)
             return new FunctionCallStatement(left, parameters);
         else if (operator == Operator.ADD)
             return new AddStatement(left, right);
+        else if (operator == Operator.EQUALS || operator == Operator.NOT_EQUALS)
+            return new ComparisonStatement(left, operator, right);
         else
             return new MathStatement(left, operator, right);
     }

@@ -32,8 +32,8 @@ public class ProgramTest {
         final StringWriter out = new StringWriter();
         PrintWriter writer = new PrintWriter(out);
         writer.println("function echo(toReturn) {");
-        writer.println("  var result;");
-        writer.println("  if (true) result = toReturn + \" \" + (-123 + 2 * -2) +\" \"+ (0 < 0);");
+        writer.println("  var result = \"a\";");
+        writer.println("  if (\"a\" == \"a\") result = toReturn + \" \" + (-123 + 2 * -2) +\" \"+ (0 < 0);");
         writer.println("  return result;");
         writer.println("}");
         writer.println("if (123<122.5) { return echo(\"What?!\"); }");
