@@ -243,6 +243,14 @@ public class ScriptParser {
             operator = Operator.DIVIDE;
         else if (termValue.startsWith("%"))
             operator = Operator.MOD;
+        else if (termValue.startsWith(">="))
+            operator = Operator.GREATER_OR_EQUAL;
+        else if (termValue.startsWith(">"))
+            operator = Operator.GREATER;
+        else if (termValue.startsWith("<="))
+            operator = Operator.LESS_OR_EQUAL;
+        else if (termValue.startsWith("<"))
+            operator = Operator.LESS;
 
         return operator;
     }

@@ -55,7 +55,7 @@ public class MathExecution implements Execution {
             if (rightValue.getType() == Variable.Type.NUMBER && _leftValue.getType() == Variable.Type.NUMBER) {
                 final float valueLeft = ((Number) _leftValue.getValue()).floatValue();
                 final float valueRight = ((Number) rightValue.getValue()).floatValue();
-                float result;
+                Object result;
                 if (_operator == Operator.SUBTRACT)
                     result = valueLeft - valueRight;
                 else if (_operator == Operator.DIVIDE)
@@ -64,6 +64,14 @@ public class MathExecution implements Execution {
                     result = valueLeft * valueRight;
                 else if (_operator == Operator.MOD)
                     result = valueLeft % valueRight;
+                else if (_operator == Operator.GREATER_OR_EQUAL)
+                    result = valueLeft >= valueRight;
+                else if (_operator == Operator.GREATER)
+                    result = valueLeft > valueRight;
+                else if (_operator == Operator.LESS_OR_EQUAL)
+                    result = valueLeft <= valueRight;
+                else if (_operator == Operator.LESS)
+                    result = valueLeft < valueRight;
                 else
                     throw new ExecutionException("Unknown operator "+_operator);
 

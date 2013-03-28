@@ -50,7 +50,7 @@ public class AddExecution implements Execution {
         }
         if (!_resolvedAndAssignedSum) {
             Variable rightValue = executionContext.getContextValue();
-            if (rightValue.getType() == Variable.Type.STRING || _leftValue.getType() == Variable.Type.STRING) {
+            if (_leftValue.getType() == Variable.Type.STRING) {
                 executionContext.setContextValue(new Variable(convertToString(_leftValue) + convertToString(rightValue)));
             } else if (rightValue.getType() == Variable.Type.NUMBER && _leftValue.getType() == Variable.Type.NUMBER) {
                 executionContext.setContextValue(new Variable(((Number) _leftValue.getValue()).floatValue() +
@@ -71,6 +71,8 @@ public class AddExecution implements Execution {
             return String.valueOf(((Number) variable.getValue()).floatValue());
         else if (variable.getType() == Variable.Type.NULL)
             return "null";
+        else if (variable.getType() == Variable.Type.BOOLEAN)
+            return ((Boolean) variable.getValue()) ? "true" : "false";
         else
             return "";
     }
