@@ -6,6 +6,8 @@ public enum Operator {
     ADD(1, 4, true, true, false), SUBTRACT(1, 4, true, true, false),
     GREATER_OR_EQUAL(2, 6, true, true, false), GREATER(1, 6, true, true, false), LESS_OR_EQUAL(2, 6, true, true, false), LESS(1, 6, true, true, false),
     EQUALS(2, 7, true, true, false), NOT_EQUALS(2, 7, true, true, false),
+    AND(2, 11, true, true, false),
+    OR(2, 12, true, true, false),
     ASSIGNMENT(1, 14, true, true, false);
 
     private int _priority;

@@ -353,6 +353,10 @@ public class ScriptParser {
             operator = Operator.LESS;
         else if (termValue.startsWith("."))
             operator = Operator.MEMBER_ACCESS;
+        else if (termValue.startsWith("&&"))
+            operator = Operator.AND;
+        else if (termValue.startsWith("||"))
+            operator = Operator.OR;
 
         return operator;
     }
@@ -368,6 +372,8 @@ public class ScriptParser {
             return new ComparisonStatement(left, operator, right);
         else if (operator == Operator.MEMBER_ACCESS)
             return new MemberAccessStatement(left, ((VariableStatement) right).getName());
+        else if (operator == Operator.AND || operator == Operator.OR)
+            return new LogicalOperatorStatement(left, operator, right);
         else
             return new MathStatement(left, operator, right);
     }
