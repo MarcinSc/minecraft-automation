@@ -215,10 +215,19 @@ public class ScriptParser {
     }
 
     private List<ExecutableStatement> parseParameters(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        boolean first = true;
         List<ExecutableStatement> parameters;
         parameters = new ArrayList<ExecutableStatement>();
-        while (!isNextTermStartingWith(termIterator, ")"))
+        while (!isNextTermStartingWith(termIterator, ")")) {
+            if (!first) {
+                if (!isNextTermStartingWith(termIterator, ","))
+                    throw new IllegalSyntaxException(", expected");
+                consumeCharactersFromTerm(termIterator, 1);
+            }
+
             parameters.add(produceExpressionFromIterator(termIterator));
+            first = false;
+        }
         consumeCharactersFromTerm(termIterator, 1);
         return parameters;
     }
