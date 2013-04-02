@@ -70,6 +70,8 @@ public class ScriptParser {
                     return produceIfStatement(termIterator);
                 } else if (literal.equals("for")) {
                     return produceForStatement(termIterator);
+                } else if (literal.equals("while")) {
+                    return produceWhileStatement(termIterator);
                 } else {
                     return produceExpressionFromIterator(termIterator);
                 }
@@ -77,6 +79,24 @@ public class ScriptParser {
         } else {
             return new BlockStatement(seekStatementsInBlock(firstTermBlock), true, false);
         }
+    }
+
+    private ExecutableStatement produceWhileStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        consumeCharactersFromTerm(termIterator, 5);
+
+        if (!isNextTermStartingWith(termIterator, "("))
+            throw new IllegalSyntaxException("( expected");
+        consumeCharactersFromTerm(termIterator, 1);
+
+        ExecutableStatement condition = produceExpressionFromIterator(termIterator);
+
+        if (!isNextTermStartingWith(termIterator, ")"))
+            throw new IllegalSyntaxException(") expected");
+        consumeCharactersFromTerm(termIterator, 1);
+
+        ExecutableStatement statementInLoop = produceStatementFromGroupOrTerm(termIterator);
+
+        return new WhileStatement(condition, statementInLoop);
     }
 
     private ExecutableStatement produceForStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
