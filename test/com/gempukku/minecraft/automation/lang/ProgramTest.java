@@ -14,7 +14,7 @@ public class ProgramTest {
         while (!executionContext.isFinished())
             executionContext.executeNext();
 
-        return executionContext.getContextValue();
+        return executionContext.getReturnValue();
     }
 
     protected Variable executeScript(String script) throws IllegalSyntaxException, IOException, ExecutionException {

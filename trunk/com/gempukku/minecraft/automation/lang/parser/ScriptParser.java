@@ -298,7 +298,16 @@ public class ScriptParser {
         // Time for unary operators
         if (operator != null && !operator.isBinary()) {
             consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
-            left = produceOperation(left, operator, null, parseParameters(termIterator));
+            List<ExecutableStatement> parameters = null;
+            if (operator.isHasParameters())
+                parameters = parseParameters(termIterator);
+
+            if (operator.isLeftAssociative())
+                left = produceOperation(left, operator, null, parameters);
+            else {
+                ExecutableStatement operatorExpression = parseExpression(termIterator, parseNextOperationToken(termIterator), operator.getPriority());
+                left = produceOperation(operatorExpression, operator, null, parameters);
+            }
         }
         return left;
     }
@@ -357,6 +366,8 @@ public class ScriptParser {
             operator = Operator.AND;
         else if (termValue.startsWith("||"))
             operator = Operator.OR;
+        else if (termValue.startsWith("!"))
+            operator = Operator.NOT;
 
         return operator;
     }
@@ -374,19 +385,21 @@ public class ScriptParser {
             return new MemberAccessStatement(left, ((VariableStatement) right).getName());
         else if (operator == Operator.AND || operator == Operator.OR)
             return new LogicalOperatorStatement(left, operator, right);
+        else if (operator == Operator.NOT)
+            return new NegateStatement(left);
         else
             return new MathStatement(left, operator, right);
     }
 
     private ExecutableStatement parseNextOperationToken(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-        ExecutableStatement lastExpression;
+        ExecutableStatement result;
         TermBlock termBlock = peekNextTermBlockSafely(termIterator);
         if (termBlock.isTerm()) {
 
             Term term = termBlock.getTerm();
             if (term.getType() == Term.Type.STRING) {
                 String value = term.getValue();
-                lastExpression = new ConstantStatement(new Variable(value));
+                result = new ConstantStatement(new Variable(value));
                 // Consume the String
                 termIterator.next();
             } else {
@@ -394,36 +407,39 @@ public class ScriptParser {
                 String termValue = term.getValue();
                 if (termValue.charAt(0) == '(') {
                     consumeCharactersFromTerm(termIterator, 1);
-                    final ExecutableStatement result = produceExpressionFromIterator(termIterator);
+                    result = produceExpressionFromIterator(termIterator);
                     if (!isNextTermStartingWith(termIterator, ")"))
                         throw new IllegalSyntaxException(") expected");
                     consumeCharactersFromTerm(termIterator, 1);
-                    return result;
-                }
-                if (Character.isDigit(termValue.charAt(0)) || termValue.charAt(0) == '-') {
+                } else if (Character.isDigit(termValue.charAt(0)) || termValue.charAt(0) == '-') {
                     String numberInStr = getNumber(termValue);
                     consumeCharactersFromTerm(termIterator, numberInStr.length());
-                    lastExpression = new ConstantStatement(new Variable(Float.parseFloat(numberInStr)));
+                    result = new ConstantStatement(new Variable(Float.parseFloat(numberInStr)));
                 } else {
-                    String literal = getFirstLiteral(termValue);
+                    if (Character.isLetter(termValue.charAt(0))) {
+                        String literal = getFirstLiteral(termValue);
 
-                    consumeCharactersFromTerm(termIterator, literal.length());
+                        consumeCharactersFromTerm(termIterator, literal.length());
 
-                    if (literal.equals("true"))
-                        lastExpression = new ConstantStatement(new Variable(true));
-                    else if (literal.equals("false"))
-                        lastExpression = new ConstantStatement(new Variable(false));
-                    else if (literal.equals("null"))
-                        lastExpression = new ConstantStatement(new Variable(null));
-                    else
-                        lastExpression = new VariableStatement(literal);
+                        if (literal.equals("true"))
+                            result = new ConstantStatement(new Variable(true));
+                        else if (literal.equals("false"))
+                            result = new ConstantStatement(new Variable(false));
+                        else if (literal.equals("null"))
+                            result = new ConstantStatement(new Variable(null));
+                        else
+                            result = new VariableStatement(literal);
+                    } else {
+                        // It might be operator
+                        result = null;
+                    }
                 }
             }
         } else {
             // TODO
-            lastExpression = null;
+            result = null;
         }
-        return lastExpression;
+        return result;
     }
 
     private String getNumber(String termValue) {
