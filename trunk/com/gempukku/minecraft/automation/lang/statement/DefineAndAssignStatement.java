@@ -2,20 +2,20 @@ package com.gempukku.minecraft.automation.lang.statement;
 
 import com.gempukku.minecraft.automation.lang.ExecutableStatement;
 import com.gempukku.minecraft.automation.lang.Execution;
-import com.gempukku.minecraft.automation.lang.execution.AssignExecution;
+import com.gempukku.minecraft.automation.lang.execution.DefineAndAssignExecution;
 
-public class AssignStatement implements ExecutableStatement {
-    private ExecutableStatement _name;
+public class DefineAndAssignStatement implements ExecutableStatement {
+    private String _name;
     private ExecutableStatement _value;
 
-    public AssignStatement(ExecutableStatement name, ExecutableStatement value) {
+    public DefineAndAssignStatement(String name, ExecutableStatement value) {
         _name = name;
         _value = value;
     }
 
     @Override
     public Execution createExecution() {
-        return new AssignExecution(_name, _value);
+        return new DefineAndAssignExecution(_name, _value);
     }
 
     @Override

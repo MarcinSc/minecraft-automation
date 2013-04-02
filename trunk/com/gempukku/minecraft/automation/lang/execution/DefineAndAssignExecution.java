@@ -2,28 +2,22 @@ package com.gempukku.minecraft.automation.lang.execution;
 
 import com.gempukku.minecraft.automation.lang.*;
 
-public class AssignExecution implements Execution {
-    private boolean _define;
-    private ExecutableStatement _variable;
+public class DefineAndAssignExecution implements Execution {
+    private String _name;
     private ExecutableStatement _value;
 
-    private boolean _stackedVariable;
-    private boolean _extractedVariable;
+    private boolean _defined;
     private boolean _stackedValue;
     private boolean _assignedValue;
 
-    private Variable _variablePointer;
-
-    public AssignExecution(ExecutableStatement variable, ExecutableStatement value) {
-        _variable = variable;
+    public DefineAndAssignExecution(String name, ExecutableStatement value) {
+        _name = name;
         _value = value;
     }
 
     @Override
     public boolean hasNextExecution(ExecutionContext executionContext) {
-        if (!_stackedVariable)
-            return true;
-        if (!_extractedVariable)
+        if (!_defined)
             return true;
         if (!_stackedValue)
             return true;
@@ -34,14 +28,9 @@ public class AssignExecution implements Execution {
 
     @Override
     public ExecutionProgress executeNextStatement(ExecutionContext executionContext) throws ExecutionException {
-        if (!_stackedVariable) {
-            executionContext.stackExecution(_variable.createExecution());
-            _stackedVariable = true;
-            return new ExecutionProgress(100);
-        }
-        if (!_extractedVariable) {
-            _variablePointer = executionContext.getContextValue();
-            _extractedVariable = true;
+        if (!_defined) {
+            executionContext.peekCallContext().defineVariable(_name);
+            _defined = true;
             return new ExecutionProgress(100);
         }
         if (!_stackedValue) {
@@ -50,7 +39,7 @@ public class AssignExecution implements Execution {
             return new ExecutionProgress(100);
         }
         if (!_assignedValue) {
-            _variablePointer.setValue(executionContext.getContextValue().getValue());
+            executionContext.peekCallContext().setVariableValue(_name, executionContext.getContextValue().getValue());
             _assignedValue = true;
             return new ExecutionProgress(100);
         }

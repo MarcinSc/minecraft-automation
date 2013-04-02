@@ -146,7 +146,7 @@ public class ScriptParser {
         consumeCharactersFromTerm(termIterator, 1);
 
         final ExecutableStatement value = produceExpressionFromIterator(termIterator);
-        return new AssignStatement(true, new ConstantStatement(new Variable(variableName)), value);
+        return new DefineAndAssignStatement(variableName, value);
     }
 
     private ExecutableStatement produceReturnStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -259,7 +259,7 @@ public class ScriptParser {
 
     private ExecutableStatement produceOperation(ExecutableStatement left, Operator operator, ExecutableStatement right, List<ExecutableStatement> parameters) {
         if (operator == Operator.ASSIGNMENT)
-            return new AssignStatement(false, left, right);
+            return new AssignStatement(left, right);
         else if (operator == Operator.FUNCTION_CALL)
             return new FunctionCallStatement(left, parameters);
         else if (operator == Operator.ADD)
