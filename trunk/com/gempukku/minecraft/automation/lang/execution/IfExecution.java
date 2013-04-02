@@ -1,43 +1,60 @@
 package com.gempukku.minecraft.automation.lang.execution;
 
 import com.gempukku.minecraft.automation.lang.*;
+import com.gempukku.minecraft.automation.lang.statement.IfStatement;
+
+import java.util.List;
 
 public class IfExecution implements Execution {
-    private ExecutableStatement _condition;
-    private ExecutableStatement _statement;
+    private List<IfStatement.ConditionStatement> _conditionStatements;
+    private ExecutableStatement _elseStatement;
 
-    private boolean _conditionStacked;
-    private boolean _statementExecutedIfNeeded;
+    private boolean _foundCondition;
+    private int _nextConditionStackedIndex = 0;
+    private int _nextStatementStackedIfNeededIndex = 0;
+    private boolean _elseStacked;
 
-    public IfExecution(ExecutableStatement condition, ExecutableStatement statement) {
-        _condition = condition;
-        _statement = statement;
+    public IfExecution(List<IfStatement.ConditionStatement> conditionStatements, ExecutableStatement elseStatement) {
+        _conditionStatements = conditionStatements;
+        _elseStatement = elseStatement;
     }
 
     @Override
     public boolean hasNextExecution(ExecutionContext executionContext) {
-        if (!_conditionStacked)
+        if (_foundCondition)
+            return false;
+
+        if (_nextStatementStackedIfNeededIndex < _nextConditionStackedIndex)
             return true;
-        if (!_statementExecutedIfNeeded)
+        if (_nextConditionStackedIndex < _conditionStatements.size())
+            return true;
+        if (!_elseStacked && _elseStatement != null)
             return true;
         return false;
     }
 
     @Override
     public ExecutionProgress executeNextStatement(ExecutionContext executionContext) throws ExecutionException {
-        if (!_conditionStacked) {
-            executionContext.stackExecution(_condition.createExecution());
-            _conditionStacked = true;
-            return new ExecutionProgress(100);
-        }
-        if (!_statementExecutedIfNeeded) {
+        if (_nextStatementStackedIfNeededIndex < _nextConditionStackedIndex) {
             final Variable value = executionContext.getContextValue();
             if (value.getType() != Variable.Type.BOOLEAN)
                 throw new ExecutionException("Condition not of type BOOLEAN");
             boolean ifResult = (Boolean) value.getValue();
-            if (ifResult)
-                executionContext.stackExecution(_statement.createExecution());
-            _statementExecutedIfNeeded = true;
+            if (ifResult) {
+                _foundCondition = true;
+                executionContext.stackExecution(_conditionStatements.get(_nextStatementStackedIfNeededIndex).getStatement().createExecution());
+            }
+            _nextStatementStackedIfNeededIndex++;
+            return new ExecutionProgress(100);
+        }
+        if (_nextConditionStackedIndex < _conditionStatements.size()) {
+            executionContext.stackExecution(_conditionStatements.get(_nextConditionStackedIndex).getCondition().createExecution());
+            _nextConditionStackedIndex++;
+            return new ExecutionProgress(100);
+        }
+        if (!_elseStacked) {
+            executionContext.stackExecution(_elseStatement.createExecution());
+            _elseStacked = true;
             return new ExecutionProgress(100);
         }
         return null;

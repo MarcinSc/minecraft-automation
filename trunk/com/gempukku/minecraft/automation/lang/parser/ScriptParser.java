@@ -90,16 +90,67 @@ public class ScriptParser {
             throw new IllegalSyntaxException(") expected");
         consumeCharactersFromTerm(termIterator, 1);
 
+        IfStatement ifStatement;
         final TermBlock ifExecute = termIterator.peek();
         if (ifExecute.isTerm()) {
             final ExecutableStatement statement = produceStatementFromIterator(termIterator);
             consumeSemicolon(termIterator);
-            return new IfStatement(condition, statement);
+            ifStatement = new IfStatement(condition, statement);
         } else {
             termIterator.next();
             final List<ExecutableStatement> statements = seekStatementsInBlock(ifExecute);
-            return new IfStatement(condition, new BlockStatement(statements, true, false));
+            ifStatement = new IfStatement(condition, new BlockStatement(statements, true, false));
         }
+
+        boolean hasElse = false;
+
+        while (!hasElse && isNextLiteral(termIterator, "else")) {
+            consumeCharactersFromTerm(termIterator, 4);
+            if (isNextLiteral(termIterator, "if")) {
+                consumeCharactersFromTerm(termIterator, 2);
+                if (!isNextTermStartingWith(termIterator, "("))
+                    throw new IllegalSyntaxException("( expected");
+                consumeCharactersFromTerm(termIterator, 1);
+                ExecutableStatement elseIfCondition = produceExpressionFromIterator(termIterator);
+
+                if (!isNextTermStartingWith(termIterator, ")"))
+                    throw new IllegalSyntaxException(") expected");
+                consumeCharactersFromTerm(termIterator, 1);
+                final TermBlock elseIfExecute = termIterator.peek();
+                if (elseIfExecute.isTerm()) {
+                    final ExecutableStatement statement = produceStatementFromIterator(termIterator);
+                    consumeSemicolon(termIterator);
+                    ifStatement.addElseIf(elseIfCondition, statement);
+                } else {
+                    termIterator.next();
+                    final List<ExecutableStatement> statements = seekStatementsInBlock(elseIfExecute);
+                    ifStatement.addElseIf(elseIfCondition, new BlockStatement(statements, true, false));
+                }
+            } else {
+                final TermBlock elseExecute = termIterator.peek();
+                if (elseExecute.isTerm()) {
+                    final ExecutableStatement statement = produceStatementFromIterator(termIterator);
+                    consumeSemicolon(termIterator);
+                    ifStatement.addElse(statement);
+                } else {
+                    termIterator.next();
+                    final List<ExecutableStatement> statements = seekStatementsInBlock(elseExecute);
+                    ifStatement.addElse(new BlockStatement(statements, true, false));
+                }
+                hasElse = true;
+            }
+        }
+
+        return ifStatement;
+    }
+
+    private boolean isNextLiteral(PeekingIterator<TermBlock> termIterator, String literal) throws IllegalSyntaxException {
+        if (isNextTermStartingWith(termIterator, literal)) {
+            final Term term = peekNextProgramTermSafely(termIterator);
+            if (getFirstLiteral(term.getValue()).equals(literal))
+                return true;
+        }
+        return false;
     }
 
     private ExecutableStatement produceDefineFunctionStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {

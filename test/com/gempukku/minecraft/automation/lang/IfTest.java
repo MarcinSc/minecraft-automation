@@ -51,4 +51,16 @@ public class IfTest extends ProgramTest {
             // Expected
         }
     }
+
+    @Test
+    public void elseExecuted() throws IllegalSyntaxException, IOException, ExecutionException {
+        final Variable result = executeScript("var v; if (false) v = \"Failed\"; else v = \"Test\"; return v;");
+        assertEquals("Test", result.getValue());
+    }
+
+    @Test
+    public void elseIfExecuted() throws IllegalSyntaxException, IOException, ExecutionException {
+        final Variable result = executeScript("var v; if (false) v = \"Failed\"; else if (true) v = \"Test\"; else v = \"Failed\"; return v;");
+        assertEquals("Test", result.getValue());
+    }
 }
