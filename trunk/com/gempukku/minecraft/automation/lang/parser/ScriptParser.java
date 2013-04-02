@@ -68,6 +68,8 @@ public class ScriptParser {
                     return produceDefineFunctionStatement(termIterator);
                 } else if (literal.equals("if")) {
                     return produceIfStatement(termIterator);
+                } else if (literal.equals("for")) {
+                    return produceForStatement(termIterator);
                 } else {
                     return produceExpressionFromIterator(termIterator);
                 }
@@ -75,6 +77,34 @@ public class ScriptParser {
         } else {
             return new BlockStatement(seekStatementsInBlock(firstTermBlock), true, false);
         }
+    }
+
+    private ExecutableStatement produceForStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        consumeCharactersFromTerm(termIterator, 3);
+
+        if (!isNextTermStartingWith(termIterator, "("))
+            throw new IllegalSyntaxException("( expected");
+        consumeCharactersFromTerm(termIterator, 1);
+
+        ExecutableStatement firstStatement = null;
+        if (!isNextTermStartingWith(termIterator, ";"))
+            firstStatement = produceStatementFromIterator(termIterator);
+        consumeSemicolon(termIterator);
+
+        final ExecutableStatement terminationCondition = produceExpressionFromIterator(termIterator);
+        consumeSemicolon(termIterator);
+
+        ExecutableStatement statementExecutedAfterEachLoop = null;
+        if (!isNextTermStartingWith(termIterator, ")"))
+            statementExecutedAfterEachLoop = produceStatementFromIterator(termIterator);
+
+        if (!isNextTermStartingWith(termIterator, ")"))
+            throw new IllegalSyntaxException(") expected");
+        consumeCharactersFromTerm(termIterator, 1);
+
+        final ExecutableStatement statementInLoop = produceStatementFromGroupOrTerm(termIterator);
+
+        return new ForStatement(firstStatement, terminationCondition, statementExecutedAfterEachLoop, statementInLoop);
     }
 
     private ExecutableStatement produceIfStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -106,6 +136,10 @@ public class ScriptParser {
         ExecutableStatement statement;
         final TermBlock ifExecute = termIterator.peek();
         if (ifExecute.isTerm()) {
+            if (isNextTermStartingWithSemicolon(termIterator)) {
+                consumeSemicolon(termIterator);
+                return null;
+            }
             statement = produceStatementFromIterator(termIterator);
             consumeSemicolon(termIterator);
         } else {

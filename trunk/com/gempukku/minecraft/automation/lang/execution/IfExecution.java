@@ -42,7 +42,9 @@ public class IfExecution implements Execution {
             boolean ifResult = (Boolean) value.getValue();
             if (ifResult) {
                 _foundCondition = true;
-                executionContext.stackExecution(_conditionStatements.get(_nextStatementStackedIfNeededIndex).getStatement().createExecution());
+                final ExecutableStatement statement = _conditionStatements.get(_nextStatementStackedIfNeededIndex).getStatement();
+                if (statement != null)
+                    executionContext.stackExecution(statement.createExecution());
             }
             _nextStatementStackedIfNeededIndex++;
             return new ExecutionProgress(100);
