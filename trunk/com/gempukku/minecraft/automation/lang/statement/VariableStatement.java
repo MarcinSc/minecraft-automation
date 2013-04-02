@@ -20,6 +20,10 @@ public class VariableStatement implements ExecutableStatement {
         };
     }
 
+    public String getName() {
+        return _name;
+    }
+
     @Override
     public boolean requiresSemicolon() {
         return true;

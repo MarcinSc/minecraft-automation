@@ -61,6 +61,6 @@ public class CallContext {
         else if (_parentContext != null)
             return _parentContext.getContextForVariable(variable);
         else
-            throw new ExecutionException("Variable doesn't seem to have a context");
+            return this;
     }
 }

@@ -281,16 +281,15 @@ public class ScriptParser {
 
             ExecutableStatement right = parseNextOperationToken(termIterator);
             Operator nextOperator;
-            while ((nextOperator = peekNextOperator(termIterator)) != null && operator.isBinary() &&
+            while ((nextOperator = peekNextOperator(termIterator)) != null &&
                     (nextOperator.getPriority() < operator.getPriority() ||
                             (nextOperator.getPriority() == operator.getPriority() && !nextOperator.isLeftAssociative()))) {
-                right = parseExpression(termIterator, right, nextOperator.getPriority());
-            }
-
-            // Time for unary operators
-            if (nextOperator != null && !nextOperator.isBinary()) {
-                consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
-                right = produceOperation(right, nextOperator, null, parseParameters(termIterator));
+                if (operator.isBinary())
+                    right = parseExpression(termIterator, right, nextOperator.getPriority());
+                else {
+                    consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+                    right = produceOperation(right, nextOperator, null, parseParameters(termIterator));
+                }
             }
 
             left = produceOperation(left, operator, right, parameters);
@@ -352,6 +351,8 @@ public class ScriptParser {
             operator = Operator.LESS_OR_EQUAL;
         else if (termValue.startsWith("<"))
             operator = Operator.LESS;
+        else if (termValue.startsWith("."))
+            operator = Operator.MEMBER_ACCESS;
 
         return operator;
     }
@@ -365,6 +366,8 @@ public class ScriptParser {
             return new AddStatement(left, right);
         else if (operator == Operator.EQUALS || operator == Operator.NOT_EQUALS)
             return new ComparisonStatement(left, operator, right);
+        else if (operator == Operator.MEMBER_ACCESS)
+            return new MemberAccessStatement(left, ((VariableStatement) right).getName());
         else
             return new MathStatement(left, operator, right);
     }

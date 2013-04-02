@@ -1,7 +1,6 @@
 package com.gempukku.minecraft.automation.lang;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class ExecutionContext {
     private LinkedList<LinkedList<Execution>> _executionGroups = new LinkedList<LinkedList<Execution>>();
@@ -91,8 +90,10 @@ public class ExecutionContext {
         return _executionGroups.isEmpty();
     }
 
-    public ExecutionProgress executeMethod(Variable object, String methodName, List<Variable> parameterValues) {
-        // TODO
-        return new ExecutionProgress(100);
+    public Variable resolveMember(Variable object, String property) throws ExecutionException {
+        if (object.getType() != Variable.Type.OBJECT)
+            throw new ExecutionException("Expected object");
+        
+        return ((ObjectDefinition) object.getValue()).getMember(property);
     }
 }
