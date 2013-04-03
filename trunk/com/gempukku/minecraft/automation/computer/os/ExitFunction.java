@@ -1,20 +1,25 @@
 package com.gempukku.minecraft.automation.computer.os;
 
-import com.gempukku.minecraft.automation.lang.CallContext;
-import com.gempukku.minecraft.automation.lang.Execution;
-import com.gempukku.minecraft.automation.lang.FunctionExecutable;
+import com.gempukku.minecraft.automation.computer.ComputerData;
+import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
+import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
-import com.gempukku.minecraft.automation.lang.execution.ReturnExecution;
-import com.gempukku.minecraft.automation.lang.statement.ConstantStatement;
 
-public class ExitFunction implements FunctionExecutable {
+import java.util.Map;
+
+public class ExitFunction extends JavaFunctionExecutable {
     @Override
     public String[] getParameterNames() {
         return new String[0];
     }
 
     @Override
-    public Execution createExecution(CallContext callContext) {
-        return new ReturnExecution(new ConstantStatement(new Variable(0)));
+    protected int getDuration() {
+        return 100;
+    }
+
+    @Override
+    protected Object executeFunction(ComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+        return 0;
     }
 }

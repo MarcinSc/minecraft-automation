@@ -1,25 +1,25 @@
 package com.gempukku.minecraft.automation.computer.os;
 
 import com.gempukku.minecraft.automation.computer.ComputerData;
-import com.gempukku.minecraft.automation.computer.ComputerExecutionContext;
-import com.gempukku.minecraft.automation.lang.*;
-import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
+import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
+import com.gempukku.minecraft.automation.lang.ExecutionException;
+import com.gempukku.minecraft.automation.lang.Variable;
 
-public class GetModuleSlotCountFunction implements FunctionExecutable {
+import java.util.Map;
+
+public class GetModuleSlotCountFunction extends JavaFunctionExecutable {
     @Override
     public String[] getParameterNames() {
         return new String[0];
     }
 
     @Override
-    public Execution createExecution(CallContext callContext) {
-        return new SimpleExecution() {
-            @Override
-            protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
-                ComputerData computer = ((ComputerExecutionContext) context).getComputerData();
-                context.setContextValue(new Variable(computer.getModuleSlotCount()));
-                return new ExecutionProgress(100);
-            }
-        };
+    protected int getDuration() {
+        return 100;
+    }
+
+    @Override
+    protected Object executeFunction(ComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+        return computer.getModuleSlotCount();
     }
 }

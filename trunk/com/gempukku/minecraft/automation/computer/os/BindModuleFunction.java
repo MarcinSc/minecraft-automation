@@ -1,43 +1,30 @@
 package com.gempukku.minecraft.automation.computer.os;
 
 import com.gempukku.minecraft.automation.computer.ComputerData;
-import com.gempukku.minecraft.automation.computer.ComputerExecutionContext;
+import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.bind.SlotBindingObjectDefinition;
-import com.gempukku.minecraft.automation.lang.*;
-import com.gempukku.minecraft.automation.lang.execution.ReturnExecution;
-import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
+import com.gempukku.minecraft.automation.lang.ExecutionException;
+import com.gempukku.minecraft.automation.lang.Variable;
 
-public class BindModuleFunction implements FunctionExecutable {
-    @Override
-    public Execution createExecution(CallContext callContext) {
-        return new ReturnExecution(
-                new ExecutableStatement() {
-                    @Override
-                    public Execution createExecution() {
-                        return new SimpleExecution() {
-                            @Override
-                            protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
-                                ComputerData computer = ((ComputerExecutionContext) context).getComputerData();
+import java.util.Map;
 
-                                final Variable slot = context.peekCallContext().getVariableValue("slot");
-                                if (slot.getType() != Variable.Type.NUMBER)
-                                    throw new ExecutionException("Number expected");
-                                int slotNo = ((Number) slot.getValue()).intValue();
-                                context.setContextValue(new Variable(new SlotBindingObjectDefinition(computer, slotNo)));
-                                return new ExecutionProgress(100);
-                            }
-                        };
-                    }
-
-                    @Override
-                    public boolean requiresSemicolon() {
-                        return false;
-                    }
-                });
-    }
-
+public class BindModuleFunction extends JavaFunctionExecutable {
     @Override
     public String[] getParameterNames() {
         return new String[] {"slot"};
+    }
+
+    @Override
+    protected int getDuration() {
+        return 100;
+    }
+
+    @Override
+    protected Object executeFunction(ComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+        final Variable slot = parameters.get("slot");
+        if (slot.getType() != Variable.Type.NUMBER)
+            throw new ExecutionException("Number expected");
+        int slotNo = ((Number) slot.getValue()).intValue();
+        return new SlotBindingObjectDefinition(computer, slotNo);
     }
 }
