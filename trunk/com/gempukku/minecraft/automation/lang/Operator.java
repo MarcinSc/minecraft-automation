@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.lang;
 
 public enum Operator {
-    MEMBER_ACCESS(1, 1, true, true, false), MAPPED_ACCESS(1, 1, true, false, true), FUNCTION_CALL(1, 1, true, false, true),
+    MEMBER_ACCESS(1, 1, true, true, false), MAPPED_ACCESS(1, 1, true, false, true, "]"), FUNCTION_CALL(1, 1, true, false, true, ")"),
     NOT(1, 2, false, false, false),
     MULTIPLY(1, 3, true, true, false), DIVIDE(1, 3, true, true, false), MOD(1, 3, true, true, false),
     ADD(1, 4, true, true, false), SUBTRACT(1, 4, true, true, false),
@@ -16,13 +16,19 @@ public enum Operator {
     private boolean _leftAssociative;
     private boolean _binary;
     private boolean _hasParameters;
+    private String _parametersClosing;
 
     private Operator(int consumeLength, int priority, boolean leftAssociative, boolean binary, boolean hasParameters) {
+        this(consumeLength, priority, leftAssociative, binary, hasParameters, null);
+    }
+    
+    private Operator(int consumeLength, int priority, boolean leftAssociative, boolean binary, boolean hasParameters, String parametersClosing) {
         _consumeLength = consumeLength;
         _priority = priority;
         _leftAssociative = leftAssociative;
         _binary = binary;
         _hasParameters = hasParameters;
+        _parametersClosing =parametersClosing;
     }
 
     public int getConsumeLength() {
@@ -43,5 +49,9 @@ public enum Operator {
 
     public boolean isHasParameters() {
         return _hasParameters;
+    }
+
+    public String getParametersClosing() {
+        return _parametersClosing;
     }
 }

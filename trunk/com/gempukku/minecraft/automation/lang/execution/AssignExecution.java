@@ -3,7 +3,6 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class AssignExecution implements Execution {
-    private boolean _define;
     private ExecutableStatement _variable;
     private ExecutableStatement _value;
 

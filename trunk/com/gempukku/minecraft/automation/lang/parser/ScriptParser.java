@@ -271,52 +271,52 @@ public class ScriptParser {
     private ExecutableStatement parseExpression(PeekingIterator<TermBlock> termIterator, ExecutableStatement left, int maxPriority) throws IllegalSyntaxException {
         // Based on algorithm from http://en.wikipedia.org/wiki/Operator-precedence_parser on March 28, 2013
         Operator operator;
-        while ((operator = peekNextOperator(termIterator)) != null && operator.isBinary() &&
+        while ((operator = peekNextOperator(termIterator)) != null &&
                 operator.getPriority() <= maxPriority) {
-            consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+            if (operator.isBinary()) {
+                consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
 
-            List<ExecutableStatement> parameters = null;
-            if (operator.isHasParameters())
-                parameters = parseParameters(termIterator);
+                List<ExecutableStatement> parameters = null;
+                if (operator.isHasParameters())
+                    parameters = parseParameters(termIterator, operator.getParametersClosing());
 
-            ExecutableStatement right = parseNextOperationToken(termIterator);
-            Operator nextOperator;
-            while ((nextOperator = peekNextOperator(termIterator)) != null &&
-                    (nextOperator.getPriority() < operator.getPriority() ||
-                            (nextOperator.getPriority() == operator.getPriority() && !nextOperator.isLeftAssociative()))) {
-                if (operator.isBinary())
-                    right = parseExpression(termIterator, right, nextOperator.getPriority());
+                ExecutableStatement right = parseNextOperationToken(termIterator);
+                Operator nextOperator;
+                while ((nextOperator = peekNextOperator(termIterator)) != null &&
+                        (nextOperator.getPriority() < operator.getPriority() ||
+                                (nextOperator.getPriority() == operator.getPriority() && !nextOperator.isLeftAssociative()))) {
+                    if (operator.isBinary())
+                        right = parseExpression(termIterator, right, nextOperator.getPriority());
+                    else {
+                        consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+                        right = produceOperation(right, nextOperator, null, parseParameters(termIterator, nextOperator.getParametersClosing()));
+                    }
+                }
+
+                left = produceOperation(left, operator, right, parameters);
+            } else {
+                consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+                List<ExecutableStatement> parameters = null;
+                if (operator.isHasParameters())
+                    parameters = parseParameters(termIterator, operator.getParametersClosing());
+
+                if (operator.isLeftAssociative())
+                    left = produceOperation(left, operator, null, parameters);
                 else {
-                    consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
-                    right = produceOperation(right, nextOperator, null, parseParameters(termIterator));
+                    ExecutableStatement operatorExpression = parseExpression(termIterator, parseNextOperationToken(termIterator), operator.getPriority());
+                    left = produceOperation(operatorExpression, operator, null, parameters);
                 }
             }
-
-            left = produceOperation(left, operator, right, parameters);
         }
 
-        // Time for unary operators
-        if (operator != null && !operator.isBinary()) {
-            consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
-            List<ExecutableStatement> parameters = null;
-            if (operator.isHasParameters())
-                parameters = parseParameters(termIterator);
-
-            if (operator.isLeftAssociative())
-                left = produceOperation(left, operator, null, parameters);
-            else {
-                ExecutableStatement operatorExpression = parseExpression(termIterator, parseNextOperationToken(termIterator), operator.getPriority());
-                left = produceOperation(operatorExpression, operator, null, parameters);
-            }
-        }
         return left;
     }
 
-    private List<ExecutableStatement> parseParameters(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+    private List<ExecutableStatement> parseParameters(PeekingIterator<TermBlock> termIterator, String parametersClosing) throws IllegalSyntaxException {
         boolean first = true;
         List<ExecutableStatement> parameters;
         parameters = new ArrayList<ExecutableStatement>();
-        while (!isNextTermStartingWith(termIterator, ")")) {
+        while (!isNextTermStartingWith(termIterator, parametersClosing)) {
             if (!first) {
                 if (!isNextTermStartingWith(termIterator, ","))
                     throw new IllegalSyntaxException(", expected");
@@ -326,11 +326,13 @@ public class ScriptParser {
             parameters.add(produceExpressionFromIterator(termIterator));
             first = false;
         }
-        consumeCharactersFromTerm(termIterator, 1);
+        consumeCharactersFromTerm(termIterator, parametersClosing.length());
         return parameters;
     }
 
     private Operator peekNextOperator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+        if (!termIterator.hasNext())
+            return null;
         final Term term = peekNextProgramTermSafely(termIterator);
         String termValue = term.getValue();
         Operator operator = null;
@@ -368,11 +370,13 @@ public class ScriptParser {
             operator = Operator.OR;
         else if (termValue.startsWith("!"))
             operator = Operator.NOT;
+        else if (termValue.startsWith("["))
+            operator = Operator.MAPPED_ACCESS;
 
         return operator;
     }
 
-    private ExecutableStatement produceOperation(ExecutableStatement left, Operator operator, ExecutableStatement right, List<ExecutableStatement> parameters) {
+    private ExecutableStatement produceOperation(ExecutableStatement left, Operator operator, ExecutableStatement right, List<ExecutableStatement> parameters) throws IllegalSyntaxException {
         if (operator == Operator.ASSIGNMENT)
             return new AssignStatement(left, right);
         else if (operator == Operator.FUNCTION_CALL)
@@ -387,7 +391,11 @@ public class ScriptParser {
             return new LogicalOperatorStatement(left, operator, right);
         else if (operator == Operator.NOT)
             return new NegateStatement(left);
-        else
+        else if (operator == Operator.MAPPED_ACCESS) {
+            if (parameters.size() != 1)
+                throw new IllegalSyntaxException("Expected one expression");
+            return new MapAccessStatement(left, parameters.get(0));
+        } else
             return new MathStatement(left, operator, right);
     }
 
@@ -395,7 +403,6 @@ public class ScriptParser {
         ExecutableStatement result;
         TermBlock termBlock = peekNextTermBlockSafely(termIterator);
         if (termBlock.isTerm()) {
-
             Term term = termBlock.getTerm();
             if (term.getType() == Term.Type.STRING) {
                 String value = term.getValue();
@@ -436,10 +443,46 @@ public class ScriptParser {
                 }
             }
         } else {
-            // TODO
-            result = null;
+            // It's a map (in {})
+            result = produceMapDefinitionFromBlock(termBlock);
+            // Consume the block
+            termIterator.next();
         }
         return result;
+    }
+
+    private ExecutableStatement produceMapDefinitionFromBlock(TermBlock termBlock) throws IllegalSyntaxException {
+        MapDefineStatement mapStatement = new MapDefineStatement();
+        final PeekingIterator<TermBlock> iterator = Iterators.peekingIterator(termBlock.getTermBlocks().iterator());
+        boolean first = true;
+        while (iterator.hasNext()) {
+            if (!first) {
+                if (!isNextTermStartingWith(iterator, ","))
+                    throw new IllegalSyntaxException(", expected");
+                consumeCharactersFromTerm(iterator, 1);
+            }
+            final TermBlock property = iterator.peek();
+            if (!property.isTerm())
+                throw new IllegalSyntaxException("Property name expected");
+            String propertyName;
+            if (property.getTerm().getType() == Term.Type.STRING) {
+                propertyName = property.getTerm().getValue();
+                // Consume the string
+                iterator.next();
+            } else {
+                propertyName = getFirstLiteral(property.getTerm().getValue());
+                consumeCharactersFromTerm(iterator, propertyName.length());
+            }
+
+            if (!isNextTermStartingWith(iterator, ":"))
+                throw new IllegalSyntaxException(": expected");
+            consumeCharactersFromTerm(iterator, 1);
+
+            mapStatement.addProperty(propertyName, produceExpressionFromIterator(iterator));
+
+            first = false;
+        }
+        return mapStatement;
     }
 
     private String getNumber(String termValue) {
