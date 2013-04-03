@@ -1,6 +1,8 @@
 package com.gempukku.minecraft.automation.lang;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 public class ExecutionContext {
     private LinkedList<LinkedList<Execution>> _executionGroups = new LinkedList<LinkedList<Execution>>();
@@ -11,6 +13,7 @@ public class ExecutionContext {
     private boolean _breakFromBlock;
 
     private LinkedList<CallContext> _groupCallContexts = new LinkedList<CallContext>();
+    private Map<Variable.Type, PropertyProducer> _perTypeProperties = new HashMap<Variable.Type, PropertyProducer>();
 
     public void stackExecution(Execution execution) {
         _executionGroups.getLast().add(execution);
@@ -90,10 +93,14 @@ public class ExecutionContext {
         return _executionGroups.isEmpty();
     }
 
+    public void addPropertyProducer(Variable.Type type, PropertyProducer producer) {
+        _perTypeProperties.put(type, producer);
+    }
+
     public Variable resolveMember(Variable object, String property) throws ExecutionException {
-        if (object.getType() != Variable.Type.OBJECT)
+        if (!_perTypeProperties.containsKey(object.getType()))
             throw new ExecutionException("Expected object");
-        
-        return ((ObjectDefinition) object.getValue()).getMember(property);
+
+        return _perTypeProperties.get(object.getType()).exposePropertyFor(object, property);
     }
 }

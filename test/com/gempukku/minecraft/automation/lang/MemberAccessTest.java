@@ -21,7 +21,7 @@ public class MemberAccessTest extends ProgramTest {
         context.defineVariable("os");
         context.setVariableValue("os", os);
 
-        ExecutionContext executionContext = new ExecutionContext();
+        ExecutionContext executionContext = initExecutionContext();
         executionContext.stackExecutionGroup(context, exec.createExecution(context));
 
         while (!executionContext.isFinished())

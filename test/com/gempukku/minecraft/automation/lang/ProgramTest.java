@@ -8,13 +8,20 @@ import java.io.StringReader;
 public class ProgramTest {
     protected Variable executeScript(ScriptExecutable exec) throws ExecutionException {
         CallContext context = new CallContext(null, false, true);
-        ExecutionContext executionContext = new ExecutionContext();
+        ExecutionContext executionContext = initExecutionContext();
         executionContext.stackExecutionGroup(context, exec.createExecution(context));
 
         while (!executionContext.isFinished())
             executionContext.executeNext();
 
         return executionContext.getReturnValue();
+    }
+
+    protected ExecutionContext initExecutionContext() {
+        ExecutionContext executionContext = new ExecutionContext();
+        executionContext.addPropertyProducer(Variable.Type.MAP, new MapPropertyProducer());
+        executionContext.addPropertyProducer(Variable.Type.OBJECT, new ObjectPropertyProducer());
+        return executionContext;
     }
 
     protected Variable executeScript(String script) throws IllegalSyntaxException, IOException, ExecutionException {
