@@ -1,5 +1,7 @@
 package com.gempukku.minecraft.automation.computer.os;
 
+import com.gempukku.minecraft.automation.computer.ComputerData;
+import com.gempukku.minecraft.automation.computer.ComputerExecutionContext;
 import com.gempukku.minecraft.automation.computer.bind.SlotBindingObjectDefinition;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.execution.ReturnExecution;
@@ -15,11 +17,13 @@ public class BindModuleFunction implements FunctionExecutable {
                         return new SimpleExecution() {
                             @Override
                             protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
+                                ComputerData computer = ((ComputerExecutionContext) context).getComputerData();
+
                                 final Variable slot = context.peekCallContext().getVariableValue("slot");
                                 if (slot.getType() != Variable.Type.NUMBER)
                                     throw new ExecutionException("Number expected");
                                 int slotNo = ((Number) slot.getValue()).intValue();
-                                context.setContextValue(new Variable(new SlotBindingObjectDefinition(slotNo)));
+                                context.setContextValue(new Variable(new SlotBindingObjectDefinition(computer, slotNo)));
                                 return new ExecutionProgress(100);
                             }
                         };

@@ -19,4 +19,12 @@ public class ComputerData {
     public void setLabel(String label) {
         _label = label;
     }
+
+    public int getModuleSlotCount() {
+        return 10;
+    }
+
+    public ComputerModule getModuleAt(int slot) {
+        return null;
+    }
 }
