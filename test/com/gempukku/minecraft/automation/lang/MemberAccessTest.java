@@ -1,8 +1,7 @@
 package com.gempukku.minecraft.automation.lang;
 
+import com.gempukku.minecraft.automation.computer.os.OSObjectDefinition;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
-import com.gempukku.minecraft.automation.lang.statement.ConstantStatement;
-import com.gempukku.minecraft.automation.lang.statement.ReturnStatement;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -31,11 +30,6 @@ public class MemberAccessTest extends ProgramTest {
     }
 
     private ObjectDefinition constructOS() {
-        ObjectDefinition os = new ObjectDefinition();
-        FunctionExecutable exitFunction = new FunctionExecutable(new String[0]);
-        exitFunction.setStatement(
-                new ReturnStatement(new ConstantStatement(new Variable(0))));
-        os.addMember("exit", exitFunction);
-        return os;
+        return new OSObjectDefinition();
     }
 }

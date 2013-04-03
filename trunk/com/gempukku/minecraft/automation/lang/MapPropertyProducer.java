@@ -10,7 +10,7 @@ public class MapPropertyProducer implements PropertyProducer {
     public Variable exposePropertyFor(Variable object, String property) throws ExecutionException {
         Map<String, Variable> map = (Map<String, Variable>) object.getValue();
         if (property.equals("size")) {
-            FunctionExecutable function = new FunctionExecutable(new String[0]);
+            DefaultFunctionExecutable function = new DefaultFunctionExecutable(new String[0]);
             function.setStatement(
                     new ReturnStatement(new ConstantStatement(new Variable(map.size()))));
             return new Variable(function);

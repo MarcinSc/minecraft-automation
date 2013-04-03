@@ -1,13 +1,6 @@
 package com.gempukku.minecraft.automation.lang;
 
-public class FunctionExecutable extends ScriptExecutable {
-    private String[] _parameterNames;
-
-    public FunctionExecutable(String[] parameterNames) {
-        _parameterNames = parameterNames;
-    }
-
-    public String[] getParameterNames() {
-        return _parameterNames;
-    }
+public interface FunctionExecutable {
+    public String[] getParameterNames();
+    public Execution createExecution(CallContext callContext);
 }
