@@ -8,18 +8,16 @@ import com.gempukku.minecraft.automation.lang.ExecutionProgress;
 public class RunningProgram {
     private ExecutionContext _executionContext;
     private ComputerData _computerData;
-    private int _computerSpeed;
     private int _speedConsumed;
     private boolean _running = true;
 
-    public RunningProgram(ComputerData computerData, int computerSpeed, ExecutionContext executionContext) {
+    public RunningProgram(ComputerData computerData, ExecutionContext executionContext) {
         _computerData = computerData;
-        _computerSpeed = computerSpeed;
         _executionContext = executionContext;
     }
 
     public void progressProgram() {
-        _speedConsumed -= _computerSpeed;
+        _speedConsumed -= _computerData.getSpeed();
         while (_speedConsumed <= 0) {
             try {
                 final ExecutionProgress executionProgress = _executionContext.executeNext();

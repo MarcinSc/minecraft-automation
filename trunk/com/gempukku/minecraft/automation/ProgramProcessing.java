@@ -39,7 +39,7 @@ public class ProgramProcessing {
             ExecutionContext exec = initExecutionContext(computerData);
             CallContext context = new CallContext(null, false, true);
             exec.stackExecutionGroup(context, parsedScript.createExecution(context));
-            _runningPrograms.put(computerId, new RunningProgram(computerData, 100, exec));
+            _runningPrograms.put(computerId, new RunningProgram(computerData, exec));
 
             return null;
         } catch (IllegalSyntaxException exp) {

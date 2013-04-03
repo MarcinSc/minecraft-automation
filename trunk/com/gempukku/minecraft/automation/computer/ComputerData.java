@@ -28,6 +28,10 @@ public class ComputerData {
         return null;
     }
 
+    public int getSpeed() {
+        return 100;
+    }
+
     public void appendToConsole(String text) {
         
     }
