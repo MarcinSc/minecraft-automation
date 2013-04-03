@@ -55,6 +55,22 @@ public class ProgramProcessing {
         return null;
     }
 
+    public List<String> listPrograms(int computerId) {
+        final File computerFolder = getComputerFolder(computerId);
+        if (computerFolder == null)
+            return null;
+        final File[] files = computerFolder.listFiles();
+        List<String> result = new ArrayList<String>(files.length);
+        for (File file : files)
+            result.add(file.getName());
+
+        return result;
+    }
+
+    public boolean isRunningProgram(int computerId) {
+        return _runningPrograms.containsKey(computerId);
+    }
+
     public void progressAllPrograms() {
         final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
         while (iterator.hasNext()) {
@@ -104,17 +120,5 @@ public class ProgramProcessing {
         if (computerFolder.exists() && computerFolder.isDirectory())
             return computerFolder;
         return null;
-    }
-
-    public List<String> listPrograms(int computerId) {
-        final File computerFolder = getComputerFolder(computerId);
-        if (computerFolder == null)
-            return null;
-        final File[] files = computerFolder.listFiles();
-        List<String> result = new ArrayList<String>(files.length);
-        for (File file : files)
-            result.add(file.getName());
-
-        return result;
     }
 }
