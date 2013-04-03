@@ -27,4 +27,8 @@ public class ComputerData {
     public ComputerModule getModuleAt(int slot) {
         return null;
     }
+
+    public void appendToConsole(String text) {
+        
+    }
 }
