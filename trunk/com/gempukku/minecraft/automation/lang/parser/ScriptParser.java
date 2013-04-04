@@ -72,6 +72,8 @@ public class ScriptParser {
                     return produceForStatement(termIterator);
                 } else if (literal.equals("while")) {
                     return produceWhileStatement(termIterator);
+                } else if (literal.equals("break")) {
+                    return produceBreakStatement(termIterator);
                 } else {
                     return produceExpressionFromIterator(termIterator);
                 }
@@ -79,6 +81,11 @@ public class ScriptParser {
         } else {
             return new BlockStatement(seekStatementsInBlock(firstTermBlock), true, false);
         }
+    }
+
+    private ExecutableStatement produceBreakStatement(PeekingIterator<TermBlock> termIterator) {
+        consumeCharactersFromTerm(termIterator, 5);
+        return new BreakStatement();
     }
 
     private ExecutableStatement produceWhileStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
@@ -165,7 +172,7 @@ public class ScriptParser {
         } else {
             termIterator.next();
             final List<ExecutableStatement> statements = seekStatementsInBlock(ifExecute);
-            statement = new BlockStatement(statements, true, false);
+            statement = new BlockStatement(statements, false, false);
         }
         return statement;
     }

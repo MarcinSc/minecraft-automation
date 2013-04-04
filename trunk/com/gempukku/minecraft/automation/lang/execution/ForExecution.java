@@ -10,7 +10,6 @@ public class ForExecution implements Execution {
 
     private boolean _terminated;
 
-    private boolean _stackedItself;
     private boolean _initialized;
     private boolean _conditionStacked;
     private boolean _conditionChecked;
@@ -34,13 +33,6 @@ public class ForExecution implements Execution {
 
     @Override
     public ExecutionProgress executeNextStatement(ExecutionContext executionContext) throws ExecutionException {
-        if (!_stackedItself) {
-            _stackedItself = true;
-            final CallContext currentContext = executionContext.peekCallContext();
-            CallContext childContext = new CallContext(currentContext, false, false);
-            executionContext.stackExecutionGroup(childContext, this);
-            return new ExecutionProgress(100);
-        }
         if (!_initialized) {
             _initialized = true;
             if (_initializationStatement != null) {

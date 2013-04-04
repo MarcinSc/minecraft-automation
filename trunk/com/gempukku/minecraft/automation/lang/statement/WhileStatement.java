@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.lang.statement;
 
-import com.gempukku.minecraft.automation.lang.ExecutableStatement;
-import com.gempukku.minecraft.automation.lang.Execution;
+import com.gempukku.minecraft.automation.lang.*;
+import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
 import com.gempukku.minecraft.automation.lang.execution.WhileExecution;
 
 public class WhileStatement implements ExecutableStatement {
@@ -15,7 +15,15 @@ public class WhileStatement implements ExecutableStatement {
 
     @Override
     public Execution createExecution() {
-        return new WhileExecution(_condition, _statement);
+        return new SimpleExecution() {
+            @Override
+            protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
+                CallContext whileContext = new CallContext(context.peekCallContext(), true, false);
+                context.stackExecutionGroup(whileContext,
+                        new WhileExecution(_condition, _statement));
+                return new ExecutionProgress(100);
+            }
+        };
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.gempukku.minecraft.automation.lang.statement;
 
-import com.gempukku.minecraft.automation.lang.ExecutableStatement;
-import com.gempukku.minecraft.automation.lang.Execution;
+import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.execution.ForExecution;
+import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
 
 public class ForStatement implements ExecutableStatement {
     private ExecutableStatement _initializationStatement;
@@ -19,7 +19,15 @@ public class ForStatement implements ExecutableStatement {
 
     @Override
     public Execution createExecution() {
-        return new ForExecution(_initializationStatement, _terminationCondition, _executedAfterEachLoop, _statementInLoop);
+        return new SimpleExecution() {
+            @Override
+            protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
+                CallContext forContext = new CallContext(context.peekCallContext(), true, false);
+                context.stackExecutionGroup(forContext,
+                        new ForExecution(_initializationStatement, _terminationCondition, _executedAfterEachLoop, _statementInLoop));
+                return new ExecutionProgress(100);
+            }
+        };
     }
 
     @Override

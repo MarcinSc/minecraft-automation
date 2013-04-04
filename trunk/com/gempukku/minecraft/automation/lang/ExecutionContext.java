@@ -40,12 +40,15 @@ public class ExecutionContext {
         return null;
     }
 
-    private void doTheBreak() {
+    private void doTheBreak() throws ExecutionException {
         CallContext callContext;
         do {
+            if (_groupCallContexts.isEmpty())
+                throw new ExecutionException("break invoked without a containing block");
             callContext = _groupCallContexts.removeLast();
             _executionGroups.removeLast();
         } while (!callContext.isConsumesBreak());
+        _breakFromBlock = false;
     }
 
     private void doTheReturn() {
@@ -71,6 +74,10 @@ public class ExecutionContext {
     public void setReturnValue(Variable returnValue) {
         _returnValue = returnValue;
         _returnFromFunction = true;
+    }
+
+    public void breakBlock() {
+        _breakFromBlock = true;
     }
 
     public void resetReturnValue() {
