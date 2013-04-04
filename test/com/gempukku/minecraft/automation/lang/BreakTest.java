@@ -14,12 +14,6 @@ public class BreakTest extends ProgramTest {
     }
 
     @Test
-    public void breakElseIf() throws IllegalSyntaxException, IOException, ExecutionException {
-        final Variable variable = executeScript("var v; var i=0; if (i==0) { i = 1; v=\"Test\"; } else if (i==1) { v=\"Failed else if\"; } else { v=\"Failed else\"; } return v;");
-        assertEquals("Test", variable.getValue());
-    }
-
-    @Test
     public void breakWhile() throws IllegalSyntaxException, IOException, ExecutionException {
         final Variable variable = executeScript("var v; var i=0; while (i<2) { v=\"Test\"; i=i+1; break; } if (i != 1) v=\"Failed\"; return v;");
         assertEquals("Test", variable.getValue());
