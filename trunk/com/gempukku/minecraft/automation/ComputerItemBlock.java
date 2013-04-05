@@ -1,13 +1,19 @@
 package com.gempukku.minecraft.automation;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.Icon;
 
 import java.util.List;
 
 public class ComputerItemBlock extends ItemBlock {
+    private Icon _icon;
+
     public ComputerItemBlock(int id) {
         super(id);
         this.setMaxStackSize(1);
@@ -21,6 +27,13 @@ public class ComputerItemBlock extends ItemBlock {
             displayName = "-Unlabeled-";
         lines.add(EnumChatFormatting.RED + displayName);
     }
+
+    @SideOnly(Side.CLIENT)
+    public void func_94581_a(IconRegister iconRegister)
+    {
+        _icon = iconRegister.func_94245_a("computer");
+    }
+
 
     private String getComputerLabel(ItemStack itemStack) {
         return String.valueOf(itemStack.getItemDamage());
