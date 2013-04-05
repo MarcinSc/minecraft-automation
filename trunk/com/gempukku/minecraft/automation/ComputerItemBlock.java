@@ -29,11 +29,14 @@ public class ComputerItemBlock extends ItemBlock {
     }
 
     @SideOnly(Side.CLIENT)
-    public void func_94581_a(IconRegister iconRegister)
-    {
+    public void func_94581_a(IconRegister iconRegister) {
         _icon = iconRegister.func_94245_a("computer");
     }
 
+    @Override
+    public Icon getIcon(ItemStack stack, int pass) {
+        return _icon;
+    }
 
     private String getComputerLabel(ItemStack itemStack) {
         return String.valueOf(itemStack.getItemDamage());

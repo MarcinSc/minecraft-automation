@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -40,13 +41,24 @@ public class ComputerBlock extends Block {
     }
 
     @SideOnly(Side.CLIENT)
-    public void func_94332_a(IconRegister iconRegister)
-    {
+    public void func_94332_a(IconRegister iconRegister) {
         _frontReadyIcon = iconRegister.func_94245_a("computerFrontReady");
         _frontWorkingIcon = iconRegister.func_94245_a("computerFrontWorking");
         _sideIcon = iconRegister.func_94245_a("computerSide");
     }
 
+    @Override
+    public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
+        final ComputerTileEntity tileEntity = (ComputerTileEntity) blockAccess.getBlockTileEntity(x, y, z);
+        if (tileEntity != null && side == tileEntity.getFacing()) {
+            if (Automation.getProgramProcessing().isRunningProgram(tileEntity.getComputerId()))
+                return _frontWorkingIcon;
+            else
+                return _frontReadyIcon;
+        }
+
+        return _sideIcon;
+    }
 
     @Override
     public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune) {
