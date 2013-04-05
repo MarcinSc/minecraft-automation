@@ -52,6 +52,7 @@ public class Automation {
 
         LanguageRegistry.addName(_computerBlock, "Computer");
         LanguageRegistry.addName(_gpsModuleItem, "GPS module");
+        
 
         TickRegistry.registerTickHandler(
                 new ProcessRunningPrograms(), Side.SERVER);
