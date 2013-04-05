@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.lang;
 
 import com.gempukku.minecraft.automation.computer.ComputerData;
-import com.gempukku.minecraft.automation.computer.ComputerExecutionContext;
+import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class ProgramTest {
     }
 
     protected ExecutionContext initExecutionContext() {
-        ExecutionContext executionContext = new ComputerExecutionContext(new ComputerData("owner"));
+        ExecutionContext executionContext = new MinecraftComputerExecutionContext(new ComputerData("owner"));
         executionContext.addPropertyProducer(Variable.Type.MAP, new MapPropertyProducer());
         executionContext.addPropertyProducer(Variable.Type.OBJECT, new ObjectPropertyProducer());
         return executionContext;

@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation;
 
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
+import net.minecraft.world.World;
 
 import java.util.EnumSet;
 
@@ -17,11 +18,13 @@ public class ProcessRunningPrograms implements ITickHandler {
 
     @Override
     public void tickEnd(EnumSet<TickType> type, Object... tickData) {
-        Automation.getProgramProcessing().progressAllPrograms();
+        World world = (World) tickData[0];
+        if (!world.isRemote)
+            Automation.getProgramProcessing().progressAllPrograms(world);
     }
 
     @Override
     public EnumSet<TickType> ticks() {
-        return EnumSet.of(TickType.SERVER);
+        return EnumSet.of(TickType.WORLD);
     }
 }

@@ -1,22 +1,24 @@
 package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.automation.computer.ComputerData;
-import com.gempukku.minecraft.automation.lang.ExecutionContext;
+import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.ExecutionProgress;
+import net.minecraft.world.World;
 
 public class RunningProgram {
-    private ExecutionContext _executionContext;
+    private MinecraftComputerExecutionContext _executionContext;
     private ComputerData _computerData;
     private int _speedConsumed;
     private boolean _running = true;
 
-    public RunningProgram(ComputerData computerData, ExecutionContext executionContext) {
+    public RunningProgram(ComputerData computerData, MinecraftComputerExecutionContext executionContext) {
         _computerData = computerData;
         _executionContext = executionContext;
     }
 
-    public void progressProgram() {
+    public void progressProgram(World world) {
+        _executionContext.setWorld(world);
         _speedConsumed -= _computerData.getSpeed();
         while (_speedConsumed <= 0) {
             try {

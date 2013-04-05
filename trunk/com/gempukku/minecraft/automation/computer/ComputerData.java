@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.computer;
 public class ComputerData {
     private final String _owner;
     private String _label;
+    private int[] _location = new int[3];
 
     public ComputerData(String owner) {
         _owner = owner;
@@ -34,5 +35,17 @@ public class ComputerData {
 
     public void appendToConsole(String text) {
         
+    }
+
+    public int getX() {
+        return _location[0];
+    }
+
+    public int getY() {
+        return _location[1];
+    }
+
+    public int getZ() {
+        return _location[2];
     }
 }

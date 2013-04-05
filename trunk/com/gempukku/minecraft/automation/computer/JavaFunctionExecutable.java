@@ -12,7 +12,7 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
         return new SimpleExecution() {
             @Override
             protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
-                ComputerData computer = ((ComputerExecutionContext) context).getComputerData();
+                ComputerData computer = ((MinecraftComputerExecutionContext) context).getComputerData();
 
                 final String[] parameterNames = getParameterNames();
                 Map<String, Variable> parameters = new HashMap<String, Variable>();

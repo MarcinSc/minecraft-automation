@@ -1,9 +1,10 @@
 package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.automation.computer.ComputerData;
-import com.gempukku.minecraft.automation.computer.ComputerExecutionContext;
+import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
+import net.minecraft.world.World;
 
 import java.io.File;
 import java.io.FileReader;
@@ -36,7 +37,7 @@ public class ProgramProcessing {
             if (parsedScript == null)
                 return "Unable to start a program, due to server error. Please contact server administrator.";
 
-            ExecutionContext exec = initExecutionContext(computerData);
+            MinecraftComputerExecutionContext exec = initExecutionContext(computerData);
             CallContext context = new CallContext(null, false, true);
             exec.stackExecutionGroup(context, parsedScript.createExecution(context));
             _runningPrograms.put(computerId, new RunningProgram(computerData, exec));
@@ -71,18 +72,18 @@ public class ProgramProcessing {
         return _runningPrograms.containsKey(computerId);
     }
 
-    public void progressAllPrograms() {
+    public void progressAllPrograms(World world) {
         final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
         while (iterator.hasNext()) {
             final RunningProgram program = iterator.next();
-            program.progressProgram();
+            program.progressProgram(world);
             if (!program.isRunning())
                 iterator.remove();
         }
     }
 
-    private ExecutionContext initExecutionContext(ComputerData computerData) {
-        ExecutionContext executionContext = new ComputerExecutionContext(computerData);
+    private MinecraftComputerExecutionContext initExecutionContext(ComputerData computerData) {
+        MinecraftComputerExecutionContext executionContext = new MinecraftComputerExecutionContext(computerData);
         executionContext.addPropertyProducer(Variable.Type.MAP, new MapPropertyProducer());
         executionContext.addPropertyProducer(Variable.Type.OBJECT, new ObjectPropertyProducer());
         return executionContext;
