@@ -7,7 +7,6 @@ public class OSObjectDefinition implements ObjectDefinition {
     private Variable _bindModule = new Variable(new BindModuleFunction());
     private Variable _getModuleSlotCount = new Variable(new GetModuleSlotCountFunction());
     private Variable _getModuleName = new Variable(new GetModuleNameFunction());
-    private Variable _exit = new Variable(new ExitFunction());
 
     @Override
     public Variable getMember(String name) {
@@ -17,9 +16,7 @@ public class OSObjectDefinition implements ObjectDefinition {
             return _getModuleSlotCount;
         else if (name.equals("getModuleType"))
             return _getModuleName;
-        else if (name.equals("exit"))
-            return _exit;
-        
+
         return null;
     }
 }

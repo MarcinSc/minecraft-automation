@@ -4,6 +4,7 @@ import com.gempukku.minecraft.automation.computer.ComputerData;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
+import net.minecraft.world.World;
 
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class GetModuleSlotCountFunction extends JavaFunctionExecutable {
     }
 
     @Override
-    protected Object executeFunction(ComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+    protected Object executeFunction(ComputerData computer, World world, Map<String, Variable> parameters) throws ExecutionException {
         return computer.getModuleSlotCount();
     }
 }

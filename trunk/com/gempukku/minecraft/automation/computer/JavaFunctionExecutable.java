@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation.computer;
 
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
+import net.minecraft.world.World;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,8 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
         return new SimpleExecution() {
             @Override
             protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
-                ComputerData computer = ((MinecraftComputerExecutionContext) context).getComputerData();
+                final MinecraftComputerExecutionContext minecraftExecutionContext = (MinecraftComputerExecutionContext) context;
+                ComputerData computer = minecraftExecutionContext.getComputerData();
 
                 final String[] parameterNames = getParameterNames();
                 Map<String, Variable> parameters = new HashMap<String, Variable>();
@@ -20,7 +22,7 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
                 for (String parameterName : parameterNames)
                     parameters.put(parameterName, callContext.getVariableValue(parameterName));
 
-                context.setReturnValue(new Variable(executeFunction(computer, parameters)));
+                context.setReturnValue(new Variable(executeFunction(computer, minecraftExecutionContext.getWorld(), parameters)));
                 return new ExecutionProgress(getDuration());
             }
         };
@@ -45,5 +47,5 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
      * @throws ExecutionException Fatal exception that will be communicated to the computer console. When thrown,
      * the execution of the program will stop.
      */
-    protected abstract Object executeFunction(ComputerData computer, Map<String, Variable> parameters) throws ExecutionException;
+    protected abstract Object executeFunction(ComputerData computer, World world, Map<String, Variable> parameters) throws ExecutionException;
 }
