@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -12,6 +13,10 @@ import java.util.ArrayList;
 public class ComputerBlock extends Block {
     public ComputerBlock(int id) {
         super(id, Material.ground);
+        setHardness(1.5F);
+        setResistance(10.0F);
+        setUnlocalizedName("computer");
+        setCreativeTab(CreativeTabs.tabBlock);
     }
 
     @Override

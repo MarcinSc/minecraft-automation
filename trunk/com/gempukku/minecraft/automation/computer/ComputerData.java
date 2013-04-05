@@ -4,6 +4,7 @@ public class ComputerData {
     private final String _owner;
     private String _label;
     private int[] _location = new int[3];
+    private int _facing;
 
     public ComputerData(String owner) {
         _owner = owner;
@@ -35,6 +36,18 @@ public class ComputerData {
 
     public void appendToConsole(String text) {
         
+    }
+
+    public void setLocation(int x, int y, int z) {
+        _location = new int[] {x, y, z};
+    }
+
+    public void setFacing(int facing) {
+        _facing = facing;
+    }
+
+    public int getFacing() {
+        return _facing;
     }
 
     public int getX() {
