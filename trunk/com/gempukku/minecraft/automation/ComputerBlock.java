@@ -6,11 +6,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
-import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -29,6 +27,10 @@ public class ComputerBlock extends Block {
         setCreativeTab(CreativeTabs.tabBlock);
     }
 
+    public Icon get_frontReadyIcon() {
+        return _frontReadyIcon;
+    }
+
     @Override
     public void breakBlock(World world, int x, int y, int z, int par5, int par6) {
         ComputerTileEntity computerTileEntity = (ComputerTileEntity) world.getBlockTileEntity(x, y, z);
@@ -40,11 +42,12 @@ public class ComputerBlock extends Block {
         super.breakBlock(world, x, y, z, par5, par6);
     }
 
+    @Override
     @SideOnly(Side.CLIENT)
-    public void func_94332_a(IconRegister iconRegister) {
-        _frontReadyIcon = iconRegister.func_94245_a("computerFrontReady");
-        _frontWorkingIcon = iconRegister.func_94245_a("computerFrontWorking");
-        _sideIcon = iconRegister.func_94245_a("computerSide");
+    public void registerIcons(IconRegister iconRegister) {
+        _frontReadyIcon = iconRegister.registerIcon("computerFrontReady");
+        _frontWorkingIcon = iconRegister.registerIcon("computerFrontWorking");
+        _sideIcon = iconRegister.registerIcon("computerSide");
     }
 
     @Override
@@ -67,16 +70,8 @@ public class ComputerBlock extends Block {
         return itemsDropped;
     }
 
-    @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving livingEntity, ItemStack itemPlaced) {
-        int facing = MathHelper.floor_double((double) (livingEntity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-        ComputerTileEntity computerEntity = createTileEntityFromItemStack(world, itemPlaced, facing);
-        world.setBlockTileEntity(x, y, z, computerEntity);
-    }
-
-    private ComputerTileEntity createTileEntityFromItemStack(World world, ItemStack itemPlaced, int facing) {
+    private ComputerTileEntity createTileEntityFromItemStack(World world, int computerId, int facing) {
         ComputerTileEntity result = new ComputerTileEntity();
-        int computerId = itemPlaced.getItemDamage();
         // If it's a new computer, we have to assign an id to it, but only on server side
         if (computerId == 0 && !world.isRemote)
             computerId = Automation.getRegistry().assignNextComputerId();
@@ -93,5 +88,10 @@ public class ComputerBlock extends Block {
     @Override
     public TileEntity createTileEntity(World world, int metadata) {
         return new ComputerTileEntity();
+    }
+
+    public void initializedBlockAfterPlaced(World world, int x, int y, int z, int facing, int computerId) {
+        ComputerTileEntity computerEntity = createTileEntityFromItemStack(world, computerId, facing);
+        world.setBlockTileEntity(x, y, z, computerEntity);
     }
 }

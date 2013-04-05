@@ -11,7 +11,6 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
-import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.Configuration;
 
@@ -24,7 +23,7 @@ public class Automation {
     private static ProgramProcessing _programProcessing;
     private static File _modConfigDirectory;
 
-    public static Block _computerBlock;
+    public static ComputerBlock _computerBlock;
     private static int _computerBlockId;
 
     public static Item _gpsModuleItem;

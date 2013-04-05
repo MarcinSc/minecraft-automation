@@ -1,13 +1,13 @@
 package com.gempukku.minecraft.automation;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.Icon;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
 
 import java.util.List;
 
@@ -28,14 +28,9 @@ public class ComputerItemBlock extends ItemBlock {
         lines.add(EnumChatFormatting.RED + displayName);
     }
 
-    @SideOnly(Side.CLIENT)
-    public void func_94581_a(IconRegister iconRegister) {
-        _icon = iconRegister.func_94245_a("computer");
-    }
-
     @Override
     public Icon getIcon(ItemStack stack, int pass) {
-        return _icon;
+        return Automation._computerBlock.get_frontReadyIcon();
     }
 
     private String getComputerLabel(ItemStack itemStack) {
@@ -54,4 +49,39 @@ public class ComputerItemBlock extends ItemBlock {
 //        System.out.println("Item right clicked");
 //        return super.onItemRightClick(par1ItemStack, par2World, par3EntityPlayer);
 //    }
+
+    @Override
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
+        boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, metadata);
+        if (placed) {
+            int blockFacing = getBlockFacingForEntity(player);
+            Automation._computerBlock.initializedBlockAfterPlaced(world, x, y, z, blockFacing, stack.getItemDamage());
+        }
+        return placed;
+    }
+
+    private int getBlockFacingForEntity(Entity entity) {
+        int playerFacing = MathHelper.floor_double((double) (entity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+        if (playerFacing == 0)
+        {
+            return 2;
+        }
+
+        if (playerFacing == 1)
+        {
+            return 5;
+        }
+
+        if (playerFacing == 2)
+        {
+            return 3;
+        }
+
+        if (playerFacing == 3)
+        {
+            return 4;
+        }
+
+        return 0;
+    }
 }
