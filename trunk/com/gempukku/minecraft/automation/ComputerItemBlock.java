@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation;
 
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
@@ -29,8 +30,25 @@ public class ComputerItemBlock extends ItemBlock {
     }
 
     @Override
+    public int getSpriteNumber() {
+        return 1;
+    }
+
+    // This is the icon that is rendered, when held in hand and on the ground
+    @Override
     public Icon getIcon(ItemStack stack, int pass) {
-        return Automation._computerBlock.get_frontReadyIcon();
+        return _icon;
+    }
+
+    // This is the icon that is rendered, when in inventory
+    @Override
+    public Icon getIconFromDamage(int par1) {
+        return _icon;
+    }
+
+    @Override
+    public void updateIcons(IconRegister par1IconRegister) {
+        _icon = par1IconRegister.registerIcon("computer");
     }
 
     private String getComputerLabel(ItemStack itemStack) {
