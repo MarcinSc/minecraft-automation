@@ -2,50 +2,60 @@ package com.gempukku.minecraft.automation;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+
 public class ComputerBlock extends Block {
-    public ComputerBlock(int id, Material material) {
-        super(id, material);
-        this.setCreativeTab(CreativeTabs.tabBlock);
-        System.out.println("Computer block");
+    public ComputerBlock(int id) {
+        super(id, Material.ground);
     }
 
+    @Override
+    public void breakBlock(World world, int x, int y, int z, int par5, int par6) {
+        ComputerTileEntity computerTileEntity = (ComputerTileEntity) world.getBlockTileEntity(x, y, z);
+        if (computerTileEntity != null)
+            dropBlockAsItem_do(world, x, y, z, new ItemStack(this, 1, computerTileEntity.getComputerId()));
+        else
+            dropBlockAsItem_do(world, x, y, z, new ItemStack(this, 1, 0));
+
+        super.breakBlock(world, x, y, z, par5, par6);
+    }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float directionX, float directionY, float directionZ) {
-        if (world.isRemote) {
-            ComputerTileEntity computerTile = (ComputerTileEntity) world.getBlockTileEntity(x, y, z);
-            computerTile.setComputerId(computerTile.getComputerId() + 1);
-        }
-        return true;
+    public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune) {
+        // We already dropped the items in breakBlock method, therefore not dropping here anything
+        ArrayList<ItemStack> itemsDropped = new ArrayList<ItemStack>();
+        return itemsDropped;
     }
 
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving livingEntity, ItemStack itemPlaced) {
-        if (world.isRemote)
-            world.setBlockTileEntity(x, y, z, createTileEntityFromItemStack(itemPlaced));
+        ComputerTileEntity computerEntity = createTileEntityFromItemStack(world, itemPlaced);
+        world.setBlockTileEntity(x, y, z, computerEntity);
     }
 
-    @Override
-    public void onBlockHarvested(World world, int x, int y, int z, int type, EntityPlayer player) {
-        super.onBlockHarvested(world, x, y, z, type, player);
-    }
-
-    private TileEntity createTileEntityFromItemStack(ItemStack itemPlaced) {
+    private ComputerTileEntity createTileEntityFromItemStack(World world, ItemStack itemPlaced) {
         ComputerTileEntity result = new ComputerTileEntity();
-        result.setComputerId(itemPlaced.getItemDamage());
+        int computerId = itemPlaced.getItemDamage();
+        // If it's a new computer, we have to assign an id to it, but only on server side
+        if (computerId == 0 && !world.isRemote)
+            computerId = Automation.getRegistry().assignNextComputerId();
+        result.setComputerId(computerId);
+        result.validate();
         return result;
     }
 
     @Override
-    public void onPostBlockPlaced(World par1World, int par2, int par3, int par4, int par5) {
-        System.out.println("Post block placed" + " remote=" + par1World.isRemote);
-        super.onPostBlockPlaced(par1World, par2, par3, par4, par5);
+    public boolean hasTileEntity(int metadata) {
+        return true;
+    }
+
+    @Override
+    public TileEntity createTileEntity(World world, int metadata) {
+        return new ComputerTileEntity();
     }
 }

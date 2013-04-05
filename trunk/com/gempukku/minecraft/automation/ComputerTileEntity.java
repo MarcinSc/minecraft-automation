@@ -4,7 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
 public class ComputerTileEntity extends TileEntity {
-    private static final String ID_NAME = "id";
+    private static final String ID_NAME = "computerId";
     private int _computerId;
 
     public int getComputerId() {
