@@ -40,6 +40,7 @@ public class Automation {
     @Mod.PreInit
     public void preInitialize(FMLPreInitializationEvent evt) {
         Configuration conf = new Configuration(evt.getSuggestedConfigurationFile());
+        conf.load();
         _modConfigDirectory = evt.getModConfigurationDirectory();
         _computerBlockId = conf.getBlock("computerBlock", 3624, "This is an ID of a computer block").getInt();
         _gpsModuleItemId = conf.getItem("gpsModule", 3625, "This is an ID of a gps module item").getInt();
