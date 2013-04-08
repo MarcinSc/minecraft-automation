@@ -73,7 +73,7 @@ public class ComputerBlock extends Block {
     private ComputerTileEntity createTileEntityFromItemStack(World world, int computerId, int facing) {
         ComputerTileEntity result = new ComputerTileEntity();
         // If it's a new computer, we have to assign an id to it, but only on server side
-        if (computerId == 0 && !world.isRemote)
+        if (computerId == 0 && world.isRemote)
             computerId = Automation.getRegistry().assignNextComputerId();
         result.setComputerId(computerId);
         result.setFacing(facing);

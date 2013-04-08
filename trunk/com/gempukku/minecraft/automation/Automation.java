@@ -1,8 +1,8 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.module.gps.GPSModule;
 import com.gempukku.minecraft.automation.module.gps.GpsModuleItem;
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -19,8 +19,6 @@ import java.io.File;
 @Mod(modid = "MarcinSc_Automation", name = "Automation", version = "0.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = true)
 public class Automation {
-    private static AutomationRegistry _registry;
-    private static ProgramProcessing _programProcessing;
     private static File _modConfigDirectory;
 
     public static ComputerBlock _computerBlock;
@@ -28,6 +26,10 @@ public class Automation {
 
     public static Item _gpsModuleItem;
     private static int _gpsModuleItemId;
+
+    @SidedProxy(clientSide = "com.gempukku.minecraft.automation.AutomationOnClient",
+            serverSide = "com.gempukku.minecraft.automation.AutomationOnServer")
+    private static AutomationProxy _automationProxy;
 
     @Mod.PreInit
     public void preInitialize(FMLPreInitializationEvent evt) {
@@ -39,33 +41,33 @@ public class Automation {
 
     @Mod.Init
     public void initialize(FMLInitializationEvent evt) {
-        _registry = new AutomationRegistry(_modConfigDirectory);
-        _programProcessing = new ProgramProcessing(_modConfigDirectory, _registry);
-
         _computerBlock = new ComputerBlock(_computerBlockId);
 
         _gpsModuleItem = new GpsModuleItem(_gpsModuleItemId);
 
         GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
         GameRegistry.registerBlock(_computerBlock, ComputerItemBlock.class, "computer");
+        GameRegistry.registerItem(_gpsModuleItem, "gpsModule");
 
         LanguageRegistry.addName(_computerBlock, "Computer");
         LanguageRegistry.addName(_gpsModuleItem, "GPS module");
         
         TickRegistry.registerTickHandler(
                 new ProcessRunningPrograms(), Side.SERVER);
+
+        _automationProxy.initialize(_modConfigDirectory);
     }
 
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
-        getRegistry().registerComputerModule(_gpsModuleItem, new GPSModule());
+//        getRegistry().registerComputerModule(_gpsModuleItem, new GPSModule());
     }
 
     public static AutomationRegistry getRegistry() {
-        return _registry;
+        return _automationProxy.getAutomationRegistry();
     }
 
     public static ProgramProcessing getProgramProcessing() {
-        return _programProcessing;
+        return _automationProxy.getProgramProcessing();
     }
 }
