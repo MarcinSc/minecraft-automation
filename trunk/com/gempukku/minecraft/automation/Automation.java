@@ -17,8 +17,14 @@ import net.minecraftforge.common.Configuration;
 import java.io.File;
 
 @Mod(modid = "MarcinSc_Automation", name = "Automation", version = "0.0")
-@NetworkMod(clientSideRequired = true, serverSideRequired = true)
+@NetworkMod(clientSideRequired = true,
+        clientPacketHandlerSpec = @NetworkMod.SidedPacketHandler(channels = {Automation.UPDATE_COMPUTER_LABEL}, packetHandler = ClientAutomationPacketHandler.class),
+        serverSideRequired = true,
+        serverPacketHandlerSpec = @NetworkMod.SidedPacketHandler(channels = {Automation.UPDATE_COMPUTER_LABEL}, packetHandler = ServerAutomationPacketHandler.class))
 public class Automation {
+    private static final String AUTOMATION_CHANNEL_PREFIX = "atm.";
+    public static final String UPDATE_COMPUTER_LABEL = AUTOMATION_CHANNEL_PREFIX + "updCompLabel";
+
     private static File _modConfigDirectory;
 
     public static ComputerBlock _computerBlock;
@@ -51,7 +57,7 @@ public class Automation {
 
         LanguageRegistry.addName(_computerBlock, "Computer");
         LanguageRegistry.addName(_gpsModuleItem, "GPS module");
-        
+
         TickRegistry.registerTickHandler(
                 new ProcessRunningPrograms(), Side.SERVER);
 
