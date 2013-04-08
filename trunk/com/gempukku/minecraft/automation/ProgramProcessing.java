@@ -4,7 +4,11 @@ import com.gempukku.minecraft.automation.computer.ComputerData;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.event.world.ChunkEvent;
 
 import java.io.File;
 import java.io.FileReader;
@@ -121,5 +125,27 @@ public class ProgramProcessing {
         if (computerFolder.exists() && computerFolder.isDirectory())
             return computerFolder;
         return null;
+    }
+
+    @ForgeSubscribe
+    public void stopProcessingOnChunkUnload(ChunkEvent.Unload evt) {
+        final Chunk chunk = evt.getChunk();
+        Collection<TileEntity> tileEntities = chunk.chunkTileEntityMap.values();
+        for (TileEntity tileEntity : tileEntities) {
+            if (tileEntity instanceof ComputerTileEntity)
+                _runningPrograms.remove(((ComputerTileEntity) tileEntity).getComputerId());
+        }
+    }
+
+    @ForgeSubscribe
+    public void startupComputerOnChunkLoad(ChunkEvent.Load evt) {
+        final Chunk chunk = evt.getChunk();
+        Collection<TileEntity> tileEntities = chunk.chunkTileEntityMap.values();
+        for (TileEntity tileEntity : tileEntities) {
+            if (tileEntity instanceof ComputerTileEntity) {
+                final int computerId = ((ComputerTileEntity) tileEntity).getComputerId();
+                startProgram(computerId, "startup");
+            }
+        }
     }
 }
