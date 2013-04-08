@@ -52,14 +52,7 @@ public class ComputerItemBlock extends ItemBlock {
     }
 
     private String getComputerLabel(ItemStack itemStack) {
-        return String.valueOf(itemStack.getItemDamage());
-//        int computerId = itemStack.getItemDamage();
-//        if (computerId == 0)
-//            return null;
-//        ComputerData computerData = AutomationRegistry.getComputerData(computerId);
-//        if (computerData == null || computerData.getLabel() == null)
-//            return null;
-//        return computerData.getLabel();
+        return Automation.getRegistry().getComputerLabel(itemStack.getItemDamage());
     }
 
 //    @Override
