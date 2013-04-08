@@ -66,15 +66,17 @@ public class ComputerBlock extends Block {
     @Override
     public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune) {
         // We already dropped the items in breakBlock method, therefore not dropping here anything
-        ArrayList<ItemStack> itemsDropped = new ArrayList<ItemStack>();
-        return itemsDropped;
+        return new ArrayList<ItemStack>();
     }
 
     private ComputerTileEntity createTileEntityFromItemStack(World world, int computerId, int facing) {
         ComputerTileEntity result = new ComputerTileEntity();
-        // If it's a new computer, we have to assign an id to it, but only on server side
+        // If it's a new computer, on the server we have to assign an id to it
         if (computerId == 0 && world.isRemote)
-            computerId = Automation.getRegistry().assignNextComputerId();
+            computerId = ((ServerAutomationRegistry) Automation.getRegistry()).assignNextComputerId();
+        // On the client we have to forget the label for this computer, as it might change after it's placed
+        if (!world.isRemote)
+            ((ClientAutomationRegistry) Automation.getRegistry()).clearLabelCache(computerId);
         result.setComputerId(computerId);
         result.setFacing(facing);
         return result;

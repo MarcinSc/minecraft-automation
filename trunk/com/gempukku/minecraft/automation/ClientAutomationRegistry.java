@@ -17,11 +17,6 @@ public class ClientAutomationRegistry implements AutomationRegistry {
     private Set<Integer> _pendingComputerLabels = new HashSet<Integer>();
 
     @Override
-    public int assignNextComputerId() {
-        throw new UnsupportedOperationException("Client cannot assign computer id");
-    }
-
-    @Override
     public ComputerData getComputerData(int computerId) {
         throw new UnsupportedOperationException("Client cannot get ComputerData");
     }
@@ -30,12 +25,16 @@ public class ClientAutomationRegistry implements AutomationRegistry {
     public String getComputerLabel(int computerId) {
         String result = _computerLabels.get(computerId);
         if (result == null) {
-            if (!_pendingComputerLabels.contains(computerId)) {
+            if (computerId != 0 && !_pendingComputerLabels.contains(computerId)) {
                 _pendingComputerLabels.add(computerId);
                 requestComputerLabel(computerId);
             }
         }
         return result;
+    }
+
+    public void clearLabelCache(int computerId) {
+        _computerLabels.remove(computerId);
     }
 
     private void requestComputerLabel(int computerId) {

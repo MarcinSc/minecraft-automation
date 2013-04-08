@@ -14,7 +14,6 @@ public class ServerAutomationRegistry implements AutomationRegistry {
         return _computerDataMap.get(computerId).getLabel();
     }
 
-    @Override
     public int assignNextComputerId() {
         int result = _nextId;
         _nextId++;

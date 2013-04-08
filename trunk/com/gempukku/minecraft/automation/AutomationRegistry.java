@@ -6,6 +6,4 @@ public interface AutomationRegistry {
     public String getComputerLabel(int computerId);
     
     public ComputerData getComputerData(int computerId);
-
-    public int assignNextComputerId();
 }
