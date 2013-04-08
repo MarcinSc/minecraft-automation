@@ -1,17 +1,19 @@
 package com.gempukku.minecraft.automation.computer;
 
 public class ComputerData {
-    private final String _owner;
     private String _label;
     private int[] _location = new int[3];
     private int _facing;
+    private int _id;
+    private String _owner;
 
-    public ComputerData(String owner) {
+    public ComputerData(int id, String owner) {
+        _id = id;
         _owner = owner;
     }
 
-    public String getOwner() {
-        return _owner;
+    public int getId() {
+        return _id;
     }
 
     public String getLabel() {
@@ -20,6 +22,14 @@ public class ComputerData {
 
     public void setLabel(String label) {
         _label = label;
+    }
+
+    public String getOwner() {
+        return _owner;
+    }
+
+    public void setOwner(String owner) {
+        _owner = owner;
     }
 
     public int getModuleSlotCount() {
