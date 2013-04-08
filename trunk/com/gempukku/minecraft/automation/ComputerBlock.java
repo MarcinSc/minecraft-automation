@@ -69,11 +69,11 @@ public class ComputerBlock extends Block {
         return new ArrayList<ItemStack>();
     }
 
-    private ComputerTileEntity createTileEntityFromItemStack(World world, int computerId, int facing) {
+    private ComputerTileEntity createTileEntityFromItemStack(World world, int computerId, int facing, String playerPlacing) {
         ComputerTileEntity result = new ComputerTileEntity();
         // If it's a new computer, on the server we have to assign an id to it
         if (computerId == 0 && world.isRemote)
-            computerId = ((ServerAutomationRegistry) Automation.getRegistry()).assignNextComputerId();
+            computerId = ((ServerAutomationRegistry) Automation.getRegistry()).storeNewComputer(playerPlacing);
         // On the client we have to forget the label for this computer, as it might change after it's placed
         if (!world.isRemote)
             ((ClientAutomationRegistry) Automation.getRegistry()).clearLabelCache(computerId);
@@ -92,8 +92,8 @@ public class ComputerBlock extends Block {
         return new ComputerTileEntity();
     }
 
-    public void initializedBlockAfterPlaced(World world, int x, int y, int z, int facing, int computerId) {
-        ComputerTileEntity computerEntity = createTileEntityFromItemStack(world, computerId, facing);
+    public void initializedBlockAfterPlaced(World world, int x, int y, int z, int facing, int computerId, String playerPlacing) {
+        ComputerTileEntity computerEntity = createTileEntityFromItemStack(world, computerId, facing, playerPlacing);
         world.setBlockTileEntity(x, y, z, computerEntity);
     }
 }

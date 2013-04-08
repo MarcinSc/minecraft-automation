@@ -28,10 +28,6 @@ public class ComputerData {
         return _owner;
     }
 
-    public void setOwner(String owner) {
-        _owner = owner;
-    }
-
     public int getModuleSlotCount() {
         return 10;
     }

@@ -26,15 +26,22 @@ public class ServerAutomationRegistry implements AutomationRegistry {
         return _computerDataMap.get(computerId).getLabel();
     }
 
-    public int assignNextComputerId() {
-        int result = _nextId;
+    public int storeNewComputer(String owner) {
+        int computerId = _nextId;
         _nextId++;
-        return result;
+        final File computerDataFile = getComputerDataFile(computerId);
+        computerDataFile.getParentFile().mkdirs();
+        ComputerData computerData = new ComputerData(computerId, owner);
+        _computerDataMap.put(computerId, computerData);
+        return computerId;
     }
 
     @Override
     public ComputerData getComputerData(int computerId) {
-        return _computerDataMap.get(computerId);
+        final ComputerData computerData = _computerDataMap.get(computerId);
+        if (computerData == null)
+            _computerDataMap.put(computerId, readComputerDataFromDisk(computerId));
+        return computerData;
     }
 
     private ComputerData readComputerDataFromDisk(int computerId) {
