@@ -1,10 +1,10 @@
 package com.gempukku.minecraft.automation.computer.bind;
 
 import com.gempukku.minecraft.automation.computer.ComputerData;
-import com.gempukku.minecraft.automation.computer.ComputerModule;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
 import com.gempukku.minecraft.automation.lang.ObjectDefinition;
 import com.gempukku.minecraft.automation.lang.Variable;
+import com.gempukku.minecraft.automation.module.ComputerModule;
 
 public class SlotBindingObjectDefinition implements ObjectDefinition {
     private ComputerData _computerData;

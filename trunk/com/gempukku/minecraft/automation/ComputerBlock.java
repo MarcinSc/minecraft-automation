@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation;
 
+import com.gempukku.minecraft.automation.computer.ComputerData;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -107,8 +108,45 @@ public class ComputerBlock extends Block {
         return true;
     }
 
-    public void initializedBlockAfterPlaced(World world, int x, int y, int z, int facing, int computerId, String playerPlacing) {
+    public void initializeBlockAfterPlaced(World world, int x, int y, int z, int facing, int computerId, String playerPlacing) {
         ComputerTileEntity computerEntity = createTileEntityFromItemStack(world, computerId, facing, playerPlacing);
         world.setBlockTileEntity(x, y, z, computerEntity);
+    }
+
+    @Override
+    public int isProvidingStrongPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
+        final ComputerTileEntity tileEntity = (ComputerTileEntity) blockAccess.getBlockTileEntity(x, y, z);
+        if (tileEntity != null) {
+            final ComputerData computerData = Automation.getRegistry().getComputerData(tileEntity.getComputerId());
+            int count = computerData.getModuleSlotCount();
+            int input = 0;
+            for (int i=0; i<count; i++)
+                input = computerData.getModuleAt(i).getStrongRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
+
+            return input;
+        }
+         
+        return super.isProvidingStrongPower(blockAccess, x, y, z, side);
+    }
+
+    @Override
+    public int isProvidingWeakPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
+        final ComputerTileEntity tileEntity = (ComputerTileEntity) blockAccess.getBlockTileEntity(x, y, z);
+        if (tileEntity != null) {
+            final ComputerData computerData = Automation.getRegistry().getComputerData(tileEntity.getComputerId());
+            int count = computerData.getModuleSlotCount();
+            int input = 0;
+            for (int i=0; i<count; i++)
+                input = computerData.getModuleAt(i).getWeakRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
+
+            return input;
+        }
+
+        return super.isProvidingWeakPower(blockAccess, x, y,z, side);
+    }
+
+    public boolean canProvidePower()
+    {
+        return true;
     }
 }

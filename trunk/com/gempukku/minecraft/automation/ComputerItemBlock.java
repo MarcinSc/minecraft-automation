@@ -66,7 +66,7 @@ public class ComputerItemBlock extends ItemBlock {
         boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, metadata);
         if (placed) {
             int blockFacing = getBlockFacingForEntity(player);
-            Automation._computerBlock.initializedBlockAfterPlaced(world, x, y, z, blockFacing, stack.getItemDamage(), player.getEntityName());
+            Automation._computerBlock.initializeBlockAfterPlaced(world, x, y, z, blockFacing, stack.getItemDamage(), player.getEntityName());
         }
         return placed;
     }

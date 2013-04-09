@@ -1,10 +1,10 @@
 package com.gempukku.minecraft.automation.computer.os;
 
 import com.gempukku.minecraft.automation.computer.ComputerData;
-import com.gempukku.minecraft.automation.computer.ComputerModule;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
+import com.gempukku.minecraft.automation.module.ComputerModule;
 import net.minecraft.world.World;
 
 import java.util.Map;

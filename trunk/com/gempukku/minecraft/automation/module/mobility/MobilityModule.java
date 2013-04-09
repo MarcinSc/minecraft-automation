@@ -1,9 +1,9 @@
 package com.gempukku.minecraft.automation.module.mobility;
 
-import com.gempukku.minecraft.automation.computer.ComputerModule;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
+import com.gempukku.minecraft.automation.module.AbstractComputerModule;
 
-public class MobilityModule implements ComputerModule {
+public class MobilityModule extends AbstractComputerModule {
     private MoveForwardFunction _forward = new MoveForwardFunction();
 
     @Override

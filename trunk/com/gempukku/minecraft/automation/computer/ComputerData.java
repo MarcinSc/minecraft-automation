@@ -1,11 +1,18 @@
 package com.gempukku.minecraft.automation.computer;
 
+import com.gempukku.minecraft.automation.module.ComputerModule;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class ComputerData {
     private String _label;
     private int[] _location = new int[3];
     private int _facing;
     private int _id;
     private String _owner;
+    private Map<String, Map<String, String>> _moduleData =
+            new HashMap<String, Map<String, String>>();
 
     public ComputerData(int id, String owner) {
         _id = id;
@@ -38,6 +45,15 @@ public class ComputerData {
 
     public int getSpeed() {
         return 100;
+    }
+
+    public Map<String, String> getModuleData(String moduleType) {
+        Map<String, String> moduleData = _moduleData.get(moduleType);
+        if (moduleData == null) {
+            moduleData = new HashMap<String, String>();
+            _moduleData.put(moduleType, moduleData);
+        }
+        return moduleData;
     }
 
     public void appendToConsole(String text) {
