@@ -99,7 +99,7 @@ public class ComputerBlock extends Block {
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float xPos, float yPos, float zPos) {
         if (player.isSneaking())
             return false;
 
