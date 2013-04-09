@@ -30,13 +30,16 @@ public class ComputerBlock extends Block {
         setCreativeTab(CreativeTabs.tabBlock);
     }
 
-    public Icon get_frontReadyIcon() {
-        return _frontReadyIcon;
+    private ComputerTileEntity getComputerEntitySafely(IBlockAccess blockAccess, int x, int y, int z) {
+        final TileEntity tileEntity = blockAccess.getBlockTileEntity(x, y, z);
+        if (tileEntity != null && tileEntity instanceof ComputerTileEntity)
+            return (ComputerTileEntity) tileEntity;
+        return null;
     }
 
     @Override
     public void breakBlock(World world, int x, int y, int z, int par5, int par6) {
-        ComputerTileEntity computerTileEntity = (ComputerTileEntity) world.getBlockTileEntity(x, y, z);
+        ComputerTileEntity computerTileEntity = getComputerEntitySafely(world, x, y, z);
         if (computerTileEntity != null)
             dropBlockAsItem_do(world, x, y, z, new ItemStack(this, 1, computerTileEntity.getComputerId()));
         else
@@ -55,7 +58,7 @@ public class ComputerBlock extends Block {
 
     @Override
     public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
-        final ComputerTileEntity tileEntity = (ComputerTileEntity) blockAccess.getBlockTileEntity(x, y, z);
+        final ComputerTileEntity tileEntity = getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null && side == tileEntity.getFacing()) {
             if (Automation.getProgramProcessing().isRunningProgram(tileEntity.getComputerId()))
                 return _frontWorkingIcon;
@@ -116,7 +119,7 @@ public class ComputerBlock extends Block {
 
     @Override
     public int isProvidingStrongPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
-        final ComputerTileEntity tileEntity = (ComputerTileEntity) blockAccess.getBlockTileEntity(x, y, z);
+        final ComputerTileEntity tileEntity = getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
             final ComputerData computerData = Automation.getRegistry().getComputerData(tileEntity.getComputerId());
             int count = computerData.getModuleSlotCount();
@@ -135,7 +138,7 @@ public class ComputerBlock extends Block {
 
     @Override
     public int isProvidingWeakPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
-        final ComputerTileEntity tileEntity = (ComputerTileEntity) blockAccess.getBlockTileEntity(x, y, z);
+        final ComputerTileEntity tileEntity = getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
             final ComputerData computerData = Automation.getRegistry().getComputerData(tileEntity.getComputerId());
             int count = computerData.getModuleSlotCount();
