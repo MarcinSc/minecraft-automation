@@ -25,6 +25,9 @@ public class Automation {
     private static final String AUTOMATION_CHANNEL_PREFIX = "atm.";
     public static final String UPDATE_COMPUTER_LABEL = AUTOMATION_CHANNEL_PREFIX + "updCompLabel";
 
+    @Mod.Instance("Tiny")
+    private static Automation _instance;
+
     private static File _modConfigDirectory;
 
     public static ComputerBlock _computerBlock;
