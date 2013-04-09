@@ -5,6 +5,16 @@ import net.minecraft.world.IBlockAccess;
 
 public abstract class AbstractComputerModule implements ComputerModule {
     @Override
+    public boolean acceptsNewModule(ComputerData computerData, ComputerModule computerModule) {
+        return true;
+    }
+
+    @Override
+    public boolean canBePlacedInComputer(ComputerData computerData) {
+        return true;
+    }
+
+    @Override
     public int getStrongRedstoneSignalStrengthOnSide(ComputerData computerData, int input, IBlockAccess blockAccess, int side) {
         return input;
     }

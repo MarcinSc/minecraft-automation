@@ -16,6 +16,25 @@ public interface ComputerModule {
     public String getModuleType();
 
     /**
+     * Checks if this module can be placed in an existing computer.
+     * This method is for modules that should not be placed in multiples, or in combinations with other modules, as
+     * it allows modules to control the configuration of a computer.
+     * @param computerData Computer this module is being placed in.
+     * @return True, if it's ok to place this module in the computer passed as a parameter, false otherwise.
+     */
+    public boolean canBePlacedInComputer(ComputerData computerData);
+
+    /**
+     * Checks if this module, that is already placed in the computer, is ok with adding a new module to the computer.
+     * This method is for modules that should not be placed in multiples, or in combinations with other modules, as
+     * it allows modules to control the configuration of a computer.
+     * @param computerData Computer this module is being placed in.
+     * @param computerModule New computer module that is being placed into the computer.
+     * @return True, if it's ok to place the module in the computer passed as a parameter, false otherwise.
+     */
+    public boolean acceptsNewModule(ComputerData computerData, ComputerModule computerModule);
+
+    /**
      * Returns a function with the specified name. To make the implementation easier, you can subclass
      * JavaFunctionExecutable class, that defines an easy to use interface for Java developers.
      * @param name Name of the function this module supports.
