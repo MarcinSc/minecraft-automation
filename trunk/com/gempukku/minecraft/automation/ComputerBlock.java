@@ -1,6 +1,7 @@
 package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.automation.computer.ComputerData;
+import com.gempukku.minecraft.automation.module.ComputerModule;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -120,12 +121,15 @@ public class ComputerBlock extends Block {
             final ComputerData computerData = Automation.getRegistry().getComputerData(tileEntity.getComputerId());
             int count = computerData.getModuleSlotCount();
             int input = 0;
-            for (int i=0; i<count; i++)
-                input = computerData.getModuleAt(i).getStrongRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
+            for (int i = 0; i < count; i++) {
+                final ComputerModule module = computerData.getModuleAt(i);
+                if (module != null)
+                    input = module.getStrongRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
+            }
 
             return input;
         }
-         
+
         return super.isProvidingStrongPower(blockAccess, x, y, z, side);
     }
 
@@ -136,17 +140,19 @@ public class ComputerBlock extends Block {
             final ComputerData computerData = Automation.getRegistry().getComputerData(tileEntity.getComputerId());
             int count = computerData.getModuleSlotCount();
             int input = 0;
-            for (int i=0; i<count; i++)
-                input = computerData.getModuleAt(i).getWeakRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
+            for (int i = 0; i < count; i++) {
+                final ComputerModule module = computerData.getModuleAt(i);
+                if (module != null)
+                    input = module.getWeakRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
+            }
 
             return input;
         }
 
-        return super.isProvidingWeakPower(blockAccess, x, y,z, side);
+        return super.isProvidingWeakPower(blockAccess, x, y, z, side);
     }
 
-    public boolean canProvidePower()
-    {
+    public boolean canProvidePower() {
         return true;
     }
 }
