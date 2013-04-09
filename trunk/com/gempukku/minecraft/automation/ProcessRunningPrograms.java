@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation;
 
+import com.gempukku.minecraft.MinecraftUtils;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import net.minecraft.world.World;
@@ -19,7 +20,7 @@ public class ProcessRunningPrograms implements ITickHandler {
     @Override
     public void tickEnd(EnumSet<TickType> type, Object... tickData) {
         World world = (World) tickData[0];
-        if (!world.isRemote)
+        if (MinecraftUtils.isServer(world))
             Automation.getProgramProcessing().progressAllPrograms(world);
     }
 

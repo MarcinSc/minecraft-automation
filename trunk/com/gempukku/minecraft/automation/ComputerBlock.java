@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation;
 
+import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.computer.ComputerData;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 import cpw.mods.fml.relauncher.Side;
@@ -78,10 +79,10 @@ public class ComputerBlock extends Block {
     private ComputerTileEntity createTileEntityFromItemStack(World world, int computerId, int facing, String playerPlacing) {
         ComputerTileEntity result = new ComputerTileEntity();
         // If it's a new computer, on the server we have to assign an id to it
-        if (computerId == 0 && world.isRemote)
+        if (computerId == 0 && MinecraftUtils.isServer(world))
             computerId = ((ServerAutomationRegistry) Automation.getRegistry()).storeNewComputer(playerPlacing);
         // On the client we have to forget the label for this computer, as it might change after it's placed
-        if (!world.isRemote)
+        if (!MinecraftUtils.isClient(world))
             ((ClientAutomationRegistry) Automation.getRegistry()).clearLabelCache(computerId);
         result.setComputerId(computerId);
         result.setFacing(facing);
