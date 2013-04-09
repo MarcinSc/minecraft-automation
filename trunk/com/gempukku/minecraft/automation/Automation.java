@@ -7,6 +7,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
@@ -33,6 +34,9 @@ public class Automation {
     public static ComputerBlock _computerBlock;
     private static int _computerBlockId;
 
+    public static Item _keyboardItem;
+    private static int _keyboardItemId;
+
     public static Item _gpsModuleItem;
     private static int _gpsModuleItemId;
 
@@ -47,6 +51,7 @@ public class Automation {
         _modConfigDirectory = evt.getModConfigurationDirectory();
         _computerBlockId = conf.getBlock("computerBlock", 3624, "This is an ID of a computer block").getInt();
         _gpsModuleItemId = conf.getItem("gpsModule", 3625, "This is an ID of a gps module item").getInt();
+        _keyboardItemId = conf.getItem("keyboard", 3626, "This is an ID of a keyboard item").getInt();
     }
 
     @Mod.Init
@@ -54,6 +59,7 @@ public class Automation {
         _computerBlock = new ComputerBlock(_computerBlockId);
 
         _gpsModuleItem = new GpsModuleItem(_gpsModuleItemId);
+        _keyboardItem = new ItemKeyboard(_keyboardItemId);
 
         GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
         GameRegistry.registerBlock(_computerBlock, ComputerItemBlock.class, "computer");
@@ -61,16 +67,23 @@ public class Automation {
 
         LanguageRegistry.addName(_computerBlock, "Computer");
         LanguageRegistry.addName(_gpsModuleItem, "GPS module");
+        LanguageRegistry.addName(_keyboardItem, "Keyboard");
 
         TickRegistry.registerTickHandler(
                 new ProcessRunningPrograms(), Side.SERVER);
 
         _automationProxy.initialize(_modConfigDirectory);
+
+        NetworkRegistry.instance().registerGuiHandler(this, new ComputerGuiHandler());
     }
 
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
 //        getRegistry().registerComputerModule(_gpsModuleItem, new GPSModule());
+    }
+
+    public static Automation getInstance() {
+        return _instance;
     }
 
     public static AutomationRegistry getRegistry() {
