@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation;
 
+import com.gempukku.minecraft.Side;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -7,7 +8,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.Icon;
-import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -72,27 +72,6 @@ public class ComputerItemBlock extends ItemBlock {
     }
 
     private int getBlockFacingForEntity(Entity entity) {
-        int playerFacing = MathHelper.floor_double((double) (entity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-        if (playerFacing == 0)
-        {
-            return 2;
-        }
-
-        if (playerFacing == 1)
-        {
-            return 5;
-        }
-
-        if (playerFacing == 2)
-        {
-            return 3;
-        }
-
-        if (playerFacing == 3)
-        {
-            return 4;
-        }
-
-        return 0;
+        return Side.getOpposite(Side.getEntityFacingHorizontal(entity));
     }
 }
