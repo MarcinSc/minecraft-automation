@@ -3,11 +3,10 @@ package com.gempukku.minecraft.automation.lang;
 import com.gempukku.minecraft.automation.computer.ComputerData;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
-
-import static org.junit.Assert.assertEquals;
 
 public class ProgramTest {
     protected Variable executeScript(ScriptExecutable exec) throws ExecutionException {
@@ -18,7 +17,7 @@ public class ProgramTest {
         while (!executionContext.isFinished())
             executionContext.executeNext();
 
-        assertEquals(4, executionContext.getMemoryUsage());
+        assertEquals(0, executionContext.getMemoryUsage());
         assertEquals(0, executionContext.getStackTraceSize());
 
         return executionContext.getReturnValue();

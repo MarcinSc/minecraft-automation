@@ -106,9 +106,9 @@ public class ComputerBlock extends Block {
 
         final ItemStack usedItem = player.getItemInUse();
         if (usedItem != null && usedItem.getItem() == Automation._keyboardItem)
-            player.openGui(Automation.getInstance(), 0, world, x, y, z);
+            player.openGui(Automation._instance, 0, world, x, y, z);
         else
-            player.openGui(Automation.getInstance(), 1, world, x, y, z);
+            player.openGui(Automation._instance, 1, world, x, y, z);
 
         return true;
     }

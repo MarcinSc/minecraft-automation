@@ -84,10 +84,6 @@ public class Automation {
 //        getRegistry().registerComputerModule(_gpsModuleItem, new GPSModule());
     }
 
-    public static Automation getInstance() {
-        return _instance;
-    }
-
     public static AutomationRegistry getRegistry() {
         return _registry;
     }

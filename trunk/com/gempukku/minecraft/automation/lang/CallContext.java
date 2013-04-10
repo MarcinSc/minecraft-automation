@@ -44,11 +44,11 @@ public class CallContext {
     }
 
     public Variable defineVariable(String name) throws ExecutionException {
-        final Variable variable = _variables.get(name);
-        if (variable == null)
-            _variables.put(name, new Variable(null));
-        else
+        Variable variable = _variables.get(name);
+        if (variable != null)
             throw new ExecutionException("Variable with this name is already defined in this scope: " + name);
+        variable = new Variable(null);
+        _variables.put(name, variable);
         return variable;
     }
 }
