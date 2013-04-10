@@ -24,8 +24,8 @@ public class ScriptParser {
 
         TermBlock termBlockStructure = constructBlocks(terms);
 
-        System.out.println("Printing program structure");
-        printTerms(0, termBlockStructure);
+//        System.out.println("Printing program structure");
+//        printTerms(0, termBlockStructure);
 
         List<ExecutableStatement> statements = seekStatementsInBlock(termBlockStructure);
         result.setStatement(new BlockStatement(statements, false, true));

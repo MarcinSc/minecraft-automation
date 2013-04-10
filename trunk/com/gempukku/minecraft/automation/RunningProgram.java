@@ -7,10 +7,12 @@ import com.gempukku.minecraft.automation.lang.ExecutionProgress;
 import net.minecraft.world.World;
 
 public class RunningProgram {
+    private static final int MEMORY_CHECK_INTERVAL = 10;
     private MinecraftComputerExecutionContext _executionContext;
     private ComputerData _computerData;
     private int _speedConsumed;
     private boolean _running = true;
+    private int _memoryConsumptionCheck = 0;
 
     public RunningProgram(ComputerData computerData, MinecraftComputerExecutionContext executionContext) {
         _computerData = computerData;
@@ -25,7 +27,8 @@ public class RunningProgram {
                 final ExecutionProgress executionProgress = _executionContext.executeNext();
                 if (_executionContext.getStackTraceSize() > _computerData.getMaxStackSize())
                     throw new ExecutionException("StackOverflow");
-                if (_executionContext.getMemoryUsage() > _computerData.getMaxMemory())
+                // Memory consumption calculation is expensive, so we will do it only from time to time
+                if (++_memoryConsumptionCheck % MEMORY_CHECK_INTERVAL == 0 && _executionContext.getMemoryUsage() > _computerData.getMaxMemory())
                     throw new ExecutionException("OutOfMemory");
                 _speedConsumed += executionProgress.getCost();
                 if (_executionContext.isFinished()) {
