@@ -22,15 +22,8 @@ public class ExecutionContext {
     public int getMemoryUsage() {
         Set<Object> counted = new HashSet<Object>();
         int result = 0;
-        for (CallContext groupCallContext : _groupCallContexts) {
-            for (Variable variable : groupCallContext.getVariablesInContext()) {
-                final Object value = variable.getValue();
-                if (!counted.contains(value)) {
-                    counted.add(value);
-                    result += sizeOf(counted, value);
-                }
-            }
-        }
+        for (CallContext groupCallContext : _groupCallContexts)
+            result += getVariablesSize(counted, groupCallContext.getVariablesInContext());
         return result;
     }
 
@@ -43,25 +36,30 @@ public class ExecutionContext {
             return 4;
         } else if (value instanceof Map) {
             Map<String, Variable> map = (Map<String, Variable>) value;
-            int result = 4;
-            for (Variable variable : map.values()) {
-                Object mapValue = variable.getValue();
-                if (!counted.contains(mapValue)) {
-                    counted.add(mapValue);
-                    result += sizeOf(counted, mapValue);
-                }
-            }
-            return result;
+            return 4 + getVariablesSize(counted, map.values());
         } else if (value instanceof Boolean) {
             return 1;
         } else if (value instanceof FunctionExecutable) {
-            return 4;
+            CallContext functionContext = ((FunctionExecutable) value).getCallContext();
+            return 4 + getVariablesSize(counted, functionContext.getVariablesInContext());
         } else if (value instanceof ObjectDefinition) {
             return 4;
         } else if (value.getClass().isArray()) {
             return 4;
         } else
             throw new UnsupportedOperationException("Unknown type of variable value: " + value.getClass().getSimpleName());
+    }
+
+    private int getVariablesSize(Set<Object> counted, Collection<Variable> variables) {
+        int result = 4;
+        for (Variable variable : variables) {
+            Object mapValue = variable.getValue();
+            if (!counted.contains(mapValue)) {
+                counted.add(mapValue);
+                result += sizeOf(counted, mapValue);
+            }
+        }
+        return result;
     }
 
     public void stackExecution(Execution execution) {

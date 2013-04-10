@@ -28,8 +28,14 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
         };
     }
 
+    @Override
+    public final CallContext getCallContext() {
+        return new CallContext(null, false, false);
+    }
+
     /**
      * Returns duration of the operation in computer cycles. Used to effectively throttle computer programs.
+     *
      * @return Duration in computer cycles.
      */
     protected abstract int getDuration();
@@ -41,11 +47,12 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
      * Numbers (int, float), booleans, Strings and null.
      * If an execution of the program should be stopped due to a fatal exception, ExecutionException should be thrown by
      * the method.
-     * @param computer Computer this function is executed on.
+     *
+     * @param computer   Computer this function is executed on.
      * @param parameters Parameters that were sent to this function.
      * @return Object that has to be set in context of the caller (return value).
      * @throws ExecutionException Fatal exception that will be communicated to the computer console. When thrown,
-     * the execution of the program will stop.
+     *                            the execution of the program will stop.
      */
     protected abstract Object executeFunction(ComputerData computer, World world, Map<String, Variable> parameters) throws ExecutionException;
 }

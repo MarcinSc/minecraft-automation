@@ -51,13 +51,4 @@ public class CallContext {
             throw new ExecutionException("Variable with this name is already defined in this scope: " + name);
         return variable;
     }
-
-    public CallContext getContextForVariable(Variable variable) throws ExecutionException {
-        if (_variables.containsValue(variable))
-            return this;
-        else if (_parentContext != null)
-            return _parentContext.getContextForVariable(variable);
-        else
-            return this;
-    }
 }

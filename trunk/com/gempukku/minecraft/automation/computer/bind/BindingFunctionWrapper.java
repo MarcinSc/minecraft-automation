@@ -19,6 +19,11 @@ public class BindingFunctionWrapper implements FunctionExecutable {
     }
 
     @Override
+    public CallContext getCallContext() {
+        return new CallContext(null, false, false);
+    }
+
+    @Override
     public String[] getParameterNames() {
         return _function.getParameterNames();
     }

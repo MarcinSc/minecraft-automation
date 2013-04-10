@@ -64,11 +64,10 @@ public class FunctionCallExecution implements Execution {
             return new ExecutionProgress(100);
         }
         if (!_functionCalled) {
-            final CallContext currentContext = executionContext.peekCallContext();
             if (_functionVar.getType() != Variable.Type.FUNCTION)
                 throw new ExecutionException("Expected function");
             FunctionExecutable function = (FunctionExecutable) _functionVar.getValue();
-            final CallContext functionContextParent = currentContext.getContextForVariable(_functionVar);
+            final CallContext functionContextParent = function.getCallContext();
             final String[] parameterNames = function.getParameterNames();
             if (_parameterValues.size() > parameterNames.length)
                 throw new ExecutionException("Function does not accept as many parameters");
