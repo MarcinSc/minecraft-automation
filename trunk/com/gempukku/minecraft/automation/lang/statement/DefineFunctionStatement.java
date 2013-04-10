@@ -25,8 +25,8 @@ public class DefineFunctionStatement implements ExecutableStatement {
                 functionExecutable.setStatement(
                         new BlockStatement(_statements, false, true));
                 final CallContext callContext = context.peekCallContext();
-                callContext.defineVariable(_name);
-                callContext.setVariableValue(_name, functionExecutable);
+                final Variable variable = callContext.defineVariable(_name);
+                context.setVariableValue(variable, functionExecutable);
                 return new ExecutionProgress(100);
             }
         };

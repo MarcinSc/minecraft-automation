@@ -1,5 +1,7 @@
 package com.gempukku.minecraft.automation.lang;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +29,10 @@ public class CallContext {
         return _consumesReturn;
     }
 
+    public Collection<Variable> getVariablesInContext() {
+        return Collections.unmodifiableCollection(_variables.values());
+    }
+
     public Variable getVariableValue(String name) throws ExecutionException {
         final Variable variable = _variables.get(name);
         if (variable != null)
@@ -37,22 +43,13 @@ public class CallContext {
             throw new ExecutionException("Variable with this name is not defined in this scope: " + name);
     }
 
-    public void defineVariable(String name) throws ExecutionException {
+    public Variable defineVariable(String name) throws ExecutionException {
         final Variable variable = _variables.get(name);
         if (variable == null)
             _variables.put(name, new Variable(null));
         else
             throw new ExecutionException("Variable with this name is already defined in this scope: " + name);
-    }
-
-    public void setVariableValue(String name, Object value) throws ExecutionException {
-        final Variable variable = _variables.get(name);
-        if (variable != null)
-            variable.setValue(value);
-        else if (_parentContext != null)
-            _parentContext.setVariableValue(name, value);
-        else
-            throw new ExecutionException("Variable with this name is not defined in this scope: " + name);
+        return variable;
     }
 
     public CallContext getContextForVariable(Variable variable) throws ExecutionException {

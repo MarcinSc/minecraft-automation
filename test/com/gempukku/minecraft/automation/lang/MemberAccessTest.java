@@ -17,8 +17,8 @@ public class MemberAccessTest extends ProgramTest {
 
         ObjectDefinition os = constructOS();
 
-        context.defineVariable("os");
-        context.setVariableValue("os", os);
+        Variable var = context.defineVariable("os");
+        var.setValue(os);
 
         ExecutionContext executionContext = initExecutionContext();
         executionContext.stackExecutionGroup(context, exec.createExecution(context));

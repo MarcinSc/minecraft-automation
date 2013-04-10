@@ -75,9 +75,9 @@ public class FunctionCallExecution implements Execution {
 
             CallContext functionContext = new CallContext(functionContextParent, false, true);
             for (int i = 0; i < parameterNames.length; i++) {
-                functionContext.defineVariable(parameterNames[i]);
+                Variable var = functionContext.defineVariable(parameterNames[i]);
                 if (i < _parameterValues.size())
-                    functionContext.setVariableValue(parameterNames[i], _parameterValues.get(i).getValue());
+                    executionContext.setVariableValue(var, _parameterValues.get(i).getValue());
             }
             executionContext.stackExecutionGroup(functionContext, function.createExecution(functionContext));
             _functionCalled = true;

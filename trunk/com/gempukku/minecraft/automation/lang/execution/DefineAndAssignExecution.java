@@ -10,6 +10,8 @@ public class DefineAndAssignExecution implements Execution {
     private boolean _stackedValue;
     private boolean _assignedValue;
 
+    private Variable _variable;
+
     public DefineAndAssignExecution(String name, ExecutableStatement value) {
         _name = name;
         _value = value;
@@ -29,7 +31,7 @@ public class DefineAndAssignExecution implements Execution {
     @Override
     public ExecutionProgress executeNextStatement(ExecutionContext executionContext) throws ExecutionException {
         if (!_defined) {
-            executionContext.peekCallContext().defineVariable(_name);
+            _variable = executionContext.peekCallContext().defineVariable(_name);
             _defined = true;
             return new ExecutionProgress(100);
         }
@@ -39,7 +41,7 @@ public class DefineAndAssignExecution implements Execution {
             return new ExecutionProgress(100);
         }
         if (!_assignedValue) {
-            executionContext.peekCallContext().setVariableValue(_name, executionContext.getContextValue().getValue());
+            executionContext.setVariableValue(_variable, executionContext.getContextValue().getValue());
             _assignedValue = true;
             return new ExecutionProgress(100);
         }

@@ -15,6 +15,8 @@ public class ExecutionContext {
     private LinkedList<CallContext> _groupCallContexts = new LinkedList<CallContext>();
     private Map<Variable.Type, PropertyProducer> _perTypeProperties = new HashMap<Variable.Type, PropertyProducer>();
 
+    private int _stackTraceSize = 0;
+
     public void stackExecution(Execution execution) {
         _executionGroups.getLast().add(execution);
     }
@@ -35,9 +37,16 @@ public class ExecutionContext {
                     inBlockExecutionStack.removeLast();
             }
             _executionGroups.removeLast();
-            _groupCallContexts.removeLast();
+            removeLastCallContext();
         }
         return null;
+    }
+
+    private CallContext removeLastCallContext() {
+        final CallContext removedCallContext = _groupCallContexts.removeLast();
+        if (removedCallContext.isConsumesReturn())
+            _stackTraceSize--;
+        return removedCallContext;
     }
 
     private void doTheBreak() throws ExecutionException {
@@ -45,7 +54,7 @@ public class ExecutionContext {
         do {
             if (_groupCallContexts.isEmpty())
                 throw new ExecutionException("break invoked without a containing block");
-            callContext = _groupCallContexts.removeLast();
+            callContext = removeLastCallContext();
             _executionGroups.removeLast();
         } while (!callContext.isConsumesBreak());
         _breakFromBlock = false;
@@ -54,7 +63,7 @@ public class ExecutionContext {
     private void doTheReturn() {
         CallContext callContext;
         do {
-            callContext = _groupCallContexts.removeLast();
+            callContext = removeLastCallContext();
             _executionGroups.removeLast();
         } while (!callContext.isConsumesReturn());
     }
@@ -89,11 +98,17 @@ public class ExecutionContext {
         return _groupCallContexts.getLast();
     }
 
+    public void setVariableValue(Variable variable, Object value) throws ExecutionException {
+        variable.setValue(value);
+    }
+
     public void stackExecutionGroup(CallContext callContext, Execution execution) {
         _groupCallContexts.add(callContext);
         LinkedList<Execution> functionExecutionStack = new LinkedList<Execution>();
         functionExecutionStack.add(execution);
         _executionGroups.add(functionExecutionStack);
+        if (callContext.isConsumesReturn())
+            _stackTraceSize++;
     }
 
     public boolean isFinished() {

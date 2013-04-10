@@ -49,7 +49,7 @@ public class AssignExecution implements Execution {
             return new ExecutionProgress(100);
         }
         if (!_assignedValue) {
-            _variablePointer.setValue(executionContext.getContextValue().getValue());
+            executionContext.setVariableValue(_variablePointer, executionContext.getContextValue().getValue());
             _assignedValue = true;
             return new ExecutionProgress(100);
         }
