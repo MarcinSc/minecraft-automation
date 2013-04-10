@@ -47,6 +47,14 @@ public class ComputerData {
         return 100;
     }
 
+    public int getMaxStackSize() {
+        return 100;
+    }
+
+    public int getMaxMemory() {
+        return 100 * 1024;
+    }
+
     public Map<String, String> getModuleData(String moduleType) {
         Map<String, String> moduleData = _moduleData.get(moduleType);
         if (moduleData == null) {
@@ -57,11 +65,11 @@ public class ComputerData {
     }
 
     public void appendToConsole(String text) {
-        
+
     }
 
     public void setLocation(int x, int y, int z) {
-        _location = new int[] {x, y, z};
+        _location = new int[]{x, y, z};
     }
 
     public void setFacing(int facing) {

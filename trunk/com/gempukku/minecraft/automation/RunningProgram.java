@@ -23,6 +23,10 @@ public class RunningProgram {
         while (_speedConsumed <= 0) {
             try {
                 final ExecutionProgress executionProgress = _executionContext.executeNext();
+                if (_executionContext.getStackTraceSize() > _computerData.getMaxStackSize())
+                    throw new ExecutionException("StackOverflow");
+                if (_executionContext.getMemoryUsage() > _computerData.getMaxMemory())
+                    throw new ExecutionException("OutOfMemory");
                 _speedConsumed += executionProgress.getCost();
                 if (_executionContext.isFinished()) {
                     _running = false;
