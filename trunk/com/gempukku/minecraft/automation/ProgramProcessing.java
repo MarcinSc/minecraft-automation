@@ -4,6 +4,8 @@ import com.gempukku.minecraft.automation.computer.ComputerData;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -30,7 +32,7 @@ public class ProgramProcessing {
     public String startProgram(int computerId, String name) {
         if (_runningPrograms.containsKey(computerId))
             return "Computer already runs a program.";
-        
+
         final File computerProgram = getComputerProgram(computerId, name);
         if (computerProgram == null)
             return "Cannot find program " + name + ".";
@@ -76,6 +78,7 @@ public class ProgramProcessing {
         return _runningPrograms.containsKey(computerId);
     }
 
+    @SideOnly(Side.SERVER)
     public void progressAllPrograms(World world) {
         final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
         while (iterator.hasNext()) {
@@ -127,6 +130,7 @@ public class ProgramProcessing {
         return null;
     }
 
+    @SideOnly(Side.SERVER)
     @ForgeSubscribe
     public void stopProcessingOnChunkUnload(ChunkEvent.Unload evt) {
         final Chunk chunk = evt.getChunk();
@@ -137,6 +141,7 @@ public class ProgramProcessing {
         }
     }
 
+    @SideOnly(Side.SERVER)
     @ForgeSubscribe
     public void startupComputerOnChunkLoad(ChunkEvent.Load evt) {
         final Chunk chunk = evt.getChunk();

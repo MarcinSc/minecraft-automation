@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.automation.module.gps.GpsModuleItem;
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -41,6 +42,10 @@ public class Automation {
 
     public static Item _gpsModuleItem;
     private static int _gpsModuleItemId;
+
+    @SidedProxy(clientSide = "com.gempukku.minecraft.automation.ClientAutomationRegistry",
+            serverSide = "com.gempukku.minecraft.automation.ServerAutomationRegistry")
+    public static AutomationRegistry automationRegistry;
 
     @Mod.PreInit
     public void preInitialize(FMLPreInitializationEvent evt) {
