@@ -2,7 +2,6 @@ package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.automation.module.gps.GpsModuleItem;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -14,6 +13,7 @@ import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.io.File;
 
@@ -27,7 +27,9 @@ public class Automation {
     public static final String UPDATE_COMPUTER_LABEL = AUTOMATION_CHANNEL_PREFIX + "updCompLabel";
 
     @Mod.Instance("Tiny")
-    private static Automation _instance;
+    public static Automation _instance;
+    private static AutomationRegistry _registry;
+    private static ProgramProcessing _programProcessing;
 
     private static File _modConfigDirectory;
 
@@ -39,10 +41,6 @@ public class Automation {
 
     public static Item _gpsModuleItem;
     private static int _gpsModuleItemId;
-
-    @SidedProxy(clientSide = "com.gempukku.minecraft.automation.AutomationOnClient",
-            serverSide = "com.gempukku.minecraft.automation.AutomationOnServer")
-    private static AutomationProxy _automationProxy;
 
     @Mod.PreInit
     public void preInitialize(FMLPreInitializationEvent evt) {
@@ -72,7 +70,11 @@ public class Automation {
         TickRegistry.registerTickHandler(
                 new ProcessRunningPrograms(), Side.SERVER);
 
-        _automationProxy.initialize(_modConfigDirectory);
+        _registry = new ServerAutomationRegistry(_modConfigDirectory);
+        _programProcessing = new ProgramProcessing(_modConfigDirectory, _registry);
+
+        MinecraftForge.EVENT_BUS.register(_registry);
+        MinecraftForge.EVENT_BUS.register(_programProcessing);
 
         NetworkRegistry.instance().registerGuiHandler(this, new ComputerGuiHandler());
     }
@@ -87,10 +89,10 @@ public class Automation {
     }
 
     public static AutomationRegistry getRegistry() {
-        return _automationProxy.getAutomationRegistry();
+        return _registry;
     }
 
     public static ProgramProcessing getProgramProcessing() {
-        return _automationProxy.getProgramProcessing();
+        return _programProcessing;
     }
 }
