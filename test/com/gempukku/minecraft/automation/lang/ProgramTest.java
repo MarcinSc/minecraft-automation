@@ -7,6 +7,8 @@ import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import java.io.IOException;
 import java.io.StringReader;
 
+import static org.junit.Assert.assertEquals;
+
 public class ProgramTest {
     protected Variable executeScript(ScriptExecutable exec) throws ExecutionException {
         CallContext context = new CallContext(null, false, true);
@@ -15,6 +17,9 @@ public class ProgramTest {
 
         while (!executionContext.isFinished())
             executionContext.executeNext();
+
+        assertEquals(4, executionContext.getMemoryUsage());
+        assertEquals(0, executionContext.getStackTraceSize());
 
         return executionContext.getReturnValue();
     }
