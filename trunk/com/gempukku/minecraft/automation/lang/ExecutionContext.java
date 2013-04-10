@@ -1,8 +1,6 @@
 package com.gempukku.minecraft.automation.lang;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class ExecutionContext {
     private LinkedList<LinkedList<Execution>> _executionGroups = new LinkedList<LinkedList<Execution>>();
@@ -16,6 +14,55 @@ public class ExecutionContext {
     private Map<Variable.Type, PropertyProducer> _perTypeProperties = new HashMap<Variable.Type, PropertyProducer>();
 
     private int _stackTraceSize = 0;
+
+    public int getStackTraceSize() {
+        return _stackTraceSize;
+    }
+
+    public int getMemoryUsage() {
+        Set<Object> counted = new HashSet<Object>();
+        int result = 0;
+        for (CallContext groupCallContext : _groupCallContexts) {
+            for (Variable variable : groupCallContext.getVariablesInContext()) {
+                final Object value = variable.getValue();
+                if (!counted.contains(value)) {
+                    counted.add(value);
+                    result += sizeOf(counted, value);
+                }
+            }
+        }
+        return result;
+    }
+
+    private int sizeOf(Set<Object> counted, Object value) {
+        if (value == null) {
+            return 1;
+        } else if (value instanceof String) {
+            return ((String) value).length();
+        } else if (value instanceof Number) {
+            return 4;
+        } else if (value instanceof Map) {
+            Map<String, Variable> map = (Map<String, Variable>) value;
+            int result = 4;
+            for (Variable variable : map.values()) {
+                Object mapValue = variable.getValue();
+                if (!counted.contains(mapValue)) {
+                    counted.add(mapValue);
+                    result += sizeOf(counted, mapValue);
+                }
+            }
+            return result;
+        } else if (value instanceof Boolean) {
+            return 1;
+        } else if (value instanceof FunctionExecutable) {
+            return 4;
+        } else if (value instanceof ObjectDefinition) {
+            return 4;
+        } else if (value.getClass().isArray()) {
+            return 4;
+        } else
+            throw new UnsupportedOperationException("Unknown type of variable value: " + value.getClass().getSimpleName());
+    }
 
     public void stackExecution(Execution execution) {
         _executionGroups.getLast().add(execution);
