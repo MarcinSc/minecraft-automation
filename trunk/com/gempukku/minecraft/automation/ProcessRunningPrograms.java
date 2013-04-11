@@ -21,7 +21,7 @@ public class ProcessRunningPrograms implements ITickHandler {
     public void tickEnd(EnumSet<TickType> type, Object... tickData) {
         World world = (World) tickData[0];
         if (MinecraftUtils.isServer(world))
-            Automation.getProgramProcessing().progressAllPrograms(world);
+            Automation.getServerProxy().getProgramProcessing().progressAllPrograms(world);
     }
 
     @Override

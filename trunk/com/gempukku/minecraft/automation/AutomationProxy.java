@@ -4,6 +4,8 @@ import java.io.File;
 
 public interface AutomationProxy {
     public void initialize(File modConfigDirectory);
-    public AutomationRegistry getAutomationRegistry();
+
+    public AutomationRegistry getRegistry();
+
     public ProgramProcessing getProgramProcessing();
 }

@@ -52,7 +52,7 @@ public class ComputerItemBlock extends ItemBlock {
     }
 
     private String getComputerLabel(ItemStack itemStack) {
-        return Automation.getRegistry().getComputerLabel(itemStack.getItemDamage());
+        return Automation.proxy.getRegistry().getComputerLabel(itemStack.getItemDamage());
     }
 
 //    @Override
@@ -66,7 +66,7 @@ public class ComputerItemBlock extends ItemBlock {
         boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, metadata);
         if (placed) {
             int blockFacing = getBlockFacingForEntity(player);
-            Automation._computerBlock.initializeBlockAfterPlaced(world, x, y, z, blockFacing, stack.getItemDamage(), player.getEntityName());
+            Automation.computerBlock.initializeBlockAfterPlaced(world, x, y, z, blockFacing, stack.getItemDamage(), player.getEntityName());
         }
         return placed;
     }

@@ -15,7 +15,7 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
             DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
             try {
                 int compId = is.readInt();
-                final String label = Automation.getRegistry().getComputerLabel(compId);
+                final String label = Automation.getServerProxy().getRegistry().getComputerLabel(compId);
                 if (label != null) {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     DataOutputStream os = new DataOutputStream(baos);
@@ -26,6 +26,8 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
             } catch (IOException exp) {
                 // Ignore
             }
+        } else if (packet.channel.equals(Automation.CLIENT_INIT)) {
+            Automation.getServerProxy();
         }
     }
 }

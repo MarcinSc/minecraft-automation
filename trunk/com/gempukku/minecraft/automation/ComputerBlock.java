@@ -61,7 +61,7 @@ public class ComputerBlock extends Block {
     public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
         final ComputerTileEntity tileEntity = getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null && side == tileEntity.getFacing()) {
-            if (Automation.getProgramProcessing().isRunningProgram(tileEntity.getComputerId()))
+            if (Automation.proxy.getProgramProcessing().isRunningProgram(tileEntity.getComputerId()))
                 return _frontWorkingIcon;
             else
                 return _frontReadyIcon;
@@ -80,10 +80,10 @@ public class ComputerBlock extends Block {
         ComputerTileEntity result = new ComputerTileEntity();
         // If it's a new computer, on the server we have to assign an id to it
         if (computerId == 0 && MinecraftUtils.isServer(world))
-            computerId = ((ServerAutomationRegistry) Automation.getRegistry()).storeNewComputer(playerPlacing);
+            computerId = Automation.getServerProxy().getRegistry().storeNewComputer(playerPlacing);
         // On the client we have to forget the label for this computer, as it might change after it's placed
         if (!MinecraftUtils.isClient(world))
-            ((ClientAutomationRegistry) Automation.getRegistry()).clearLabelCache(computerId);
+            Automation.getClientProxy().getRegistry().clearLabelCache(computerId);
         result.setComputerId(computerId);
         result.setFacing(facing);
         return result;
@@ -105,10 +105,10 @@ public class ComputerBlock extends Block {
             return false;
 
         final ItemStack usedItem = player.getItemInUse();
-        if (usedItem != null && usedItem.getItem() == Automation._keyboardItem)
-            player.openGui(Automation._instance, 0, world, x, y, z);
+        if (usedItem != null && usedItem.getItem() == Automation.terminalItem)
+            player.openGui(Automation.instance, 0, world, x, y, z);
         else
-            player.openGui(Automation._instance, 1, world, x, y, z);
+            player.openGui(Automation.instance, 1, world, x, y, z);
 
         return true;
     }
@@ -122,7 +122,7 @@ public class ComputerBlock extends Block {
     public int isProvidingStrongPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
         final ComputerTileEntity tileEntity = getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
-            final ComputerData computerData = Automation.getRegistry().getComputerData(tileEntity.getComputerId());
+            final ComputerData computerData = Automation.proxy.getRegistry().getComputerData(tileEntity.getComputerId());
             int count = computerData.getModuleSlotCount();
             int input = 0;
             for (int i = 0; i < count; i++) {
@@ -141,7 +141,7 @@ public class ComputerBlock extends Block {
     public int isProvidingWeakPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
         final ComputerTileEntity tileEntity = getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
-            final ComputerData computerData = Automation.getRegistry().getComputerData(tileEntity.getComputerId());
+            final ComputerData computerData = Automation.proxy.getRegistry().getComputerData(tileEntity.getComputerId());
             int count = computerData.getModuleSlotCount();
             int input = 0;
             for (int i = 0; i < count; i++) {

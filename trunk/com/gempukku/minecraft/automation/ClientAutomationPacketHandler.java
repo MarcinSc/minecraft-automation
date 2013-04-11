@@ -17,7 +17,7 @@ public class ClientAutomationPacketHandler implements IPacketHandler {
             try {
                 int compId = is.readInt();
                 String label = is.readUTF();
-                ((ClientAutomationRegistry) Automation.getRegistry()).updateComputerLabel(compId, label);
+                Automation.getClientProxy().getRegistry().updateComputerLabel(compId, label);
             } catch (IOException exp) {
                 // Ignore
             }
