@@ -1,6 +1,7 @@
 package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import net.minecraftforge.event.ForgeSubscribe;
 
 import java.io.File;
 import java.io.FileReader;
@@ -16,6 +17,22 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 
     public ServerAutomationRegistry(File configFolder) {
         _configFolder = configFolder;
+    }
+
+    @ForgeSubscribe
+    public void setComputerCoordinatesAndFacing(ComputerEvent.ComputerAddedToWorldEvent evt) {
+        final ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
+        final ServerComputerData computerData = getComputerData(computerTileEntity.getComputerId());
+        computerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
+        computerData.setFacing(computerTileEntity.getFacing());
+    }
+
+    @ForgeSubscribe
+    public void updateComputerCoordinatesAndFacing(ComputerEvent.ComputerMovedInWorldEvent evt) {
+        final ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
+        final ServerComputerData computerData = getComputerData(computerTileEntity.getComputerId());
+        computerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
+        computerData.setFacing(computerTileEntity.getFacing());
     }
 
     @Override

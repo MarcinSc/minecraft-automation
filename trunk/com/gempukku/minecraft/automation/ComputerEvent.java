@@ -31,4 +31,10 @@ public class ComputerEvent extends Event {
             super(world, computerTileEntity);
         }
     }
+
+    public static class ComputerMovedInWorldEvent extends ComputerEvent {
+        public ComputerMovedInWorldEvent(World world, ComputerTileEntity computerTileEntity) {
+            super(world, computerTileEntity);
+        }
+    }
 }
