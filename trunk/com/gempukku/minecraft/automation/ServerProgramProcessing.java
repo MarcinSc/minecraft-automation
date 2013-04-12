@@ -162,8 +162,9 @@ public class ServerProgramProcessing implements ProgramProcessing {
         Collection<TileEntity> tileEntities = chunk.chunkTileEntityMap.values();
         for (TileEntity tileEntity : tileEntities) {
             if (tileEntity instanceof ComputerTileEntity) {
-                final int computerId = ((ComputerTileEntity) tileEntity).getComputerId();
-                if (startProgram(evt.world, computerId, "startup") != null)
+                final ComputerTileEntity computerTileEntity = (ComputerTileEntity) tileEntity;
+                final int computerId = computerTileEntity.getComputerId();
+                if (startProgram(evt.world, computerId, "startup") != null && computerTileEntity.isRunningProgram())
                     setProgramRunning(evt.world, _registry.getComputerData(computerId), false);
             }
         }
