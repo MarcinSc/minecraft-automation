@@ -7,11 +7,8 @@ import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.ForgeSubscribe;
-import net.minecraftforge.event.world.ChunkEvent;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,6 +18,7 @@ import java.util.*;
 /**
  * This class is used on server only and controls processing of programs and computer ticks.
  */
+@SideOnly(Side.SERVER)
 public class ComputerProcessing {
     public static final String STARTUP_PROGRAM = "startup";
     private File _configFolder;
@@ -35,15 +33,17 @@ public class ComputerProcessing {
         _scriptParser = new ScriptParser();
     }
 
-    public void computerAddedToWorld(World world, ComputerTileEntity computerTileEntity) {
-        final ServerComputerData computerData = _registry.getComputerData(computerTileEntity.getComputerId());
-        startProgram(world, computerTileEntity.getComputerId(), STARTUP_PROGRAM);
+    @ForgeSubscribe
+    public void computerAddedToWorld(ComputerEvent.ComputerAddedToWorldEvent evt) {
+        ServerComputerData computerData = evt.getComputerData();
+        startProgram(evt.getWorld(), computerData.getId(), STARTUP_PROGRAM);
         _loadedComputersInWorld.add(computerData);
     }
 
-    public void computerRemovedFromWorld(World world, ComputerTileEntity computerTileEntity) {
-        final ServerComputerData computerData = _registry.getComputerData(computerTileEntity.getComputerId());
-        _runningPrograms.remove(computerTileEntity.getComputerId());
+    @ForgeSubscribe
+    public void computerRemovedFromWorld(ComputerEvent.ComputerRemovedFromWorldEvent evt) {
+        final ServerComputerData computerData = evt.getComputerData();
+        _runningPrograms.remove(computerData.getId());
         _loadedComputersInWorld.remove(computerData);
     }
 
@@ -169,30 +169,4 @@ public class ComputerProcessing {
             return computerFolder;
         return null;
     }
-
-    @SideOnly(Side.SERVER)
-    @ForgeSubscribe
-    public void stopProcessingOnChunkUnload(ChunkEvent.Unload evt) {
-        final Chunk chunk = evt.getChunk();
-        Collection<TileEntity> tileEntities = chunk.chunkTileEntityMap.values();
-        for (TileEntity tileEntity : tileEntities) {
-            if (tileEntity instanceof ComputerTileEntity) {
-                computerRemovedFromWorld(evt.world, (ComputerTileEntity) tileEntity);
-            }
-        }
-    }
-
-    @SideOnly(Side.SERVER)
-    @ForgeSubscribe
-    public void startupComputerOnChunkLoad(ChunkEvent.Load evt) {
-        final Chunk chunk = evt.getChunk();
-        Collection<TileEntity> tileEntities = chunk.chunkTileEntityMap.values();
-        for (TileEntity tileEntity : tileEntities) {
-            if (tileEntity instanceof ComputerTileEntity) {
-                final ComputerTileEntity computerTileEntity = (ComputerTileEntity) tileEntity;
-                computerAddedToWorld(evt.world, computerTileEntity);
-            }
-        }
-    }
-
 }
