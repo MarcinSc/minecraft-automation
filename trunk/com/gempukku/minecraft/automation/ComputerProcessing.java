@@ -18,6 +18,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * This class is used on server only and controls processing of programs and computer ticks.
+ */
 public class ComputerProcessing {
     public static final String STARTUP_PROGRAM = "startup";
     private File _configFolder;
@@ -106,7 +109,6 @@ public class ComputerProcessing {
             }
         }
 
-        Set<ServerComputerData> finishedComputers = new HashSet<ServerComputerData>();
         final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
         while (iterator.hasNext()) {
             final RunningProgram program = iterator.next();
