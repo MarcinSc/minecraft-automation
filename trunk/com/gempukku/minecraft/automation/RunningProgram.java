@@ -45,4 +45,8 @@ public class RunningProgram {
     public boolean isRunning() {
         return _running;
     }
+
+    public ComputerData getComputerData() {
+        return _computerData;
+    }
 }

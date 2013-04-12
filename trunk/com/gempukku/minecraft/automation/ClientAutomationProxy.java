@@ -21,11 +21,6 @@ public class ClientAutomationProxy implements AutomationProxy {
     }
 
     @Override
-    public ProgramProcessing getProgramProcessing() {
-        throw new UnsupportedOperationException("Client has no ProgramProcessing");
-    }
-
-    @Override
     public ClientAutomationRegistry getRegistry() {
         return _automationRegistry;
     }

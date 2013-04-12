@@ -6,6 +6,4 @@ public interface AutomationProxy {
     public void initialize(File modConfigDirectory);
 
     public AutomationRegistry getRegistry();
-
-    public ProgramProcessing getProgramProcessing();
 }

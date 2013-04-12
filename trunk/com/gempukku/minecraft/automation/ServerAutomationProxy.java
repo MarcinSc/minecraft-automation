@@ -6,18 +6,17 @@ import java.io.File;
 
 public class ServerAutomationProxy implements AutomationProxy {
     private ServerAutomationRegistry _automationRegistry;
-    private ProgramProcessing _programProcessing;
+    private ServerProgramProcessing _programProcessing;
 
     @Override
     public void initialize(File modConfigDirectory) {
         _automationRegistry = new ServerAutomationRegistry(modConfigDirectory);
-        _programProcessing = new ProgramProcessing(modConfigDirectory, _automationRegistry);
+        _programProcessing = new ServerProgramProcessing(modConfigDirectory, _automationRegistry);
         MinecraftForge.EVENT_BUS.register(_automationRegistry);
         MinecraftForge.EVENT_BUS.register(_programProcessing);
     }
 
-    @Override
-    public ProgramProcessing getProgramProcessing() {
+    public ServerProgramProcessing getProgramProcessing() {
         return _programProcessing;
     }
 

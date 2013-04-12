@@ -8,6 +8,7 @@ public class ComputerTileEntity extends TileEntity {
     private static final String FACING = "facing";
     private int _computerId;
     private int _facing;
+    private boolean _runningProgram;
 
     public int getComputerId() {
         return _computerId;
@@ -23,6 +24,14 @@ public class ComputerTileEntity extends TileEntity {
 
     public void setFacing(int facing) {
         _facing = facing;
+    }
+
+    public void setRunningProgram(boolean runningProgram) {
+        _runningProgram = runningProgram;
+    }
+
+    public boolean isRunningProgram() {
+        return _runningProgram;
     }
 
     @Override
