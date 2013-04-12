@@ -21,25 +21,25 @@ import java.util.*;
 public class ComputerProcessing {
     public static final String STARTUP_PROGRAM = "startup";
     private File _configFolder;
-    private AutomationRegistry _registry;
+    private ServerAutomationRegistry _registry;
     private ScriptParser _scriptParser;
     private Set<ServerComputerData> _loadedComputersInWorld = new HashSet<ServerComputerData>();
     private Map<Integer, RunningProgram> _runningPrograms = new HashMap<Integer, RunningProgram>();
 
-    public ComputerProcessing(File configFolder, AutomationRegistry registry) {
+    public ComputerProcessing(File configFolder, ServerAutomationRegistry registry) {
         _configFolder = configFolder;
         _registry = registry;
         _scriptParser = new ScriptParser();
     }
 
     public void computerAddedToWorld(World world, ComputerTileEntity computerTileEntity) {
-        final ServerComputerData computerData = Automation.proxy.getRegistry().getComputerData(computerTileEntity.getComputerId());
+        final ServerComputerData computerData = _registry.getComputerData(computerTileEntity.getComputerId());
         startProgram(world, computerTileEntity.getComputerId(), STARTUP_PROGRAM);
         _loadedComputersInWorld.add(computerData);
     }
 
     public void computerRemovedFromWorld(World world, ComputerTileEntity computerTileEntity) {
-        final ServerComputerData computerData = Automation.proxy.getRegistry().getComputerData(computerTileEntity.getComputerId());
+        final ServerComputerData computerData = _registry.getComputerData(computerTileEntity.getComputerId());
         _runningPrograms.remove(computerTileEntity.getComputerId());
         _loadedComputersInWorld.remove(computerData);
     }

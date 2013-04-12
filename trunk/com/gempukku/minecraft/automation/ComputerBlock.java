@@ -118,7 +118,7 @@ public class ComputerBlock extends Block {
     public int isProvidingStrongPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
         final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
-            final ServerComputerData computerData = Automation.proxy.getRegistry().getComputerData(tileEntity.getComputerId());
+            final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(tileEntity.getComputerId());
             int count = computerData.getModuleSlotCount();
             int input = 0;
             for (int i = 0; i < count; i++) {
@@ -137,7 +137,7 @@ public class ComputerBlock extends Block {
     public int isProvidingWeakPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
         final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
-            final ServerComputerData computerData = Automation.proxy.getRegistry().getComputerData(tileEntity.getComputerId());
+            final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(tileEntity.getComputerId());
             int count = computerData.getModuleSlotCount();
             int input = 0;
             for (int i = 0; i < count; i++) {

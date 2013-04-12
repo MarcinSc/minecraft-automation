@@ -1,6 +1,5 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.network.packet.Packet250CustomPayload;
 
@@ -15,11 +14,6 @@ import java.util.Set;
 public class ClientAutomationRegistry extends AbstractAutomationRegistry {
     private Map<Integer, String> _computerLabels = new HashMap<Integer, String>();
     private Set<Integer> _pendingComputerLabels = new HashSet<Integer>();
-
-    @Override
-    public ServerComputerData getComputerData(int computerId) {
-        throw new UnsupportedOperationException("Client cannot get ComputerData");
-    }
 
     @Override
     public String getComputerLabel(int computerId) {

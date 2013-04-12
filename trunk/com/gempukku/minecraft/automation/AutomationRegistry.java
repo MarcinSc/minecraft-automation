@@ -1,13 +1,10 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 import net.minecraft.item.Item;
 
 public interface AutomationRegistry {
     public String getComputerLabel(int computerId);
-
-    public ServerComputerData getComputerData(int computerId);
 
     public Item getModuleItemByType(String moduleType);
 

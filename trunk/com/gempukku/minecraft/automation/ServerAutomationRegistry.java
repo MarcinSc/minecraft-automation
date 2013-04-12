@@ -36,7 +36,6 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         return computerId;
     }
 
-    @Override
     public ServerComputerData getComputerData(int computerId) {
         final ServerComputerData computerData = _computerDataMap.get(computerId);
         if (computerData == null)
