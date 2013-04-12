@@ -6,6 +6,7 @@ import net.minecraft.tileentity.TileEntity;
 public class ComputerTileEntity extends TileEntity {
     private static final String ID_NAME = "computerId";
     private static final String FACING = "facing";
+    private static final String RUNNING = "running";
     private int _computerId;
     private int _facing;
     private boolean _runningProgram;
@@ -39,6 +40,7 @@ public class ComputerTileEntity extends TileEntity {
         super.readFromNBT(par1NBTTagCompound);
         _computerId = par1NBTTagCompound.getInteger(ID_NAME);
         _facing = par1NBTTagCompound.getInteger(FACING);
+        _runningProgram = par1NBTTagCompound.getBoolean(RUNNING);
     }
 
     @Override
@@ -46,5 +48,6 @@ public class ComputerTileEntity extends TileEntity {
         super.writeToNBT(par1NBTTagCompound);
         par1NBTTagCompound.setInteger(ID_NAME, _computerId);
         par1NBTTagCompound.setInteger(FACING, _facing);
+        par1NBTTagCompound.setBoolean(RUNNING, _runningProgram);
     }
 }
