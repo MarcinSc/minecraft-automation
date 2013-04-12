@@ -34,10 +34,11 @@ public class ComputerBlock extends Block {
     @Override
     public void breakBlock(World world, int x, int y, int z, int par5, int par6) {
         ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, x, y, z);
-        if (computerTileEntity != null)
+        if (computerTileEntity != null) {
             dropBlockAsItem_do(world, x, y, z, new ItemStack(this, 1, computerTileEntity.getComputerId()));
-        else
-            dropBlockAsItem_do(world, x, y, z, new ItemStack(this, 1, 0));
+            if (MinecraftUtils.isServer(world))
+                Automation.getServerProxy().getComputerProcessing().computerRemovedFromWorld(world, computerTileEntity);
+        }
 
         super.breakBlock(world, x, y, z, par5, par6);
     }
@@ -109,6 +110,8 @@ public class ComputerBlock extends Block {
     public void initializeBlockAfterPlaced(World world, int x, int y, int z, int facing, int computerId, String playerPlacing) {
         ComputerTileEntity computerEntity = createTileEntityFromItemStack(world, computerId, facing, playerPlacing);
         world.setBlockTileEntity(x, y, z, computerEntity);
+        if (MinecraftUtils.isServer(world))
+            Automation.getServerProxy().getComputerProcessing().computerAddedToWorld(world, computerEntity);
     }
 
     @Override

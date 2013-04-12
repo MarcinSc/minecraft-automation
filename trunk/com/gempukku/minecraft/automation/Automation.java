@@ -76,7 +76,7 @@ public class Automation {
         LanguageRegistry.addName(terminalItem, "Terminal");
 
         TickRegistry.registerTickHandler(
-                new ProcessRunningPrograms(), Side.SERVER);
+                new TickComputers(), Side.SERVER);
 
         proxy.initialize(_modConfigDirectory);
 

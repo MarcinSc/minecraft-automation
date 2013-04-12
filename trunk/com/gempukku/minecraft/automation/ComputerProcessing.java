@@ -4,6 +4,7 @@ import com.gempukku.minecraft.automation.computer.ComputerData;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
+import com.gempukku.minecraft.automation.module.ComputerModule;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.tileentity.TileEntity;
@@ -17,16 +18,30 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class ServerProgramProcessing implements ProgramProcessing {
+public class ComputerProcessing {
+    public static final String STARTUP_PROGRAM = "startup";
     private File _configFolder;
     private AutomationRegistry _registry;
     private ScriptParser _scriptParser;
+    private Set<ComputerData> _loadedComputersInWorld = new HashSet<ComputerData>();
     private Map<Integer, RunningProgram> _runningPrograms = new HashMap<Integer, RunningProgram>();
 
-    public ServerProgramProcessing(File configFolder, AutomationRegistry registry) {
+    public ComputerProcessing(File configFolder, AutomationRegistry registry) {
         _configFolder = configFolder;
         _registry = registry;
         _scriptParser = new ScriptParser();
+    }
+
+    public void computerAddedToWorld(World world, ComputerTileEntity computerTileEntity) {
+        final ComputerData computerData = Automation.proxy.getRegistry().getComputerData(computerTileEntity.getComputerId());
+        startProgram(world, computerTileEntity.getComputerId(), STARTUP_PROGRAM);
+        _loadedComputersInWorld.add(computerData);
+    }
+
+    public void computerRemovedFromWorld(World world, ComputerTileEntity computerTileEntity) {
+        final ComputerData computerData = Automation.proxy.getRegistry().getComputerData(computerTileEntity.getComputerId());
+        _runningPrograms.remove(computerTileEntity.getComputerId());
+        _loadedComputersInWorld.remove(computerData);
     }
 
     public String startProgram(World world, int computerId, String name) {
@@ -81,7 +96,16 @@ public class ServerProgramProcessing implements ProgramProcessing {
     }
 
     @SideOnly(Side.SERVER)
-    public void progressAllPrograms(World world) {
+    public void tickComputers(World world) {
+        for (ComputerData computerData : _loadedComputersInWorld) {
+            final int moduleSlotCount = computerData.getModuleSlotCount();
+            for (int i = 0; i < moduleSlotCount; i++) {
+                final ComputerModule module = computerData.getModuleAt(i);
+                if (module != null)
+                    module.onTick(world, computerData);
+            }
+        }
+
         Set<ComputerData> finishedComputers = new HashSet<ComputerData>();
         final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
         while (iterator.hasNext()) {
@@ -150,8 +174,9 @@ public class ServerProgramProcessing implements ProgramProcessing {
         final Chunk chunk = evt.getChunk();
         Collection<TileEntity> tileEntities = chunk.chunkTileEntityMap.values();
         for (TileEntity tileEntity : tileEntities) {
-            if (tileEntity instanceof ComputerTileEntity)
-                _runningPrograms.remove(((ComputerTileEntity) tileEntity).getComputerId());
+            if (tileEntity instanceof ComputerTileEntity) {
+                computerRemovedFromWorld(evt.world, (ComputerTileEntity) tileEntity);
+            }
         }
     }
 
@@ -163,9 +188,7 @@ public class ServerProgramProcessing implements ProgramProcessing {
         for (TileEntity tileEntity : tileEntities) {
             if (tileEntity instanceof ComputerTileEntity) {
                 final ComputerTileEntity computerTileEntity = (ComputerTileEntity) tileEntity;
-                final int computerId = computerTileEntity.getComputerId();
-                if (startProgram(evt.world, computerId, "startup") != null && computerTileEntity.isRunningProgram())
-                    setProgramRunning(evt.world, _registry.getComputerData(computerId), false);
+                computerAddedToWorld(evt.world, computerTileEntity);
             }
         }
     }

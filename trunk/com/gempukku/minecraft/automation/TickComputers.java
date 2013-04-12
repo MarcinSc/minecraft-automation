@@ -7,7 +7,7 @@ import net.minecraft.world.World;
 
 import java.util.EnumSet;
 
-public class ProcessRunningPrograms implements ITickHandler {
+public class TickComputers implements ITickHandler {
     @Override
     public String getLabel() {
         return "Automation program processing";
@@ -21,7 +21,7 @@ public class ProcessRunningPrograms implements ITickHandler {
     public void tickEnd(EnumSet<TickType> type, Object... tickData) {
         World world = (World) tickData[0];
         if (MinecraftUtils.isServer(world))
-            Automation.getServerProxy().getProgramProcessing().progressAllPrograms(world);
+            Automation.getServerProxy().getComputerProcessing().tickComputers(world);
     }
 
     @Override
