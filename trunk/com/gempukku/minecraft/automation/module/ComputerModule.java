@@ -1,6 +1,6 @@
 package com.gempukku.minecraft.automation.module;
 
-import com.gempukku.minecraft.automation.computer.ComputerData;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -25,7 +25,7 @@ public interface ComputerModule {
      * @param computerData Computer this module is being placed in.
      * @return True, if it's ok to place this module in the computer passed as a parameter, false otherwise.
      */
-    public boolean canBePlacedInComputer(ComputerData computerData);
+    public boolean canBePlacedInComputer(ServerComputerData computerData);
 
     /**
      * Checks if this module, that is already placed in the computer, is ok with adding a new module to the computer.
@@ -36,7 +36,7 @@ public interface ComputerModule {
      * @param computerModule New computer module that is being placed into the computer.
      * @return True, if it's ok to place the module in the computer passed as a parameter, false otherwise.
      */
-    public boolean acceptsNewModule(ComputerData computerData, ComputerModule computerModule);
+    public boolean acceptsNewModule(ServerComputerData computerData, ComputerModule computerModule);
 
     /**
      * Returns a function with the specified name. To make the implementation easier, you can subclass
@@ -58,7 +58,7 @@ public interface ComputerModule {
      * @return The signal strength (if any). If no signal should be returned - return 0, otherwise the strength (1-15).
      *         If this ComputerModule has nothing to do with Redstone signal, it should just return input value.
      */
-    public int getWeakRedstoneSignalStrengthOnSide(ComputerData computerData, int input, IBlockAccess blockAccess, int side);
+    public int getWeakRedstoneSignalStrengthOnSide(ServerComputerData computerData, int input, IBlockAccess blockAccess, int side);
 
     /**
      * Returns strength of the strong redstone signal on the specified side of the computer.
@@ -70,7 +70,7 @@ public interface ComputerModule {
      * @return The signal strength (if any). If no signal should be returned - return 0, otherwise the strength (1-15).
      *         If this ComputerModule has nothing to do with Redstone signal, it should just return input value.
      */
-    public int getStrongRedstoneSignalStrengthOnSide(ComputerData computerData, int input, IBlockAccess blockAccess, int side);
+    public int getStrongRedstoneSignalStrengthOnSide(ServerComputerData computerData, int input, IBlockAccess blockAccess, int side);
 
-    public void onTick(World world, ComputerData computerData);
+    public void onTick(World world, ServerComputerData computerData);
 }

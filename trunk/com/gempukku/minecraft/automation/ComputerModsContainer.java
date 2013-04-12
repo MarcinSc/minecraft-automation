@@ -1,6 +1,6 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.computer.ComputerData;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -8,7 +8,7 @@ import net.minecraft.inventory.Slot;
 
 public class ComputerModsContainer extends Container {
     private ComputerTileEntity _tileEntity;
-    private ComputerData _computerData;
+    private ServerComputerData _computerData;
 
     public ComputerModsContainer(InventoryPlayer inventoryPlayer, ComputerTileEntity tileEntity) {
         _tileEntity = tileEntity;

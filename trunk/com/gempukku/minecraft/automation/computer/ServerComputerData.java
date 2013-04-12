@@ -5,16 +5,15 @@ import com.gempukku.minecraft.automation.module.ComputerModule;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ComputerData {
+public class ServerComputerData {
     private String _label;
     private int[] _location = new int[3];
     private int _facing;
     private int _id;
     private String _owner;
-    private Map<String, Map<String, String>> _moduleData =
-            new HashMap<String, Map<String, String>>();
+    private Map<String, Map<String, String>> _moduleData = new HashMap<String, Map<String, String>>();
 
-    public ComputerData(int id, String owner) {
+    public ServerComputerData(int id, String owner) {
         _id = id;
         _owner = owner;
     }

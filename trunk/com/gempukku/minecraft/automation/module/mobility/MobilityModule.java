@@ -1,6 +1,6 @@
 package com.gempukku.minecraft.automation.module.mobility;
 
-import com.gempukku.minecraft.automation.computer.ComputerData;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
 import com.gempukku.minecraft.automation.module.AbstractComputerModule;
 import com.gempukku.minecraft.automation.module.ComputerModule;
@@ -10,12 +10,12 @@ public class MobilityModule extends AbstractComputerModule {
     private MoveForwardFunction _forward = new MoveForwardFunction();
 
     @Override
-    public boolean acceptsNewModule(ComputerData computerData, ComputerModule computerModule) {
+    public boolean acceptsNewModule(ServerComputerData computerData, ComputerModule computerModule) {
         return !computerModule.getModuleType().equals(TYPE);
     }
 
     @Override
-    public boolean canBePlacedInComputer(ComputerData computerData) {
+    public boolean canBePlacedInComputer(ServerComputerData computerData) {
         final int slotCount = computerData.getModuleSlotCount();
         for (int i = 0; i < slotCount; i++) {
             final ComputerModule module = computerData.getModuleAt(i);

@@ -1,17 +1,17 @@
 package com.gempukku.minecraft.automation.computer.bind;
 
-import com.gempukku.minecraft.automation.computer.ComputerData;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 
 public class BindingFunctionWrapper implements FunctionExecutable {
-    private ComputerData _computer;
+    private ServerComputerData _computer;
     private int _slotNo;
     private ComputerModule _module;
     private FunctionExecutable _function;
 
-    public BindingFunctionWrapper(ComputerData computer, ComputerModule module, int slotNo, FunctionExecutable function) {
+    public BindingFunctionWrapper(ServerComputerData computer, ComputerModule module, int slotNo, FunctionExecutable function) {
         _computer = computer;
         _module = module;
         _slotNo = slotNo;

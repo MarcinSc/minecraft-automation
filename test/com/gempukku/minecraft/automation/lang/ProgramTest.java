@@ -1,12 +1,13 @@
 package com.gempukku.minecraft.automation.lang;
 
-import com.gempukku.minecraft.automation.computer.ComputerData;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
-import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
+
+import static org.junit.Assert.assertEquals;
 
 public class ProgramTest {
     protected Variable executeScript(ScriptExecutable exec) throws ExecutionException {
@@ -24,7 +25,7 @@ public class ProgramTest {
     }
 
     protected ExecutionContext initExecutionContext() {
-        ExecutionContext executionContext = new MinecraftComputerExecutionContext(new ComputerData(0, "owner"));
+        ExecutionContext executionContext = new MinecraftComputerExecutionContext(new ServerComputerData(0, "owner"));
         executionContext.addPropertyProducer(Variable.Type.MAP, new MapPropertyProducer());
         executionContext.addPropertyProducer(Variable.Type.OBJECT, new ObjectPropertyProducer());
         return executionContext;

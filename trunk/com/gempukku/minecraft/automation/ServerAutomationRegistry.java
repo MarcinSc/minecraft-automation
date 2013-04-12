@@ -1,6 +1,6 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.computer.ComputerData;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class ServerAutomationRegistry extends AbstractAutomationRegistry {
-    private Map<Integer, ComputerData> _computerDataMap = new HashMap<Integer, ComputerData>();
+    private Map<Integer, ServerComputerData> _computerDataMap = new HashMap<Integer, ServerComputerData>();
     private File _configFolder;
     private int _nextId;
 
@@ -31,20 +31,20 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         _nextId++;
         final File computerDataFile = getComputerDataFile(computerId);
         computerDataFile.getParentFile().mkdirs();
-        ComputerData computerData = new ComputerData(computerId, owner);
+        ServerComputerData computerData = new ServerComputerData(computerId, owner);
         _computerDataMap.put(computerId, computerData);
         return computerId;
     }
 
     @Override
-    public ComputerData getComputerData(int computerId) {
-        final ComputerData computerData = _computerDataMap.get(computerId);
+    public ServerComputerData getComputerData(int computerId) {
+        final ServerComputerData computerData = _computerDataMap.get(computerId);
         if (computerData == null)
             _computerDataMap.put(computerId, readComputerDataFromDisk(computerId));
         return computerData;
     }
 
-    private ComputerData readComputerDataFromDisk(int computerId) {
+    private ServerComputerData readComputerDataFromDisk(int computerId) {
         File computerDataFile = getComputerDataFile(computerId);
 
         Properties properties = new Properties();
@@ -61,7 +61,7 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 
         int id = Integer.parseInt((String) properties.get("id"));
         String owner = (String) properties.get("owner");
-        ComputerData computerData = new ComputerData(id, owner);
+        ServerComputerData computerData = new ServerComputerData(id, owner);
         String label = (String) properties.get("label");
         if (label != null)
             computerData.setLabel(label);
@@ -73,7 +73,7 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         return new File(computerFolder, "data.properties");
     }
 
-    private void saveComputerData(ComputerData computerData) {
+    private void saveComputerData(ServerComputerData computerData) {
         final int id = computerData.getId();
         Properties properties = new Properties();
         properties.setProperty("id", String.valueOf(id));
@@ -99,7 +99,7 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         for (TileEntity entity : entities) {
             if (entity instanceof ComputerTileEntity) {
                 final int computerId = ((ComputerTileEntity) entity).getComputerId();
-                final ComputerData computerData = readComputerDataFromDisk(computerId);
+                final ServerComputerData computerData = readComputerDataFromDisk(computerId);
                 _computerDataMap.put(computerId, computerData);
             }
         }
@@ -111,7 +111,7 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         Collection<TileEntity> entities = chunk.chunkTileEntityMap.values();
         for (TileEntity entity : entities) {
             if (entity instanceof ComputerTileEntity) {
-                final ComputerData computerData = _computerDataMap.remove(((ComputerTileEntity) entity).getComputerId());
+                final ServerComputerData computerData = _computerDataMap.remove(((ComputerTileEntity) entity).getComputerId());
                 saveComputerData(computerData);
             }
         }

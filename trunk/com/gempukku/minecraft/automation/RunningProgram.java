@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.computer.ComputerData;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.ExecutionProgress;
 import net.minecraft.world.World;
@@ -9,12 +9,12 @@ import net.minecraft.world.World;
 public class RunningProgram {
     private static final int MEMORY_CHECK_INTERVAL = 10;
     private MinecraftComputerExecutionContext _executionContext;
-    private ComputerData _computerData;
+    private ServerComputerData _computerData;
     private int _speedConsumed;
     private boolean _running = true;
     private int _memoryConsumptionCheck = 0;
 
-    public RunningProgram(ComputerData computerData, MinecraftComputerExecutionContext executionContext) {
+    public RunningProgram(ServerComputerData computerData, MinecraftComputerExecutionContext executionContext) {
         _computerData = computerData;
         _executionContext = executionContext;
     }
@@ -46,7 +46,7 @@ public class RunningProgram {
         return _running;
     }
 
-    public ComputerData getComputerData() {
+    public ServerComputerData getComputerData() {
         return _computerData;
     }
 }

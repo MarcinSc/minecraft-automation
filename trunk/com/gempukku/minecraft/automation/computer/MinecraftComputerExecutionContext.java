@@ -4,10 +4,10 @@ import com.gempukku.minecraft.automation.lang.ExecutionContext;
 import net.minecraft.world.World;
 
 public class MinecraftComputerExecutionContext extends ExecutionContext {
-    private ComputerData _computerData;
+    private ServerComputerData _computerData;
     private World _world;
 
-    public MinecraftComputerExecutionContext(ComputerData computerData) {
+    public MinecraftComputerExecutionContext(ServerComputerData computerData) {
         _computerData = computerData;
     }
 
@@ -19,7 +19,7 @@ public class MinecraftComputerExecutionContext extends ExecutionContext {
         return _world;
     }
 
-    public ComputerData getComputerData() {
+    public ServerComputerData getComputerData() {
         return _computerData;
     }
 }

@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.computer.ComputerData;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import com.gempukku.minecraft.automation.module.ComputerModule;
@@ -23,7 +23,7 @@ public class ComputerProcessing {
     private File _configFolder;
     private AutomationRegistry _registry;
     private ScriptParser _scriptParser;
-    private Set<ComputerData> _loadedComputersInWorld = new HashSet<ComputerData>();
+    private Set<ServerComputerData> _loadedComputersInWorld = new HashSet<ServerComputerData>();
     private Map<Integer, RunningProgram> _runningPrograms = new HashMap<Integer, RunningProgram>();
 
     public ComputerProcessing(File configFolder, AutomationRegistry registry) {
@@ -33,13 +33,13 @@ public class ComputerProcessing {
     }
 
     public void computerAddedToWorld(World world, ComputerTileEntity computerTileEntity) {
-        final ComputerData computerData = Automation.proxy.getRegistry().getComputerData(computerTileEntity.getComputerId());
+        final ServerComputerData computerData = Automation.proxy.getRegistry().getComputerData(computerTileEntity.getComputerId());
         startProgram(world, computerTileEntity.getComputerId(), STARTUP_PROGRAM);
         _loadedComputersInWorld.add(computerData);
     }
 
     public void computerRemovedFromWorld(World world, ComputerTileEntity computerTileEntity) {
-        final ComputerData computerData = Automation.proxy.getRegistry().getComputerData(computerTileEntity.getComputerId());
+        final ServerComputerData computerData = Automation.proxy.getRegistry().getComputerData(computerTileEntity.getComputerId());
         _runningPrograms.remove(computerTileEntity.getComputerId());
         _loadedComputersInWorld.remove(computerData);
     }
@@ -52,7 +52,7 @@ public class ComputerProcessing {
         if (computerProgram == null)
             return "Cannot find program " + name + ".";
 
-        final ComputerData computerData = _registry.getComputerData(computerId);
+        final ServerComputerData computerData = _registry.getComputerData(computerId);
         try {
             ScriptExecutable parsedScript = parseScript(computerProgram);
             if (parsedScript == null)
@@ -77,7 +77,7 @@ public class ComputerProcessing {
 
         final RunningProgram stoppedProgram = _runningPrograms.remove(computerId);
         if (stoppedProgram != null) {
-            final ComputerData computerData = stoppedProgram.getComputerData();
+            final ServerComputerData computerData = stoppedProgram.getComputerData();
             setProgramRunning(world, computerData, false);
         }
         return null;
@@ -97,7 +97,7 @@ public class ComputerProcessing {
 
     @SideOnly(Side.SERVER)
     public void tickComputers(World world) {
-        for (ComputerData computerData : _loadedComputersInWorld) {
+        for (ServerComputerData computerData : _loadedComputersInWorld) {
             final int moduleSlotCount = computerData.getModuleSlotCount();
             for (int i = 0; i < moduleSlotCount; i++) {
                 final ComputerModule module = computerData.getModuleAt(i);
@@ -106,20 +106,20 @@ public class ComputerProcessing {
             }
         }
 
-        Set<ComputerData> finishedComputers = new HashSet<ComputerData>();
+        Set<ServerComputerData> finishedComputers = new HashSet<ServerComputerData>();
         final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
         while (iterator.hasNext()) {
             final RunningProgram program = iterator.next();
             program.progressProgram(world);
             if (!program.isRunning()) {
                 iterator.remove();
-                final ComputerData computerData = program.getComputerData();
+                final ServerComputerData computerData = program.getComputerData();
                 setProgramRunning(world, computerData, false);
             }
         }
     }
 
-    private void setProgramRunning(World world, ComputerData computerData, boolean running) {
+    private void setProgramRunning(World world, ServerComputerData computerData, boolean running) {
         ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData.getX(), computerData.getY(), computerData.getZ());
         if (computerTileEntity != null) {
             computerTileEntity.setRunningProgram(running);
@@ -127,7 +127,7 @@ public class ComputerProcessing {
         }
     }
 
-    private MinecraftComputerExecutionContext initExecutionContext(ComputerData computerData) {
+    private MinecraftComputerExecutionContext initExecutionContext(ServerComputerData computerData) {
         MinecraftComputerExecutionContext executionContext = new MinecraftComputerExecutionContext(computerData);
         executionContext.addPropertyProducer(Variable.Type.MAP, new MapPropertyProducer());
         executionContext.addPropertyProducer(Variable.Type.OBJECT, new ObjectPropertyProducer());
