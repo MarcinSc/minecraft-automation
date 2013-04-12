@@ -21,14 +21,13 @@ import java.io.File;
 @Mod(modid = "MarcinSc_Automation", name = "Automation", version = "0.0")
 @NetworkMod(clientSideRequired = true,
         clientPacketHandlerSpec = @NetworkMod.SidedPacketHandler(channels = {Automation.UPDATE_COMPUTER_LABEL}, packetHandler = ClientAutomationPacketHandler.class),
-        serverSideRequired = true,
         serverPacketHandlerSpec = @NetworkMod.SidedPacketHandler(channels = {Automation.UPDATE_COMPUTER_LABEL}, packetHandler = ServerAutomationPacketHandler.class))
 public class Automation {
-    private static final String AUTOMATION_CHANNEL_PREFIX = "atm.";
-    public static final String UPDATE_COMPUTER_LABEL = AUTOMATION_CHANNEL_PREFIX + "updCompLabel";
-    public static final String CLIENT_INIT = AUTOMATION_CHANNEL_PREFIX + "clientInit";
+    private static final String AUTOMATION_CHANNEL_PREFIX = "automation.";
+    public static final String CLIENT_INIT = AUTOMATION_CHANNEL_PREFIX + "1";
+    public static final String UPDATE_COMPUTER_LABEL = AUTOMATION_CHANNEL_PREFIX + "2";
 
-    @Mod.Instance("Tiny")
+    @Mod.Instance("MarcinSc_Automation")
     public static Automation instance;
 
     private static File _modConfigDirectory;
@@ -80,7 +79,7 @@ public class Automation {
 
         proxy.initialize(_modConfigDirectory);
 
-        NetworkRegistry.instance().registerGuiHandler(this, new ComputerGuiHandler());
+        NetworkRegistry.instance().registerGuiHandler(instance, new ComputerGuiHandler());
     }
 
     @Mod.PostInit

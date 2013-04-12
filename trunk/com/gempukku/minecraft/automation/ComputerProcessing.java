@@ -18,7 +18,6 @@ import java.util.*;
 /**
  * This class is used on server only and controls processing of programs and computer ticks.
  */
-@SideOnly(Side.SERVER)
 public class ComputerProcessing {
     public static final String STARTUP_PROGRAM = "startup";
     private File _configFolder;
