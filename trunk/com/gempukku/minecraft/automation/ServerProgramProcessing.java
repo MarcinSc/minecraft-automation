@@ -163,7 +163,8 @@ public class ServerProgramProcessing implements ProgramProcessing {
         for (TileEntity tileEntity : tileEntities) {
             if (tileEntity instanceof ComputerTileEntity) {
                 final int computerId = ((ComputerTileEntity) tileEntity).getComputerId();
-                startProgram(evt.world, computerId, "startup");
+                if (startProgram(evt.world, computerId, "startup") != null)
+                    setProgramRunning(evt.world, _registry.getComputerData(computerId), false);
             }
         }
     }
