@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class ServerAutomationRegistry implements AutomationRegistry {
+public class ServerAutomationRegistry extends AbstractAutomationRegistry {
     private Map<Integer, ComputerData> _computerDataMap = new HashMap<Integer, ComputerData>();
     private File _configFolder;
     private int _nextId;

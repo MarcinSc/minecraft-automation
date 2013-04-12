@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation;
 
+import com.gempukku.minecraft.automation.module.gps.GPSModule;
 import com.gempukku.minecraft.automation.module.gps.GpsModuleItem;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -84,7 +85,7 @@ public class Automation {
 
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
-//        getRegistry().registerComputerModule(_gpsModuleItem, new GPSModule());
+        proxy.getRegistry().registerComputerModule(gpsModuleItem, new GPSModule());
     }
 
     public static synchronized ServerAutomationProxy getServerProxy() {
