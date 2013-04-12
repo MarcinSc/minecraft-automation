@@ -1,35 +1,34 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.world.World;
 import net.minecraftforge.event.Event;
 
 public class ComputerEvent extends Event {
     private World _world;
-    private final ServerComputerData _computerData;
+    private final ComputerTileEntity _computerTileEntity;
 
-    protected ComputerEvent(World world, ServerComputerData computerData) {
+    protected ComputerEvent(World world, ComputerTileEntity computerTileEntity) {
         _world = world;
-        _computerData = computerData;
+        _computerTileEntity = computerTileEntity;
     }
 
     public World getWorld() {
         return _world;
     }
 
-    public ServerComputerData getComputerData() {
-        return _computerData;
+    public ComputerTileEntity getComputerTileEntity() {
+        return _computerTileEntity;
     }
 
     public static class ComputerAddedToWorldEvent extends ComputerEvent {
-        public ComputerAddedToWorldEvent(World world, ServerComputerData computerData) {
-            super(world, computerData);
+        public ComputerAddedToWorldEvent(World world, ComputerTileEntity computerTileEntity) {
+            super(world, computerTileEntity);
         }
     }
 
     public static class ComputerRemovedFromWorldEvent extends ComputerEvent {
-        public ComputerRemovedFromWorldEvent(World world, ServerComputerData computerData) {
-            super(world, computerData);
+        public ComputerRemovedFromWorldEvent(World world, ComputerTileEntity computerTileEntity) {
+            super(world, computerTileEntity);
         }
     }
 }

@@ -38,7 +38,7 @@ public class ComputerBlock extends Block {
         if (computerTileEntity != null) {
             dropBlockAsItem_do(world, x, y, z, new ItemStack(this, 1, computerTileEntity.getComputerId()));
             if (MinecraftUtils.isServer(world))
-                MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, Automation.getServerProxy().getRegistry().getComputerData(computerTileEntity.getComputerId())));
+                MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, computerTileEntity));
         }
 
         super.breakBlock(world, x, y, z, par5, par6);
@@ -112,7 +112,7 @@ public class ComputerBlock extends Block {
         ComputerTileEntity computerEntity = createTileEntityFromItemStack(world, computerId, facing, playerPlacing);
         world.setBlockTileEntity(x, y, z, computerEntity);
         if (MinecraftUtils.isServer(world))
-            MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, Automation.getServerProxy().getRegistry().getComputerData(computerEntity.getComputerId())));
+            MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, computerEntity));
     }
 
     @Override
