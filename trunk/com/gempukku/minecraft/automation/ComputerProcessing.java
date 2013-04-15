@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation;
 
+import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.*;
@@ -125,7 +126,7 @@ public class ComputerProcessing {
         ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData.getX(), computerData.getY(), computerData.getZ());
         if (computerTileEntity != null) {
             computerTileEntity.setRunningProgram(running);
-            world.setBlockTileEntity(computerData.getX(), computerData.getY(), computerData.getZ(), computerTileEntity);
+            MinecraftUtils.updateTileEntity(world, computerData.getX(), computerData.getY(), computerData.getZ(), computerTileEntity);
         }
     }
 
