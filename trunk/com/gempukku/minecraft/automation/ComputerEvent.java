@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation;
 
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.event.Event;
 

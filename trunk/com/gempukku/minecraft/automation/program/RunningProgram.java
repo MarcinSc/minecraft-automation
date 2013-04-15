@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation;
+package com.gempukku.minecraft.automation.program;
 
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;

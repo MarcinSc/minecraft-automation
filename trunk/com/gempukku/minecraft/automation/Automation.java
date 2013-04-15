@@ -1,7 +1,17 @@
 package com.gempukku.minecraft.automation;
 
+import com.gempukku.minecraft.automation.block.ComputerBlock;
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
+import com.gempukku.minecraft.automation.client.ClientAutomationPacketHandler;
+import com.gempukku.minecraft.automation.client.ClientAutomationProxy;
+import com.gempukku.minecraft.automation.gui.ComputerGuiHandler;
+import com.gempukku.minecraft.automation.item.ComputerItemBlock;
+import com.gempukku.minecraft.automation.item.ItemTerminal;
 import com.gempukku.minecraft.automation.module.gps.GPSModule;
 import com.gempukku.minecraft.automation.module.gps.GpsModuleItem;
+import com.gempukku.minecraft.automation.program.TickComputers;
+import com.gempukku.minecraft.automation.server.ServerAutomationPacketHandler;
+import com.gempukku.minecraft.automation.server.ServerAutomationProxy;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -41,8 +51,8 @@ public class Automation {
     public static Item gpsModuleItem;
     private static int _gpsModuleItemId;
 
-    @SidedProxy(clientSide = "com.gempukku.minecraft.automation.ClientAutomationProxy",
-            serverSide = "com.gempukku.minecraft.automation.ServerAutomationProxy")
+    @SidedProxy(clientSide = "com.gempukku.minecraft.automation.client.ClientAutomationProxy",
+            serverSide = "com.gempukku.minecraft.automation.server.ServerAutomationProxy")
     public static AutomationProxy proxy;
 
     private static ServerAutomationProxy _serverProxy;

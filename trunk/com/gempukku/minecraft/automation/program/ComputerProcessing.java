@@ -1,11 +1,15 @@
-package com.gempukku.minecraft.automation;
+package com.gempukku.minecraft.automation.program;
 
 import com.gempukku.minecraft.MinecraftUtils;
+import com.gempukku.minecraft.automation.AutomationUtils;
+import com.gempukku.minecraft.automation.ComputerEvent;
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import com.gempukku.minecraft.automation.module.ComputerModule;
+import com.gempukku.minecraft.automation.server.ServerAutomationRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.world.World;

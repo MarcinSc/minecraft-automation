@@ -1,5 +1,7 @@
-package com.gempukku.minecraft.automation;
+package com.gempukku.minecraft.automation.client;
 
+import com.gempukku.minecraft.automation.Automation;
+import com.gempukku.minecraft.automation.AutomationProxy;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.network.packet.Packet250CustomPayload;
 

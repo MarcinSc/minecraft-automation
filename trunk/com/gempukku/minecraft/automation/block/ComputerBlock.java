@@ -1,6 +1,9 @@
-package com.gempukku.minecraft.automation;
+package com.gempukku.minecraft.automation.block;
 
 import com.gempukku.minecraft.MinecraftUtils;
+import com.gempukku.minecraft.automation.Automation;
+import com.gempukku.minecraft.automation.AutomationUtils;
+import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 import cpw.mods.fml.relauncher.Side;

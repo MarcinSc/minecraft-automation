@@ -1,6 +1,7 @@
-package com.gempukku.minecraft.automation;
+package com.gempukku.minecraft.automation.item;
 
 import com.gempukku.minecraft.Side;
+import com.gempukku.minecraft.automation.Automation;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;

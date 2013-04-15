@@ -1,5 +1,6 @@
-package com.gempukku.minecraft.automation;
+package com.gempukku.minecraft.automation.server;
 
+import com.gempukku.minecraft.automation.Automation;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;

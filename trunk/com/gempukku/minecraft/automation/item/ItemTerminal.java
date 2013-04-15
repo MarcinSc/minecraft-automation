@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation;
+package com.gempukku.minecraft.automation.item;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;

@@ -1,5 +1,6 @@
-package com.gempukku.minecraft.automation;
+package com.gempukku.minecraft.automation.gui;
 
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;

@@ -1,6 +1,7 @@
-package com.gempukku.minecraft.automation;
+package com.gempukku.minecraft.automation.program;
 
 import com.gempukku.minecraft.MinecraftUtils;
+import com.gempukku.minecraft.automation.Automation;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import net.minecraft.world.World;
