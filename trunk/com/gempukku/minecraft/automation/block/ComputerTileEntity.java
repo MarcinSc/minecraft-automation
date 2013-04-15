@@ -6,6 +6,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.INetworkManager;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 
 public class ComputerTileEntity extends TileEntity implements IInventory {
@@ -14,7 +17,6 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     private static final String RUNNING = "running";
     private static final String MODULE_SLOTS_COUNT = "moduleSlots";
     private int _computerId;
-    private int _facing;
     private boolean _runningProgram;
     private ComputerModule[] _modules;
     private int _moduleSlotsCount;
@@ -26,14 +28,6 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     public void setComputerId(int computerId) {
         _computerId = computerId;
-    }
-
-    public int getFacing() {
-        return _facing;
-    }
-
-    public void setFacing(int facing) {
-        _facing = facing;
     }
 
     public void setRunningProgram(boolean runningProgram) {
@@ -50,6 +44,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     public void setModuleSlotsCount(int moduleSlots) {
         _moduleSlotsCount = moduleSlots;
+        _modules = new ComputerModule[_moduleSlotsCount];
     }
 
     public int getItemSlotsCount() {
@@ -98,6 +93,8 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     }
 
     private ItemStack createStackFromModuleInSlot(int slot) {
+        if (_modules[slot] == null)
+            return null;
         final String moduleType = _modules[slot].getModuleType();
         return new ItemStack(Automation.proxy.getRegistry().getModuleItemByType(moduleType), 1,
                 Automation.proxy.getRegistry().getModuleItemMetadataByType(moduleType));
@@ -110,7 +107,10 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     @Override
     public void setInventorySlotContents(int i, ItemStack itemstack) {
-        _modules[i] = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
+        if (itemstack != null)
+            _modules[i] = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
+        else
+            _modules[i] = null;
     }
 
     @Override
@@ -140,10 +140,21 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     }
 
     @Override
+    public Packet getDescriptionPacket() {
+        NBTTagCompound nbttagcompound = new NBTTagCompound();
+        this.writeToNBT(nbttagcompound);
+        return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 1, nbttagcompound);
+    }
+
+    @Override
+    public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt) {
+        readFromNBT(pkt.customParam1);
+    }
+
+    @Override
     public void readFromNBT(NBTTagCompound par1NBTTagCompound) {
         super.readFromNBT(par1NBTTagCompound);
         _computerId = par1NBTTagCompound.getInteger(ID_NAME);
-        _facing = par1NBTTagCompound.getInteger(FACING);
         _runningProgram = par1NBTTagCompound.getBoolean(RUNNING);
         _moduleSlotsCount = par1NBTTagCompound.getInteger(MODULE_SLOTS_COUNT);
         _modules = new ComputerModule[_moduleSlotsCount];
@@ -153,7 +164,6 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
         super.writeToNBT(par1NBTTagCompound);
         par1NBTTagCompound.setInteger(ID_NAME, _computerId);
-        par1NBTTagCompound.setInteger(FACING, _facing);
         par1NBTTagCompound.setBoolean(RUNNING, _runningProgram);
         par1NBTTagCompound.setInteger(MODULE_SLOTS_COUNT, _moduleSlotsCount);
     }

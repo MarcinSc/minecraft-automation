@@ -27,7 +27,6 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         final ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
         final ServerComputerData computerData = getComputerData(computerTileEntity.getComputerId());
         computerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
-        computerData.setFacing(computerTileEntity.getFacing());
     }
 
     @ForgeSubscribe
@@ -35,7 +34,6 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         final ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
         final ServerComputerData computerData = getComputerData(computerTileEntity.getComputerId());
         computerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
-        computerData.setFacing(computerTileEntity.getFacing());
     }
 
     @Override

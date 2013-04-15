@@ -64,11 +64,11 @@ public class ComputerItemBlock extends ItemBlock {
 
     @Override
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
-        boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, metadata);
-        if (placed) {
-            int blockFacing = getBlockFacingForEntity(player);
-            Automation.computerBlock.initializeBlockAfterPlaced(world, x, y, z, blockFacing, stack.getItemDamage(), player.getEntityName());
-        }
+        int blockFacing = getBlockFacingForEntity(player);
+        boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, blockFacing);
+        if (placed)
+            Automation.computerBlock.initializeBlockAfterPlaced(world, x, y, z, stack.getItemDamage(), player.getEntityName());
+
         return placed;
     }
 

@@ -66,8 +66,8 @@ public class Automation {
         conf.load();
         _modConfigDirectory = evt.getModConfigurationDirectory();
         _computerBlockId = conf.getBlock("computerBlock", 3624, "This is an ID of a computer block").getInt();
-        _moduleItemId = conf.getItem("computerModule", 3625, "This is an ID of a computer module item").getInt();
-        _terminalItemId = conf.getItem("keyboard", 3626, "This is an ID of a keyboard item").getInt();
+        _moduleItemId = conf.getItem("computerModule", 4124, "This is an ID of a computer module item").getInt();
+        _terminalItemId = conf.getItem("keyboard", 4125, "This is an ID of a keyboard item").getInt();
     }
 
     @Mod.Init

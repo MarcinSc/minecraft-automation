@@ -9,8 +9,6 @@ import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import com.gempukku.minecraft.automation.server.ServerAutomationRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeSubscribe;
 
@@ -98,7 +96,6 @@ public class ComputerProcessing {
         return result;
     }
 
-    @SideOnly(Side.SERVER)
     public void tickComputers(World world) {
         final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
         while (iterator.hasNext()) {
