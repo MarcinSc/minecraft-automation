@@ -7,8 +7,8 @@ import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
-public class GpsModuleItem extends Item {
-    public GpsModuleItem(int id) {
+public class ComputerModuleItem extends Item {
+    public ComputerModuleItem(int id) {
         super(id);
         setUnlocalizedName("computerModule");
         setCreativeTab(CreativeTabs.tabMisc);

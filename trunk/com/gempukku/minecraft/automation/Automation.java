@@ -7,8 +7,8 @@ import com.gempukku.minecraft.automation.client.ClientAutomationProxy;
 import com.gempukku.minecraft.automation.gui.ComputerGuiHandler;
 import com.gempukku.minecraft.automation.item.ComputerItemBlock;
 import com.gempukku.minecraft.automation.item.ItemTerminal;
+import com.gempukku.minecraft.automation.module.gps.ComputerModuleItem;
 import com.gempukku.minecraft.automation.module.gps.GPSModule;
-import com.gempukku.minecraft.automation.module.gps.GpsModuleItem;
 import com.gempukku.minecraft.automation.program.TickComputers;
 import com.gempukku.minecraft.automation.server.ServerAutomationPacketHandler;
 import com.gempukku.minecraft.automation.server.ServerAutomationProxy;
@@ -74,7 +74,7 @@ public class Automation {
     public void initialize(FMLInitializationEvent evt) {
         computerBlock = new ComputerBlock(_computerBlockId);
 
-        moduleItem = new GpsModuleItem(_moduleItemId);
+        moduleItem = new ComputerModuleItem(_moduleItemId);
         terminalItem = new ItemTerminal(_terminalItemId);
 
         GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
