@@ -3,7 +3,7 @@ package com.gempukku.minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.MathHelper;
 
-public class Side {
+public class BoxSide {
     public static final int TOP = 0;
     public static final int BOTTOM = 1;
     public static final int SOUTH = 2;

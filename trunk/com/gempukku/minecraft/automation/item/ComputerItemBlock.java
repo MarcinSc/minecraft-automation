@@ -1,6 +1,6 @@
 package com.gempukku.minecraft.automation.item;
 
-import com.gempukku.minecraft.Side;
+import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.automation.Automation;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
@@ -73,6 +73,6 @@ public class ComputerItemBlock extends ItemBlock {
     }
 
     private int getBlockFacingForEntity(Entity entity) {
-        return Side.getOpposite(Side.getEntityFacingHorizontal(entity));
+        return BoxSide.getOpposite(BoxSide.getEntityFacingHorizontal(entity));
     }
 }
