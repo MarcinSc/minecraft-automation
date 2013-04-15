@@ -8,7 +8,6 @@ import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionCont
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
-import com.gempukku.minecraft.automation.module.ComputerModule;
 import com.gempukku.minecraft.automation.server.ServerAutomationRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -28,7 +27,6 @@ public class ComputerProcessing {
     private File _configFolder;
     private ServerAutomationRegistry _registry;
     private ScriptParser _scriptParser;
-    private Set<Integer> _loadedComputerIds = new HashSet<Integer>();
     private Map<Integer, RunningProgram> _runningPrograms = new HashMap<Integer, RunningProgram>();
 
     public ComputerProcessing(File configFolder, ServerAutomationRegistry registry) {
@@ -41,14 +39,12 @@ public class ComputerProcessing {
     public void computerAddedToWorld(ComputerEvent.ComputerAddedToWorldEvent evt) {
         final int computerId = evt.getComputerTileEntity().getComputerId();
         startProgram(evt.getWorld(), computerId, STARTUP_PROGRAM);
-        _loadedComputerIds.add(computerId);
     }
 
     @ForgeSubscribe
     public void computerRemovedFromWorld(ComputerEvent.ComputerRemovedFromWorldEvent evt) {
         final int computerId = evt.getComputerTileEntity().getComputerId();
         _runningPrograms.remove(computerId);
-        _loadedComputerIds.remove(computerId);
     }
 
     public String startProgram(World world, int computerId, String name) {
@@ -104,16 +100,6 @@ public class ComputerProcessing {
 
     @SideOnly(Side.SERVER)
     public void tickComputers(World world) {
-        for (int computerId : _loadedComputerIds) {
-            final ServerComputerData computerData = _registry.getComputerData(computerId);
-            final int moduleSlotCount = computerData.getModuleSlotCount();
-            for (int i = 0; i < moduleSlotCount; i++) {
-                final ComputerModule module = computerData.getModuleAt(i);
-                if (module != null)
-                    module.onTick(world, computerData);
-            }
-        }
-
         final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
         while (iterator.hasNext()) {
             final RunningProgram program = iterator.next();

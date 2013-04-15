@@ -3,7 +3,6 @@ package com.gempukku.minecraft.automation.module;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 
 /**
  * Interface to implement when defining a ComputerModule.
@@ -71,6 +70,4 @@ public interface ComputerModule {
      *         If this ComputerModule has nothing to do with Redstone signal, it should just return input value.
      */
     public int getStrongRedstoneSignalStrengthOnSide(ServerComputerData computerData, int input, IBlockAccess blockAccess, int side);
-
-    public void onTick(World world, ServerComputerData computerData);
 }

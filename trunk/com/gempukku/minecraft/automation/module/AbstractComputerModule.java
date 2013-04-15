@@ -2,7 +2,6 @@ package com.gempukku.minecraft.automation.module;
 
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 
 public abstract class AbstractComputerModule implements ComputerModule {
     @Override
@@ -23,9 +22,5 @@ public abstract class AbstractComputerModule implements ComputerModule {
     @Override
     public int getWeakRedstoneSignalStrengthOnSide(ServerComputerData computerData, int input, IBlockAccess blockAccess, int side) {
         return input;
-    }
-
-    @Override
-    public void onTick(World world, ServerComputerData computerData) {
     }
 }
