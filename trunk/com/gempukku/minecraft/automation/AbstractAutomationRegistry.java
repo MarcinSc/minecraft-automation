@@ -3,6 +3,8 @@ package com.gempukku.minecraft.automation;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 import net.minecraft.item.Item;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +29,14 @@ public abstract class AbstractAutomationRegistry implements AutomationRegistry {
     @Override
     public int getModuleItemMetadataByType(String moduleType) {
         return _moduleMetadataByType.get(moduleType);
+    }
+
+    @Override
+    public Collection<Integer> getModuleItemMetadataForItem(int itemId) {
+        final Map<Integer, ComputerModule> moduleMetadata = _modulesByItemId.get(itemId);
+        if (moduleMetadata == null)
+            return Collections.emptySet();
+        return moduleMetadata.keySet();
     }
 
     @Override
