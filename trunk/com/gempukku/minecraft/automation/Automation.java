@@ -48,8 +48,10 @@ public class Automation {
     public static Item terminalItem;
     private static int _terminalItemId;
 
-    public static Item gpsModuleItem;
-    private static int _gpsModuleItemId;
+    public static Item moduleItem;
+    private static int _moduleItemId;
+
+    public static final int GPS_MODULE_METADATA = 0;
 
     @SidedProxy(clientSide = "com.gempukku.minecraft.automation.client.ClientAutomationProxy",
             serverSide = "com.gempukku.minecraft.automation.server.ServerAutomationProxy")
@@ -64,7 +66,7 @@ public class Automation {
         conf.load();
         _modConfigDirectory = evt.getModConfigurationDirectory();
         _computerBlockId = conf.getBlock("computerBlock", 3624, "This is an ID of a computer block").getInt();
-        _gpsModuleItemId = conf.getItem("gpsModule", 3625, "This is an ID of a gps module item").getInt();
+        _moduleItemId = conf.getItem("computerModule", 3625, "This is an ID of a computer module item").getInt();
         _terminalItemId = conf.getItem("keyboard", 3626, "This is an ID of a keyboard item").getInt();
     }
 
@@ -72,16 +74,16 @@ public class Automation {
     public void initialize(FMLInitializationEvent evt) {
         computerBlock = new ComputerBlock(_computerBlockId);
 
-        gpsModuleItem = new GpsModuleItem(_gpsModuleItemId);
+        moduleItem = new GpsModuleItem(_moduleItemId);
         terminalItem = new ItemTerminal(_terminalItemId);
 
         GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
         GameRegistry.registerBlock(computerBlock, ComputerItemBlock.class, "computer");
-        GameRegistry.registerItem(gpsModuleItem, "gpsModule");
+        GameRegistry.registerItem(moduleItem, "gpsModule");
         GameRegistry.registerItem(terminalItem, "terminal");
 
         LanguageRegistry.addName(computerBlock, "Computer");
-        LanguageRegistry.addName(gpsModuleItem, "GPS module");
+        LanguageRegistry.addName(moduleItem, "GPS module");
         LanguageRegistry.addName(terminalItem, "Terminal");
 
         TickRegistry.registerTickHandler(
@@ -94,7 +96,7 @@ public class Automation {
 
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
-        proxy.getRegistry().registerComputerModule(gpsModuleItem, 0, new GPSModule());
+        proxy.getRegistry().registerComputerModule(moduleItem, GPS_MODULE_METADATA, new GPSModule());
     }
 
     public static synchronized ServerAutomationProxy getServerProxy() {
