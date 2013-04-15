@@ -11,7 +11,9 @@ public interface AutomationRegistry {
 
     public Item getModuleItemByType(String moduleType);
 
-    public ComputerModule getModuleByItemId(int itemID);
+    public int getModuleItemMetadataByType(String moduleType);
 
-    public void registerComputerModule(Item moduleItem, ComputerModule module);
+    public ComputerModule getModuleByItemId(int itemId, int metadata);
+
+    public void registerComputerModule(Item moduleItem, int metadata, ComputerModule module);
 }

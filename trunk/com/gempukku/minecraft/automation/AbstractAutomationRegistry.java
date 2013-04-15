@@ -7,12 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractAutomationRegistry implements AutomationRegistry {
-    private Map<Integer, ComputerModule> _modulesByItemId = new HashMap<Integer, ComputerModule>();
+    private Map<Integer, Map<Integer, ComputerModule>> _modulesByItemId = new HashMap<Integer, Map<Integer, ComputerModule>>();
     private Map<String, Item> _moduleItemsByType = new HashMap<String, Item>();
+    private Map<String, Integer> _moduleMetadataByType = new HashMap<String, Integer>();
 
     @Override
-    public ComputerModule getModuleByItemId(int itemID) {
-        return _modulesByItemId.get(itemID);
+    public ComputerModule getModuleByItemId(int itemId, int metadata) {
+        final Map<Integer, ComputerModule> moduleMetadataMap = _modulesByItemId.get(itemId);
+        if (moduleMetadataMap == null)
+            return null;
+        return moduleMetadataMap.get(metadata);
     }
 
     @Override
@@ -21,8 +25,19 @@ public abstract class AbstractAutomationRegistry implements AutomationRegistry {
     }
 
     @Override
-    public void registerComputerModule(Item moduleItem, ComputerModule module) {
-        _modulesByItemId.put(moduleItem.itemID, module);
+    public int getModuleItemMetadataByType(String moduleType) {
+        return _moduleMetadataByType.get(moduleType);
+    }
+
+    @Override
+    public void registerComputerModule(Item moduleItem, int metadata, ComputerModule module) {
+        Map<Integer, ComputerModule> moduleMetadataMap = _modulesByItemId.get(moduleItem.itemID);
+        if (moduleMetadataMap == null) {
+            moduleMetadataMap = new HashMap<Integer, ComputerModule>();
+            _modulesByItemId.put(moduleItem.itemID, moduleMetadataMap);
+        }
+        moduleMetadataMap.put(metadata, module);
         _moduleItemsByType.put(module.getModuleType(), moduleItem);
+        _moduleMetadataByType.put(module.getModuleType(), metadata);
     }
 }

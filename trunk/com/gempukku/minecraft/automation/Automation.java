@@ -94,7 +94,7 @@ public class Automation {
 
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
-        proxy.getRegistry().registerComputerModule(gpsModuleItem, new GPSModule());
+        proxy.getRegistry().registerComputerModule(gpsModuleItem, 0, new GPSModule());
     }
 
     public static synchronized ServerAutomationProxy getServerProxy() {

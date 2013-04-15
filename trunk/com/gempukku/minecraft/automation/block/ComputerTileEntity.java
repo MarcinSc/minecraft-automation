@@ -18,6 +18,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     private boolean _runningProgram;
     private ComputerModule[] _modules;
     private int _moduleSlotsCount;
+    private int _itemSlotsCount;
 
     public int getComputerId() {
         return _computerId;
@@ -49,6 +50,14 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     public void setModuleSlotsCount(int moduleSlots) {
         _moduleSlotsCount = moduleSlots;
+    }
+
+    public int getItemSlotsCount() {
+        return _itemSlotsCount;
+    }
+
+    public void setItemSlotsCount(int itemSlotsCount) {
+        _itemSlotsCount = itemSlotsCount;
     }
 
     public ComputerModule getModule(int slot) {
@@ -89,7 +98,9 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     }
 
     private ItemStack createStackFromModuleInSlot(int slot) {
-        return new ItemStack(Automation.proxy.getRegistry().getModuleItemByType(_modules[slot].getModuleType()));
+        final String moduleType = _modules[slot].getModuleType();
+        return new ItemStack(Automation.proxy.getRegistry().getModuleItemByType(moduleType), 1,
+                Automation.proxy.getRegistry().getModuleItemMetadataByType(moduleType));
     }
 
     @Override
@@ -99,7 +110,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     @Override
     public void setInventorySlotContents(int i, ItemStack itemstack) {
-        _modules[i] = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID);
+        _modules[i] = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
     }
 
     @Override
@@ -124,7 +135,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     @Override
     public boolean isStackValidForSlot(int i, ItemStack itemstack) {
-        final ComputerModule module = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID);
+        final ComputerModule module = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
         return module != null;
     }
 

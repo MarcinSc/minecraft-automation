@@ -6,9 +6,9 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import org.lwjgl.opengl.GL11;
 
-public class ComputerModsGui extends GuiContainer {
-    public ComputerModsGui(InventoryPlayer inventoryPlayer, ComputerTileEntity computerTileEntity) {
-        super(new ComputerModsContainer(inventoryPlayer, computerTileEntity));
+public class ComputerItemGui extends GuiContainer {
+    public ComputerItemGui(InventoryPlayer inventoryPlayer, ComputerTileEntity computerTileEntity) {
+        super(new ComputerContainer(inventoryPlayer, computerTileEntity));
     }
 
     @Override
