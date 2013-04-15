@@ -28,6 +28,8 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
                 // Ignore
             }
         } else if (packet.channel.equals(Automation.CLIENT_INIT)) {
+            // We need to initialize the server proxy, as if it's working in single-player mode, it might not be
+            // initialized yet
             Automation.getServerProxy();
         }
     }
