@@ -41,7 +41,7 @@ public class ComputerBlock extends Block {
         if (computerTileEntity != null) {
             dropBlockAsItem_do(world, x, y, z, new ItemStack(this, 1, computerTileEntity.getComputerId()));
             if (MinecraftUtils.isServer(world))
-                MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, computerTileEntity));
+                MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(world, computerTileEntity));
         }
 
         super.breakBlock(world, x, y, z, par5, par6);

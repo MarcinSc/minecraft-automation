@@ -54,7 +54,7 @@ public class ServerAutomationProxy implements AutomationProxy {
         for (TileEntity tileEntity : tileEntities) {
             if (tileEntity instanceof ComputerTileEntity) {
                 final ComputerTileEntity computerTileEntity = (ComputerTileEntity) tileEntity;
-                MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(evt.world, computerTileEntity));
+                MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(evt.world, computerTileEntity));
             }
         }
     }
