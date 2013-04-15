@@ -1,7 +1,6 @@
 package com.gempukku.minecraft.automation.gui;
 
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -9,29 +8,28 @@ import net.minecraft.inventory.Slot;
 
 public class ComputerModsContainer extends Container {
     private ComputerTileEntity _tileEntity;
-    private ServerComputerData _computerData;
 
     public ComputerModsContainer(InventoryPlayer inventoryPlayer, ComputerTileEntity tileEntity) {
         _tileEntity = tileEntity;
 
         final int moduleSlotsCount = tileEntity.getModuleSlotsCount();
         for (int i = 0; i < moduleSlotsCount; i++)
-            addSlotToContainer(new Slot(tileEntity, i, 0, 16 * i));
+            addSlotToContainer(new Slot(tileEntity, i, 18 * i, 0));
 
         bindPlayerInventory(inventoryPlayer);
     }
 
     protected void bindPlayerInventory(InventoryPlayer inventoryPlayer) {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 9; j++) {
-                addSlotToContainer(new Slot(inventoryPlayer, j + i * 9 + 9,
-                        8 + j * 18, 84 + i * 18));
+        for (int row = 0; row < 3; row++)
+            for (int column = 0; column < 9; column++) {
+                final int slotIndexInInventory = column + row * 9 + 9;
+                addSlotToContainer(new Slot(inventoryPlayer, slotIndexInInventory,
+                        8 + column * 18, 84 + row * 18));
             }
-        }
 
-        for (int i = 0; i < 9; i++) {
-            addSlotToContainer(new Slot(inventoryPlayer, i, 8 + i * 18, 142));
-        }
+        for (int equippedColumn = 0; equippedColumn < 9; equippedColumn++)
+            addSlotToContainer(new Slot(inventoryPlayer, equippedColumn, 8 + equippedColumn * 18, 142));
+
     }
 
     @Override
