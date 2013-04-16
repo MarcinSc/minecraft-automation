@@ -39,5 +39,4 @@ public class StorageModuleUtils {
             lookAt = BoxSide.BOTTOM;
         return lookAt;
     }
-
 }

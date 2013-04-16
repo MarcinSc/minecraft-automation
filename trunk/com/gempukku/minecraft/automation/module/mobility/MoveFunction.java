@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation.module.mobility;
 
+import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
@@ -16,7 +17,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Map;
 
-public class MoveForwardFunction extends JavaFunctionExecutable {
+public class MoveFunction extends JavaFunctionExecutable {
     @Override
     protected int getDuration() {
         return 100;
@@ -24,15 +25,30 @@ public class MoveForwardFunction extends JavaFunctionExecutable {
 
     @Override
     public String[] getParameterNames() {
-        return new String[0];
+        return new String[]{"direction"};
     }
 
     @Override
     protected Object executeFunction(ServerComputerData computer, World world, Map<String, Variable> parameters) throws ExecutionException {
         final int facing = computer.getFacing();
-        final int newX = computer.getX() + Facing.offsetsXForSide[facing];
-        final int newY = computer.getY() + Facing.offsetsYForSide[facing];
-        final int newZ = computer.getZ() + Facing.offsetsZForSide[facing];
+        Variable sideVar = parameters.get("direction");
+
+        if (sideVar.getType() != Variable.Type.STRING)
+            throw new ExecutionException("Expected forward, up or down in move function");
+
+        String side = (String) sideVar.getValue();
+        if (!side.equals("forward") || !side.equals("up") || !side.equals("down"))
+            throw new ExecutionException("Expected forward, up or down in move function");
+
+        int direction = facing;
+        if (side.equals("up"))
+            direction = BoxSide.TOP;
+        else if (side.equals("down"))
+            direction = BoxSide.BOTTOM;
+
+        final int newX = computer.getX() + Facing.offsetsXForSide[direction];
+        final int newY = computer.getY() + Facing.offsetsYForSide[direction];
+        final int newZ = computer.getZ() + Facing.offsetsZForSide[direction];
 
         final Material blockMaterial = world.getBlockMaterial(newX, newY, newZ);
         if (!blockMaterial.isReplaceable())
@@ -45,7 +61,7 @@ public class MoveForwardFunction extends JavaFunctionExecutable {
         world.setBlockToAir(computer.getX(), computer.getY(), computer.getZ());
         world.removeBlockTileEntity(computer.getX(), computer.getY(), computer.getZ());
 
-        world.setBlockAndMetadataWithNotify(newX, newY, newZ, Automation.computerBlock.blockID, facing, 2);
+        world.setBlockAndMetadataWithNotify(newX, newY, newZ, Automation.computerBlock.blockID, direction, 2);
         MinecraftUtils.updateTileEntity(world, newX, newY, newZ, tileEntity);
         MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerMovedInWorldEvent(world, tileEntity));
 
