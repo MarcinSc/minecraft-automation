@@ -38,6 +38,12 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         computerData.setFacing(evt.getWorld().getBlockMetadata(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord));
     }
 
+    @ForgeSubscribe
+    public void updateComputerData(ComputerEvent.ComputerModulesChangedEvent evt) {
+        ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
+
+    }
+
     @Override
     public String getComputerLabel(int computerId) {
         return getComputerData(computerId).getLabel();

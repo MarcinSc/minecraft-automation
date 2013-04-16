@@ -9,6 +9,13 @@ import net.minecraft.world.IBlockAccess;
  */
 public interface ComputerModule {
     /**
+     * Returns extra storage space provided by the module inside the computer.
+     *
+     * @return Storage space.
+     */
+    public int getStorageSlots();
+
+    /**
      * Returns a string representing the module type. It is recommended to user Camel-Case string, with no spaces,
      * starting with a capital letter, i.e. "SampleModuleDiggingHoles".
      *

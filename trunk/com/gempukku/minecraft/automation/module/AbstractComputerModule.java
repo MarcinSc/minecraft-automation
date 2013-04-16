@@ -5,6 +5,11 @@ import net.minecraft.world.IBlockAccess;
 
 public abstract class AbstractComputerModule implements ComputerModule {
     @Override
+    public int getStorageSlots() {
+        return 0;
+    }
+
+    @Override
     public boolean acceptsNewModule(ServerComputerData computerData, ComputerModule computerModule) {
         return true;
     }

@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
@@ -20,7 +21,6 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     private boolean _runningProgram;
     private ComputerModule[] _modules;
     private int _moduleSlotsCount;
-    private int _itemSlotsCount;
 
     public int getComputerId() {
         return _computerId;
@@ -48,11 +48,12 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     }
 
     public int getItemSlotsCount() {
-        return _itemSlotsCount;
-    }
+        int count = 0;
+        for (ComputerModule module : _modules)
+            if (module != null)
+                count += module.getStorageSlots();
 
-    public void setItemSlotsCount(int itemSlotsCount) {
-        _itemSlotsCount = itemSlotsCount;
+        return count;
     }
 
     public ComputerModule getModule(int slot) {
@@ -152,19 +153,41 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound par1NBTTagCompound) {
-        super.readFromNBT(par1NBTTagCompound);
-        _computerId = par1NBTTagCompound.getInteger(ID_NAME);
-        _runningProgram = par1NBTTagCompound.getBoolean(RUNNING);
-        _moduleSlotsCount = par1NBTTagCompound.getInteger(MODULE_SLOTS_COUNT);
+    public void readFromNBT(NBTTagCompound tagCompound) {
+        super.readFromNBT(tagCompound);
+        _computerId = tagCompound.getInteger(ID_NAME);
+        _runningProgram = tagCompound.getBoolean(RUNNING);
+        _moduleSlotsCount = tagCompound.getInteger(MODULE_SLOTS_COUNT);
         _modules = new ComputerModule[_moduleSlotsCount];
+
+        final NBTTagList modules = tagCompound.getTagList("Modules");
+        for (int i = 0; i < modules.tagCount(); i++) {
+            final NBTTagCompound moduleData = (NBTTagCompound) modules.tagAt(i);
+            int slot = moduleData.getByte("Slot");
+            int id = moduleData.getInteger("Id");
+            int metadata = moduleData.getInteger("MD");
+            _modules[slot] = Automation.proxy.getRegistry().getModuleByItemId(id, metadata);
+        }
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound par1NBTTagCompound) {
-        super.writeToNBT(par1NBTTagCompound);
-        par1NBTTagCompound.setInteger(ID_NAME, _computerId);
-        par1NBTTagCompound.setBoolean(RUNNING, _runningProgram);
-        par1NBTTagCompound.setInteger(MODULE_SLOTS_COUNT, _moduleSlotsCount);
+    public void writeToNBT(NBTTagCompound tagCompound) {
+        super.writeToNBT(tagCompound);
+        tagCompound.setInteger(ID_NAME, _computerId);
+        tagCompound.setBoolean(RUNNING, _runningProgram);
+        tagCompound.setInteger(MODULE_SLOTS_COUNT, _moduleSlotsCount);
+
+        NBTTagList moduleList = new NBTTagList();
+        for (int i = 0; i < _modules.length; ++i) {
+            if (_modules[i] != null) {
+                NBTTagCompound moduleData = new NBTTagCompound();
+                moduleData.setByte("Slot", (byte) i);
+                final String moduleType = _modules[i].getModuleType();
+                moduleData.setInteger("Id", Automation.proxy.getRegistry().getModuleItemByType(moduleType).itemID);
+                moduleData.setInteger("MD", Automation.proxy.getRegistry().getModuleItemMetadataByType(moduleType));
+                moduleList.appendTag(moduleData);
+            }
+        }
+        tagCompound.setTag("Modules", moduleList);
     }
 }

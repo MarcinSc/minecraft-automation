@@ -12,6 +12,7 @@ public class ServerComputerData {
     private int _id;
     private String _owner;
     private Map<String, Map<String, String>> _moduleData = new HashMap<String, Map<String, String>>();
+    private int _moduleSlotCount;
 
     public ServerComputerData(int id, String owner) {
         _id = id;
@@ -34,8 +35,12 @@ public class ServerComputerData {
         return _owner;
     }
 
+    public void setModuleSlotCount(int moduleSlotCount) {
+        _moduleSlotCount = moduleSlotCount;
+    }
+
     public int getModuleSlotCount() {
-        return 10;
+        return _moduleSlotCount;
     }
 
     public ComputerModule getModuleAt(int slot) {

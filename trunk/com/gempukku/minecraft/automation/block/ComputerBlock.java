@@ -75,7 +75,6 @@ public class ComputerBlock extends BlockContainer {
         if (computerId == 0 && MinecraftUtils.isServer(world)) {
             computerId = Automation.getServerProxy().getRegistry().storeNewComputer(playerPlacing);
             result.setModuleSlotsCount(3);
-            result.setItemSlotsCount(0);
         }
         // On the client we have to forget the label for this computer, as it might change after it's placed
         if (!MinecraftUtils.isClient(world))
