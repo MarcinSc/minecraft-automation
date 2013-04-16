@@ -13,12 +13,6 @@ import net.minecraft.world.World;
 import java.util.Map;
 
 public class HasContainerFunction extends JavaFunctionExecutable {
-    private ComputerSide _computerSide;
-
-    public HasContainerFunction(ComputerSide computerSide) {
-        _computerSide = computerSide;
-    }
-
     @Override
     protected int getDuration() {
         return 100;
@@ -26,22 +20,32 @@ public class HasContainerFunction extends JavaFunctionExecutable {
 
     @Override
     public String[] getParameterNames() {
-        return new String[0];
+        return new String[]{"side"};
     }
 
     @Override
     protected Object executeFunction(ServerComputerData computer, World world, Map<String, Variable> parameters) throws ExecutionException {
         int facing = computer.getFacing();
+        final Variable sideVar = parameters.get("side");
+
+        if (sideVar.getType() != Variable.Type.STRING)
+            throw new ExecutionException("Expected front, left or right in hasContainer function");
+
+        String side = (String) sideVar.getValue();
+        if (!side.equals("front") || !side.equals("left") || !side.equals("right"))
+            throw new ExecutionException("Expected front, left or right in hasContainer function");
+
         int lookAt = facing;
-        if (_computerSide == ComputerSide.LEFT)
+        if (side.equals("left"))
             lookAt = BoxSide.getLeft(facing);
-        else if (_computerSide == ComputerSide.RIGHT)
+        else if (side.equals("right"))
             lookAt = BoxSide.getRight(facing);
 
         final TileEntity blockTileEntity = world.getBlockTileEntity(
                 computer.getX() + Facing.offsetsXForSide[lookAt],
                 computer.getY() + Facing.offsetsYForSide[lookAt],
                 computer.getZ() + Facing.offsetsZForSide[lookAt]);
+
         return blockTileEntity instanceof IInventory;
     }
 }

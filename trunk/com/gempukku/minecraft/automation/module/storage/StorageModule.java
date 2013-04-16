@@ -4,9 +4,7 @@ import com.gempukku.minecraft.automation.lang.FunctionExecutable;
 import com.gempukku.minecraft.automation.module.AbstractComputerModule;
 
 public class StorageModule extends AbstractComputerModule {
-    private FunctionExecutable _hasContainerInFront = new HasContainerFunction(ComputerSide.FRONT);
-    private FunctionExecutable _hasContainerOnLeft = new HasContainerFunction(ComputerSide.LEFT);
-    private FunctionExecutable _hasContainerOnRight = new HasContainerFunction(ComputerSide.RIGHT);
+    private FunctionExecutable _hasContainer = new HasContainerFunction();
 
     @Override
     public int getStorageSlots() {
@@ -20,12 +18,8 @@ public class StorageModule extends AbstractComputerModule {
 
     @Override
     public FunctionExecutable getFunctionByName(String name) {
-        if (name.equals("hasContainerInFront"))
-            return _hasContainerInFront;
-        else if (name.equals("hasContainerOnLeft"))
-            return _hasContainerOnLeft;
-        else if (name.equals("hasContainerOnRight"))
-            return _hasContainerOnRight;
+        if (name.equals("hasContainer"))
+            return _hasContainer;
         return null;
     }
 }
