@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.computer.os;
+package com.gempukku.minecraft.automation.module.storage;
 
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
@@ -10,15 +10,15 @@ import net.minecraft.world.World;
 
 import java.util.Map;
 
-public class GetModuleSlotCountFunction extends JavaFunctionExecutable {
-    @Override
-    public String[] getParameterNames() {
-        return new String[0];
-    }
-
+public class GetSelfSlotCountFunction extends JavaFunctionExecutable {
     @Override
     protected int getDuration() {
         return 100;
+    }
+
+    @Override
+    public String[] getParameterNames() {
+        return new String[0];
     }
 
     @Override
@@ -26,7 +26,6 @@ public class GetModuleSlotCountFunction extends JavaFunctionExecutable {
         final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer.getX(), computer.getY(), computer.getZ());
         if (computerTileEntity == null)
             return 0;
-
-        return computerTileEntity.getModuleSlotsCount();
+        return computerTileEntity.getItemSlotsCount();
     }
 }

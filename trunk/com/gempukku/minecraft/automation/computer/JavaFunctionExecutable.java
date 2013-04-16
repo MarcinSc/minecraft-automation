@@ -9,7 +9,7 @@ import java.util.Map;
 
 public abstract class JavaFunctionExecutable implements FunctionExecutable {
     @Override
-    public final Execution createExecution(CallContext callContext) {
+    public final Execution createExecution(ExecutionContext executionContext, CallContext callContext) {
         return new SimpleExecution() {
             @Override
             protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {

@@ -6,6 +6,7 @@ import com.gempukku.minecraft.automation.module.AbstractComputerModule;
 public class StorageModule extends AbstractComputerModule {
     private FunctionExecutable _hasContainer = new HasContainerFunction();
     private FunctionExecutable _getSlotCount = new GetSlotCountFunction();
+    private FunctionExecutable _getSelfSlotCount = new GetSelfSlotCountFunction();
 
     @Override
     public int getStorageSlots() {

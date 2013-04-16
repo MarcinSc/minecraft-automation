@@ -1,5 +1,7 @@
 package com.gempukku.minecraft.automation.computer.os;
 
+import com.gempukku.minecraft.automation.AutomationUtils;
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
@@ -27,7 +29,11 @@ public class GetModuleNameFunction extends JavaFunctionExecutable {
             throw new ExecutionException("Number expected");
 
         int slotNo = ((Number) slot.getValue()).intValue();
-        final ComputerModule module = computer.getModuleAt(slotNo);
+        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer.getX(), computer.getY(), computer.getZ());
+        if (computerTileEntity == null)
+            return null;
+
+        final ComputerModule module = computerTileEntity.getModule(slotNo);
         String moduleType = null;
         if (module != null)
             moduleType = module.getModuleType();

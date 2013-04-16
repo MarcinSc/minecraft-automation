@@ -1,7 +1,5 @@
 package com.gempukku.minecraft.automation.computer;
 
-import com.gempukku.minecraft.automation.module.ComputerModule;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,18 +31,6 @@ public class ServerComputerData {
 
     public String getOwner() {
         return _owner;
-    }
-
-    public void setModuleSlotCount(int moduleSlotCount) {
-        _moduleSlotCount = moduleSlotCount;
-    }
-
-    public int getModuleSlotCount() {
-        return _moduleSlotCount;
-    }
-
-    public ComputerModule getModuleAt(int slot) {
-        return null;
     }
 
     public int getSpeed() {

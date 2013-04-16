@@ -5,5 +5,5 @@ public interface FunctionExecutable {
 
     public CallContext getCallContext();
 
-    public Execution createExecution(CallContext callContext);
+    public Execution createExecution(ExecutionContext executionContext, CallContext callContext);
 }

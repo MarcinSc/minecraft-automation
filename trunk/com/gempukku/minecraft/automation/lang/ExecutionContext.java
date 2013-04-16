@@ -168,6 +168,6 @@ public class ExecutionContext {
         if (!_perTypeProperties.containsKey(object.getType()))
             throw new ExecutionException("Expected object");
 
-        return _perTypeProperties.get(object.getType()).exposePropertyFor(object, property);
+        return _perTypeProperties.get(object.getType()).exposePropertyFor(this, object, property);
     }
 }

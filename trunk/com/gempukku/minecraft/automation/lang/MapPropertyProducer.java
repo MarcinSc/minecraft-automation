@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class MapPropertyProducer implements PropertyProducer {
     @Override
-    public Variable exposePropertyFor(Variable object, String property) throws ExecutionException {
+    public Variable exposePropertyFor(ExecutionContext context, Variable object, String property) throws ExecutionException {
         Map<String, Variable> map = (Map<String, Variable>) object.getValue();
         if (property.equals("size"))
             return new Variable(new MapSizeFunction(map));

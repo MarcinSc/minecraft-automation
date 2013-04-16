@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation.computer.os;
 
+import com.gempukku.minecraft.automation.lang.ExecutionContext;
 import com.gempukku.minecraft.automation.lang.ObjectDefinition;
 import com.gempukku.minecraft.automation.lang.Variable;
 
@@ -9,7 +10,7 @@ public class OSObjectDefinition implements ObjectDefinition {
     private Variable _getModuleName = new Variable(new GetModuleNameFunction());
 
     @Override
-    public Variable getMember(String name) {
+    public Variable getMember(ExecutionContext context, String name) {
         if (name.equals("bindModule"))
             return _bindModule;
         else if (name.equals("getModuleSlotCount"))

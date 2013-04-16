@@ -28,7 +28,6 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         final ServerComputerData computerData = getComputerData(computerTileEntity.getComputerId());
         computerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
         computerData.setFacing(evt.getWorld().getBlockMetadata(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord));
-        computerData.setModuleSlotCount(computerTileEntity.getModuleSlotsCount());
     }
 
     @ForgeSubscribe
@@ -37,13 +36,6 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         final ServerComputerData computerData = getComputerData(computerTileEntity.getComputerId());
         computerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
         computerData.setFacing(evt.getWorld().getBlockMetadata(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord));
-    }
-
-    @ForgeSubscribe
-    public void updateComputerData(ComputerEvent.ComputerModulesChangedEvent evt) {
-        ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
-        final ServerComputerData computerData = getComputerData(computerTileEntity.getComputerId());
-        computerData.setModuleSlotCount(computerTileEntity.getModuleSlotsCount());
     }
 
     @Override

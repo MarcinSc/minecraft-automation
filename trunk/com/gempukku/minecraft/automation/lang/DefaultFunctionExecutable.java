@@ -25,7 +25,7 @@ public class DefaultFunctionExecutable implements FunctionExecutable {
     }
 
     @Override
-    public Execution createExecution(CallContext context) {
+    public Execution createExecution(ExecutionContext executionContext, CallContext context) {
         return _statement.createExecution();
     }
 }

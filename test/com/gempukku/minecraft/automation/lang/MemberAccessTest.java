@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation.lang;
 
 import com.gempukku.minecraft.automation.computer.os.OSObjectDefinition;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.io.StringReader;
 import static org.junit.Assert.assertEquals;
 
 public class MemberAccessTest extends ProgramTest {
+    @Ignore
     @Test
     public void testMemberAccess() throws ExecutionException, IllegalSyntaxException, IOException {
         ScriptExecutable exec = new ScriptParser().parseScript(new StringReader("return os.getModuleSlotCount();"));

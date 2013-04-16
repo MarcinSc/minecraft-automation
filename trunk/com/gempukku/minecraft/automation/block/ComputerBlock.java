@@ -119,10 +119,10 @@ public class ComputerBlock extends BlockContainer {
         final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
             final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(tileEntity.getComputerId());
-            int count = computerData.getModuleSlotCount();
+            int count = tileEntity.getModuleSlotsCount();
             int input = 0;
             for (int i = 0; i < count; i++) {
-                final ComputerModule module = computerData.getModuleAt(i);
+                final ComputerModule module = tileEntity.getModule(i);
                 if (module != null)
                     input = module.getStrongRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
             }
@@ -138,10 +138,10 @@ public class ComputerBlock extends BlockContainer {
         final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
             final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(tileEntity.getComputerId());
-            int count = computerData.getModuleSlotCount();
+            int count = tileEntity.getModuleSlotsCount();
             int input = 0;
             for (int i = 0; i < count; i++) {
-                final ComputerModule module = computerData.getModuleAt(i);
+                final ComputerModule module = tileEntity.getModule(i);
                 if (module != null)
                     input = module.getWeakRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
             }

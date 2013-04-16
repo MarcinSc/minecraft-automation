@@ -1,5 +1,5 @@
 package com.gempukku.minecraft.automation.lang;
 
 public interface PropertyProducer {
-    public Variable exposePropertyFor(Variable object, String property) throws ExecutionException;
+    public Variable exposePropertyFor(ExecutionContext context, Variable object, String property) throws ExecutionException;
 }

@@ -1,9 +1,12 @@
 package com.gempukku.minecraft.automation.module.mobility;
 
+import com.gempukku.minecraft.automation.AutomationUtils;
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
 import com.gempukku.minecraft.automation.module.AbstractComputerModule;
 import com.gempukku.minecraft.automation.module.ComputerModule;
+import net.minecraft.world.World;
 
 public class MobilityModule extends AbstractComputerModule {
     public static final String TYPE = "Mobility";
@@ -12,15 +15,19 @@ public class MobilityModule extends AbstractComputerModule {
     private TurnFunction _turnRightFunction = new TurnFunction(true);
 
     @Override
-    public boolean acceptsNewModule(ServerComputerData computerData, ComputerModule computerModule) {
+    public boolean acceptsNewModule(World world, ServerComputerData computerData, ComputerModule computerModule) {
         return !computerModule.getModuleType().equals(TYPE);
     }
 
     @Override
-    public boolean canBePlacedInComputer(ServerComputerData computerData) {
-        final int slotCount = computerData.getModuleSlotCount();
+    public boolean canBePlacedInComputer(World world, ServerComputerData computerData) {
+        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData.getX(), computerData.getY(), computerData.getZ());
+        if (computerTileEntity == null)
+            return false;
+
+        final int slotCount = computerTileEntity.getModuleSlotsCount();
         for (int i = 0; i < slotCount; i++) {
-            final ComputerModule module = computerData.getModuleAt(i);
+            final ComputerModule module = computerTileEntity.getModule(i);
             if (module != null && module.getModuleType().equals(TYPE))
                 return false;
         }
