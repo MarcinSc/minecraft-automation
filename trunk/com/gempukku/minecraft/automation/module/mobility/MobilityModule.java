@@ -32,7 +32,7 @@ public class MobilityModule extends AbstractComputerModule {
 
     @Override
     public FunctionExecutable getFunctionByName(String name) {
-        if (name.equals("forward"))
+        if (name.equals("moveForward"))
             return _forward;
         return null;
     }
