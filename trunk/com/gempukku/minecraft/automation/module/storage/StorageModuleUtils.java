@@ -46,7 +46,7 @@ public class StorageModuleUtils {
         return stackInSlot;
     }
 
-    private static int getInventorySize(IInventory inventory, int inventorySide) throws ExecutionException {
+    public static int getInventorySize(IInventory inventory, int inventorySide) throws ExecutionException {
         if (inventory instanceof ISidedInventory) {
             return ((ISidedInventory) inventory).getSizeInventorySide(inventorySide);
         } else

@@ -6,7 +6,6 @@ import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.world.World;
 
 import java.util.Map;
@@ -30,10 +29,6 @@ public class GetSlotCountFunction extends JavaFunctionExecutable {
         if (inventory == null)
             return 0;
 
-        if (inventory instanceof ISidedInventory) {
-            int tileEntitySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(computer, sideParam, functionName));
-            return ((ISidedInventory) inventory).getSizeInventorySide(tileEntitySide);
-        } else
-            return inventory.getSizeInventory();
+        return StorageModuleUtils.getInventorySize(inventory, BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(computer, sideParam, functionName)));
     }
 }

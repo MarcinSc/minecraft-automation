@@ -9,6 +9,8 @@ public class StorageModule extends AbstractComputerModule {
     private FunctionExecutable _getSelfSlotCount = new GetSelfSlotCountFunction();
     private FunctionExecutable _getItemCount = new GetItemCountFunction();
     private FunctionExecutable _getSelfItemCount = new GetSelfItemCountFunction();
+    private FunctionExecutable _transferToSelf = new TransferToSelfFunction();
+    private FunctionExecutable _transferFromSelf = new TransferFromSelfFunction();
 
     @Override
     public int getStorageSlots() {
@@ -32,6 +34,10 @@ public class StorageModule extends AbstractComputerModule {
             return _getItemCount;
         else if (name.equals("getSelfItemCount"))
             return _getSelfItemCount;
+        else if (name.equals("transferToSelf"))
+            return _transferToSelf;
+        else if (name.equals("transferFromSelf"))
+            return _transferFromSelf;
         return null;
     }
 }
