@@ -32,7 +32,7 @@ public class TurnFunction extends JavaFunctionExecutable {
 
     @Override
     protected Object executeFunction(ServerComputerData computer, World world, Map<String, Variable> parameters) throws ExecutionException {
-        final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(world, computer.getX(), computer.getY(), computer.getZ());
+        final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
         if (tileEntity == null)
             return false;
 

@@ -35,7 +35,7 @@ public class BindingFunctionWrapper implements FunctionExecutable {
     public Execution createExecution(ExecutionContext executionContext, final CallContext callContext) {
         final MinecraftComputerExecutionContext minecraftExecutionContext = (MinecraftComputerExecutionContext) executionContext;
         final ServerComputerData computerData = minecraftExecutionContext.getComputerData();
-        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(minecraftExecutionContext.getWorld(), computerData.getX(), computerData.getY(), computerData.getZ());
+        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(minecraftExecutionContext.getWorld(), computerData);
         if (computerTileEntity == null)
             return getThrowingExceptionExecution();
         final ComputerModule module = computerTileEntity.getModule(_slotNo);

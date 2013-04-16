@@ -38,7 +38,7 @@ public class MoveForwardFunction extends JavaFunctionExecutable {
         if (!blockMaterial.isReplaceable())
             return false;
 
-        final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(world, computer.getX(), computer.getY(), computer.getZ());
+        final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
         if (tileEntity == null)
             return false;
 

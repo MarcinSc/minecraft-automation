@@ -21,7 +21,7 @@ public class MobilityModule extends AbstractComputerModule {
 
     @Override
     public boolean canBePlacedInComputer(World world, ServerComputerData computerData) {
-        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData.getX(), computerData.getY(), computerData.getZ());
+        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
         if (computerTileEntity == null)
             return false;
 

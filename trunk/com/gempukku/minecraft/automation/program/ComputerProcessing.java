@@ -110,7 +110,7 @@ public class ComputerProcessing {
     }
 
     private void setProgramRunning(World world, ServerComputerData computerData, boolean running) {
-        ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData.getX(), computerData.getY(), computerData.getZ());
+        ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
         if (computerTileEntity != null) {
             computerTileEntity.setRunningProgram(running);
             MinecraftUtils.updateTileEntity(world, computerData.getX(), computerData.getY(), computerData.getZ(), computerTileEntity);
