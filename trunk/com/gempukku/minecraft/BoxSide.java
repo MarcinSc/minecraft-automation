@@ -26,4 +26,34 @@ public class BoxSide {
     public static int getOpposite(int side) {
         return (side / 2) * 2 + (side % 2 == 0 ? 1 : 0);
     }
+
+    public static int getLeft(int side) {
+        switch (side) {
+            case 3:
+                return 5;
+            case 5:
+                return 2;
+            case 2:
+                return 4;
+            case 4:
+                return 3;
+            default:
+                return side;
+        }
+    }
+
+    public static int getRight(int side) {
+        switch (side) {
+            case 3:
+                return 4;
+            case 4:
+                return 2;
+            case 2:
+                return 5;
+            case 5:
+                return 3;
+            default:
+                return side;
+        }
+    }
 }

@@ -7,7 +7,9 @@ import com.gempukku.minecraft.automation.module.ComputerModule;
 
 public class MobilityModule extends AbstractComputerModule {
     public static final String TYPE = "Mobility";
-    private MoveForwardFunction _forward = new MoveForwardFunction();
+    private MoveForwardFunction _moveForward = new MoveForwardFunction();
+    private TurnFunction _turnLeftFunction = new TurnFunction(true);
+    private TurnFunction _turnRightFunction = new TurnFunction(true);
 
     @Override
     public boolean acceptsNewModule(ServerComputerData computerData, ComputerModule computerModule) {
@@ -33,7 +35,11 @@ public class MobilityModule extends AbstractComputerModule {
     @Override
     public FunctionExecutable getFunctionByName(String name) {
         if (name.equals("moveForward"))
-            return _forward;
+            return _moveForward;
+        else if (name.equals("turnLeft"))
+            return _turnLeftFunction;
+        else if (name.equals("turnRight"))
+            return _turnRightFunction;
         return null;
     }
 }
