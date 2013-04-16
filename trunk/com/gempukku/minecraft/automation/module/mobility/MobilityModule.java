@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 public class MobilityModule extends AbstractComputerModule {
     public static final String TYPE = "Mobility";
     private MoveFunction _move = new MoveFunction();
+    private CanMoveFunction _canMove = new CanMoveFunction();
     private TurnFunction _turnLeftFunction = new TurnFunction(true);
     private TurnFunction _turnRightFunction = new TurnFunction(true);
 
@@ -47,6 +48,8 @@ public class MobilityModule extends AbstractComputerModule {
             return _turnLeftFunction;
         else if (name.equals("turnRight"))
             return _turnRightFunction;
+        else if (name.equals("canMove"))
+            return _canMove;
         return null;
     }
 }
