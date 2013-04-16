@@ -26,7 +26,7 @@ public class MemberAccessTest extends ProgramTest {
         while (!executionContext.isFinished())
             executionContext.executeNext();
 
-        assertEquals(10, ((Number) executionContext.getReturnValue().getValue()).intValue());
+        assertEquals(0, ((Number) executionContext.getReturnValue().getValue()).intValue());
     }
 
     private ObjectDefinition constructOS() {
