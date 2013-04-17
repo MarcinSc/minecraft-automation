@@ -40,7 +40,7 @@ public class StorageModuleUtils {
 
         ItemStack stackInSlot;
         if (inventory instanceof ISidedInventory) {
-            stackInSlot = inventory.getStackInSlot(((ISidedInventory) inventory).getStartInventorySide(inventorySide) + slot);
+            stackInSlot = inventory.getStackInSlot(((ISidedInventory) inventory).getSizeInventorySide(inventorySide)[slot]);
         } else
             stackInSlot = inventory.getStackInSlot(slot);
         return stackInSlot;
@@ -48,7 +48,7 @@ public class StorageModuleUtils {
 
     public static int getInventorySize(IInventory inventory, int inventorySide) throws ExecutionException {
         if (inventory instanceof ISidedInventory) {
-            return ((ISidedInventory) inventory).getSizeInventorySide(inventorySide);
+            return ((ISidedInventory) inventory).getSizeInventorySide(inventorySide).length;
         } else
             return inventory.getSizeInventory();
     }

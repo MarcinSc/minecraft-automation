@@ -119,7 +119,7 @@ public abstract class ComputerBlock extends BlockContainer {
         ComputerTileEntity result = new ComputerTileEntity();
         // If it's a new computer, on the server we have to assign an id to it
         if (computerId == 0 && MinecraftUtils.isServer(world)) {
-            computerId = Automation.getServerProxy().getRegistry().storeNewComputer(playerPlacing, _computerType);
+            computerId = Automation.getServerProxy().getRegistry().storeNewComputer(world, playerPlacing, _computerType);
             result.setModuleSlotsCount(_moduleSlotCount);
         }
         // On the client we have to forget the label for this computer, as it might change after it's placed
@@ -134,7 +134,7 @@ public abstract class ComputerBlock extends BlockContainer {
     public int isProvidingStrongPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
         final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
-            final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(tileEntity.getComputerId());
+            final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData((World) blockAccess, tileEntity.getComputerId());
             int count = tileEntity.getModuleSlotsCount();
             int input = 0;
             for (int i = 0; i < count; i++) {
@@ -153,7 +153,7 @@ public abstract class ComputerBlock extends BlockContainer {
     public int isProvidingWeakPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
         final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
         if (tileEntity != null) {
-            final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(tileEntity.getComputerId());
+            final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData((World) blockAccess, tileEntity.getComputerId());
             int count = tileEntity.getModuleSlotsCount();
             int input = 0;
             for (int i = 0; i < count; i++) {

@@ -11,7 +11,7 @@ import java.util.Collection;
  * This class is used to control the data associated with Automation module.
  */
 public interface AutomationRegistry {
-    public String getComputerLabel(int computerId);
+    public String getComputerLabel(String worldName, int computerId);
 
     public Item getModuleItemByType(String moduleType);
 

@@ -81,10 +81,9 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
     private int getFirstSlotOfSameTypeOrEmptyIndex(ServerComputerData computer, IInventory inventory, Variable sideParam, ItemStack stack, int fromIndex, String functionName) throws ExecutionException {
         if (inventory instanceof ISidedInventory) {
             int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(computer, sideParam, functionName));
-            int inventorySize = ((ISidedInventory) inventory).getSizeInventorySide(inventorySide);
-            int start = ((ISidedInventory) inventory).getStartInventorySide(inventorySide);
-            for (int i = Math.max(fromIndex, start); i < inventorySize + start; i++) {
-                final ItemStack stackInSlot = inventory.getStackInSlot(fromIndex);
+            int[] sideSlots = ((ISidedInventory) inventory).getSizeInventorySide(inventorySide);
+            for (int i = fromIndex; i < sideSlots.length; i++) {
+                final ItemStack stackInSlot = inventory.getStackInSlot(sideSlots[i]);
                 if (stackInSlot == null || (stackInSlot.itemID == stack.itemID && stackInSlot.getItemDamage() == stack.getItemDamage()))
                     return i;
             }

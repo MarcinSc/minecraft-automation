@@ -4,6 +4,7 @@ import com.gempukku.minecraft.automation.Automation;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 
@@ -16,7 +17,7 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
             DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
             try {
                 int compId = is.readInt();
-                final String label = Automation.getServerProxy().getRegistry().getComputerLabel(compId);
+                final String label = Automation.getServerProxy().getRegistry().getComputerLabel(getWorldNameForPlayer(player), compId);
                 if (label != null) {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     DataOutputStream os = new DataOutputStream(baos);
@@ -32,5 +33,9 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
             // initialized yet
             Automation.getServerProxy();
         }
+    }
+
+    private String getWorldNameForPlayer(Player player) {
+        return ((EntityPlayer) player).worldObj.getWorldInfo().getWorldName();
     }
 }

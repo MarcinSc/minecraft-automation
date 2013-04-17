@@ -19,7 +19,7 @@ public class ServerAutomationProxy implements AutomationProxy {
 
     @Override
     public void initialize(File modConfigDirectory) {
-        _automationRegistry = new ServerAutomationRegistry(modConfigDirectory);
+        _automationRegistry = new ServerAutomationRegistry(new File(modConfigDirectory.getParentFile(), "saves"));
         _programProcessing = new ComputerProcessing(modConfigDirectory, _automationRegistry);
         MinecraftForge.EVENT_BUS.register(_automationRegistry);
         MinecraftForge.EVENT_BUS.register(_programProcessing);

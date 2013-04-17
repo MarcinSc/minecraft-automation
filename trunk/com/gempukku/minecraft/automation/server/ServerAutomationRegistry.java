@@ -4,6 +4,7 @@ import com.gempukku.minecraft.automation.AbstractAutomationRegistry;
 import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeSubscribe;
 
 import java.io.File;
@@ -16,17 +17,17 @@ import java.util.Properties;
 
 public class ServerAutomationRegistry extends AbstractAutomationRegistry {
     private Map<Integer, ServerComputerData> _computerDataMap = new HashMap<Integer, ServerComputerData>();
-    private File _configFolder;
-    private int _nextId;
+    private File _savesFolder;
+    private int _nextId = 1;
 
-    public ServerAutomationRegistry(File configFolder) {
-        _configFolder = configFolder;
+    public ServerAutomationRegistry(File savesFolder) {
+        _savesFolder = savesFolder;
     }
 
     @ForgeSubscribe
     public void setComputerCoordinatesAndFacing(ComputerEvent.ComputerAddedToWorldEvent evt) {
         final ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
-        final ServerComputerData computerData = getComputerData(computerTileEntity.getComputerId());
+        final ServerComputerData computerData = getComputerData(evt.getWorld(), computerTileEntity.getComputerId());
         computerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
         computerData.setFacing(evt.getWorld().getBlockMetadata(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord));
     }
@@ -34,14 +35,14 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
     @ForgeSubscribe
     public void updateComputerCoordinatesAndFacing(ComputerEvent.ComputerMovedInWorldEvent evt) {
         final ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
-        final ServerComputerData computerData = getComputerData(computerTileEntity.getComputerId());
+        final ServerComputerData computerData = getComputerData(evt.getWorld(), computerTileEntity.getComputerId());
         computerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
         computerData.setFacing(evt.getWorld().getBlockMetadata(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord));
     }
 
     @Override
-    public String getComputerLabel(int computerId) {
-        return getComputerData(computerId).getLabel();
+    public String getComputerLabel(String worldName, int computerId) {
+        return getComputerData(worldName, computerId).getLabel();
     }
 
     public int getComputerSpeed(String computerType) {
@@ -56,26 +57,33 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         return getComputerSpecByType(computerType).maxStackSize;
     }
 
-    public int storeNewComputer(String owner, String computerType) {
+    public int storeNewComputer(World world, String owner, String computerType) {
         int computerId = _nextId;
         _nextId++;
-        final File computerDataFile = getComputerDataFile(computerId);
+        final File computerDataFile = getComputerDataFile(world.getWorldInfo().getWorldName(), computerId);
         computerDataFile.getParentFile().mkdirs();
         ServerComputerData computerData = new ServerComputerData(computerId, owner, computerType);
         _computerDataMap.put(computerId, computerData);
-        saveComputerDataToDisk(computerId);
+        saveComputerDataToDisk(world, computerId);
         return computerId;
     }
 
-    public ServerComputerData getComputerData(int computerId) {
-        final ServerComputerData computerData = _computerDataMap.get(computerId);
-        if (computerData == null)
-            _computerDataMap.put(computerId, readComputerDataFromDisk(computerId));
+    private ServerComputerData getComputerData(String worldName, int computerId) {
+        ServerComputerData computerData = _computerDataMap.get(computerId);
+        if (computerData == null) {
+            computerData = readComputerDataFromDisk(worldName, computerId);
+            if (computerData != null)
+                _computerDataMap.put(computerId, computerData);
+        }
         return computerData;
     }
 
-    private ServerComputerData readComputerDataFromDisk(int computerId) {
-        File computerDataFile = getComputerDataFile(computerId);
+    public ServerComputerData getComputerData(World world, int computerId) {
+        return getComputerData(world.getWorldInfo().getWorldName(), computerId);
+    }
+
+    private ServerComputerData readComputerDataFromDisk(String worldName, int computerId) {
+        File computerDataFile = getComputerDataFile(worldName, computerId);
 
         Properties properties = new Properties();
         try {
@@ -101,8 +109,8 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         return computerData;
     }
 
-    private void saveComputerDataToDisk(int computerId) {
-        File computerDataFile = getComputerDataFile(computerId);
+    private void saveComputerDataToDisk(World world, int computerId) {
+        File computerDataFile = getComputerDataFile(world.getWorldInfo().getWorldName(), computerId);
         computerDataFile.getParentFile().mkdirs();
 
         final ServerComputerData serverComputerData = _computerDataMap.get(computerId);
@@ -125,8 +133,8 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         }
     }
 
-    private File getComputerDataFile(int computerId) {
-        final File computerFolder = new File(_configFolder, String.valueOf(computerId));
+    private File getComputerDataFile(String worldName, int computerId) {
+        final File computerFolder = new File(new File(_savesFolder, worldName), String.valueOf(computerId));
         return new File(computerFolder, "data.properties");
     }
 }

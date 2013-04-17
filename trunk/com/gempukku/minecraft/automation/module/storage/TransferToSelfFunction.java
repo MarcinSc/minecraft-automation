@@ -92,13 +92,12 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
         if (inventory instanceof ISidedInventory) {
             final ISidedInventory sidedInventory = (ISidedInventory) inventory;
             int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(computer, sideParam, functionName));
-            final int inventorySize = sidedInventory.getSizeInventorySide(inventorySide);
-            final int start = sidedInventory.getStartInventorySide(inventorySide);
+            final int[] sideSlots = sidedInventory.getSizeInventorySide(inventorySide);
             if (slotParam.getType() == Variable.Type.NULL) {
-                for (int i = 0; i < inventorySize; i++) {
-                    final ItemStack stack = sidedInventory.getStackInSlot(start + i);
+                for (int i = 0; i < sideSlots.length; i++) {
+                    final ItemStack stack = sidedInventory.getStackInSlot(sideSlots[i]);
                     if (stack != null)
-                        return start + i;
+                        return sideSlots[i];
                 }
                 return -1;
             } else {
@@ -106,10 +105,10 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
                     throw new ExecutionException("Expected number in slot parameter in " + functionName + " function");
 
                 int slot = ((Number) slotParam.getValue()).intValue();
-                if (inventorySize <= slot || slot < 0)
+                if (sideSlots.length <= slot || slot < 0)
                     throw new ExecutionException("Slot number out of accepted range in " + functionName + " function");
 
-                return start + slot;
+                return sideSlots[slot];
             }
         } else {
             int inventorySize = inventory.getSizeInventory();

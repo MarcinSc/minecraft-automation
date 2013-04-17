@@ -80,9 +80,10 @@ public class Automation {
         terminalItem = new ItemTerminal(_terminalItemId);
 
         GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
-        GameRegistry.registerBlock(smallComputerBlock, ComputerItemBlock.class, "smallComputer");
+        GameRegistry.registerBlock(smallComputerBlock, "smallComputer");
         GameRegistry.registerItem(moduleItem, "gpsModule");
         GameRegistry.registerItem(terminalItem, "terminal");
+        GameRegistry.registerItem(new ComputerItemBlock(_smallComputerBlockId-256, smallComputerBlock), "smallComputerItem");
 
         LanguageRegistry.addName(smallComputerBlock, "Computer");
         LanguageRegistry.addName(moduleItem, "GPS module");

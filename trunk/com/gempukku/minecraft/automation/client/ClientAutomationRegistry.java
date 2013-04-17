@@ -18,7 +18,7 @@ public class ClientAutomationRegistry extends AbstractAutomationRegistry {
     private Set<Integer> _pendingComputerLabels = new HashSet<Integer>();
 
     @Override
-    public String getComputerLabel(int computerId) {
+    public String getComputerLabel(String worldName,  int computerId) {
         String result = _computerLabels.get(computerId);
         if (result == null) {
             if (computerId != 0 && !_pendingComputerLabels.contains(computerId)) {

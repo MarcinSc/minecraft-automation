@@ -61,7 +61,7 @@ public class MoveFunction extends JavaFunctionExecutable {
         world.setBlockToAir(computer.getX(), computer.getY(), computer.getZ());
         world.removeBlockTileEntity(computer.getX(), computer.getY(), computer.getZ());
 
-        world.setBlockAndMetadataWithNotify(newX, newY, newZ, Automation.smallComputerBlock.blockID, direction, 2);
+        world.setBlock(newX, newY, newZ, Automation.smallComputerBlock.blockID, computer.getId(), 2);
         MinecraftUtils.updateTileEntity(world, newX, newY, newZ, tileEntity);
         MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerMovedInWorldEvent(world, tileEntity));
 

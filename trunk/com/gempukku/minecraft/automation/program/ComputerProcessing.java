@@ -53,7 +53,7 @@ public class ComputerProcessing {
         if (computerProgram == null)
             return "Cannot find program " + name + ".";
 
-        final ServerComputerData computerData = _registry.getComputerData(computerId);
+        final ServerComputerData computerData = _registry.getComputerData(world, computerId);
         try {
             ScriptExecutable parsedScript = parseScript(computerProgram);
             if (parsedScript == null)
