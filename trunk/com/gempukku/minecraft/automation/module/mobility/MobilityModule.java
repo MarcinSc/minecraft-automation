@@ -1,11 +1,10 @@
 package com.gempukku.minecraft.automation.module.mobility;
 
-import com.gempukku.minecraft.automation.AutomationUtils;
-import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
 import com.gempukku.minecraft.automation.module.AbstractComputerModule;
 import com.gempukku.minecraft.automation.module.ComputerModule;
+import com.gempukku.minecraft.automation.module.ComputerModuleUtils;
 import net.minecraft.world.World;
 
 public class MobilityModule extends AbstractComputerModule {
@@ -22,17 +21,7 @@ public class MobilityModule extends AbstractComputerModule {
 
     @Override
     public boolean canBePlacedInComputer(World world, ServerComputerData computerData) {
-        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
-        if (computerTileEntity == null)
-            return false;
-
-        final int slotCount = computerTileEntity.getModuleSlotsCount();
-        for (int i = 0; i < slotCount; i++) {
-            final ComputerModule module = computerTileEntity.getModule(i);
-            if (module != null && module.getModuleType().equals(TYPE))
-                return false;
-        }
-        return true;
+        return !ComputerModuleUtils.hasModuleOfType(world, computerData, TYPE);
     }
 
     @Override

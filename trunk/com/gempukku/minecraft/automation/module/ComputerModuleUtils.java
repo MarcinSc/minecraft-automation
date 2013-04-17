@@ -19,4 +19,18 @@ public class ComputerModuleUtils {
         }
         return false;
     }
+
+    public static boolean hasModuleOfType(World world, ServerComputerData computerData, String moduleType) {
+        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
+        if (computerTileEntity == null)
+            return false;
+
+        final int slotCount = computerTileEntity.getModuleSlotsCount();
+        for (int i = 0; i < slotCount; i++) {
+            final ComputerModule module = computerTileEntity.getModule(i);
+            if (module != null && module.getModuleType().equals(moduleType))
+                return true;
+        }
+        return false;
+    }
 }
