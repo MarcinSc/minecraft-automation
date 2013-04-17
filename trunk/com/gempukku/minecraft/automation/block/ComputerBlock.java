@@ -38,7 +38,7 @@ public abstract class ComputerBlock extends BlockContainer {
         setCreativeTab(CreativeTabs.tabBlock);
     }
 
-    protected abstract String getComputerFrontReadyIcon();
+    public abstract String getComputerFrontReadyIcon();
 
     protected abstract String getComputerFrontWorkingIcon();
 

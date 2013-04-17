@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation.item;
 
 import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.automation.Automation;
+import com.gempukku.minecraft.automation.block.ComputerBlock;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,16 +14,20 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public abstract class ComputerItemBlock extends ItemBlock {
+public class ComputerItemBlock extends ItemBlock {
     private Icon _icon;
+    private ComputerBlock _computerBlock;
 
-    public ComputerItemBlock(int id) {
+    public ComputerItemBlock(int id, ComputerBlock computerBlock) {
         super(id);
+        _computerBlock = computerBlock;
         this.setMaxStackSize(1);
         this.setHasSubtypes(true);
     }
 
-    protected abstract String getComputerIconToRegister();
+    private String getComputerIconToRegister() {
+        return _computerBlock.getComputerFrontReadyIcon();
+    }
 
     @Override
     public void addInformation(ItemStack itemStack, EntityPlayer player, List lines, boolean par4) {

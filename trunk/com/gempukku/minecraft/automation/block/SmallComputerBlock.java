@@ -8,7 +8,7 @@ public class SmallComputerBlock extends ComputerBlock {
     }
 
     @Override
-    protected String getComputerFrontReadyIcon() {
+    public String getComputerFrontReadyIcon() {
         return "automation:computerFrontReady";
     }
 
