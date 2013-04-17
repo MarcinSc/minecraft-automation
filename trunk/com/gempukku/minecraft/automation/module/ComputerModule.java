@@ -32,6 +32,12 @@ public interface ComputerModule {
     public String getModuleType();
 
     /**
+     * Returns a module name, as displayed on tooltips.
+     * @return Module name for displaying on tooltips.
+     */
+    public String getModuleName();
+
+    /**
      * Checks if this module can be placed in an existing computer.
      * This method is for modules that should not be placed in multiples, or in combinations with other modules, as
      * it allows modules to control the configuration of a computer.

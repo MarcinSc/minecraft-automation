@@ -11,6 +11,8 @@ import com.gempukku.minecraft.automation.item.ComputerItemBlock;
 import com.gempukku.minecraft.automation.item.ItemTerminal;
 import com.gempukku.minecraft.automation.module.gps.ComputerModuleItem;
 import com.gempukku.minecraft.automation.module.gps.GPSModule;
+import com.gempukku.minecraft.automation.module.mobility.MobilityModule;
+import com.gempukku.minecraft.automation.module.storage.StorageModule;
 import com.gempukku.minecraft.automation.program.TickComputers;
 import com.gempukku.minecraft.automation.server.ServerAutomationPacketHandler;
 import com.gempukku.minecraft.automation.server.ServerAutomationProxy;
@@ -54,6 +56,8 @@ public class Automation {
     private static int _moduleItemId;
 
     public static final int GPS_MODULE_METADATA = 0;
+    public static final int STORAGE_MODULE_METADATA = 1;
+    public static final int MOBILITY_MODULE_METADATA = 2;
 
     @SidedProxy(clientSide = "com.gempukku.minecraft.automation.client.ClientAutomationProxy",
             serverSide = "com.gempukku.minecraft.automation.server.ServerAutomationProxy")
@@ -81,12 +85,11 @@ public class Automation {
 
         GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
         GameRegistry.registerBlock(smallComputerBlock, "smallComputer");
-        GameRegistry.registerItem(moduleItem, "gpsModule");
+        GameRegistry.registerItem(moduleItem, "computerModule");
         GameRegistry.registerItem(terminalItem, "terminal");
         GameRegistry.registerItem(new ComputerItemBlock(_smallComputerBlockId-256, smallComputerBlock), "smallComputerItem");
 
         LanguageRegistry.addName(smallComputerBlock, "Computer");
-        LanguageRegistry.addName(moduleItem, "GPS module");
         LanguageRegistry.addName(terminalItem, "Terminal");
 
         TickRegistry.registerTickHandler(
@@ -100,7 +103,10 @@ public class Automation {
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
         proxy.getRegistry().registerComputerSpec(smallComputerBlock, new ComputerSpec("small", 100, 100 * 1024, 100));
+        
         proxy.getRegistry().registerComputerModule(moduleItem, GPS_MODULE_METADATA, new GPSModule());
+        proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
+        proxy.getRegistry().registerComputerModule(moduleItem, MOBILITY_MODULE_METADATA, new MobilityModule());
     }
 
     public static synchronized ServerAutomationProxy getServerProxy() {

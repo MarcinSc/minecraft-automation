@@ -30,6 +30,11 @@ public class MobilityModule extends AbstractComputerModule {
     }
 
     @Override
+    public String getModuleName() {
+        return "Mobility module";
+    }
+
+    @Override
     public FunctionExecutable getFunctionByName(String name) {
         if (name.equals("move"))
             return _move;

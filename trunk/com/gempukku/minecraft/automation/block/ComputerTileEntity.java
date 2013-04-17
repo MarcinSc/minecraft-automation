@@ -19,9 +19,91 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     private static final String MODULE_SLOTS_COUNT = "moduleSlots";
     private int _computerId;
     private boolean _runningProgram;
+
     private ComputerModule[] _modules;
+    private ItemStack[] _inventory = new ItemStack[0];
+
     private int _moduleSlotsCount;
     private int _facing;
+
+    public IInventory getModuleInventory() {
+        return new ModuleInventory();
+    }
+
+    private class ModuleInventory implements IInventory {
+        @Override
+        public void closeChest() {
+        }
+
+        @Override
+        public ItemStack decrStackSize(int slot, int count) {
+            if (_modules[slot] != null && count > 0) {
+                ItemStack stack = createStackFromModuleInSlot(slot);
+                _modules[slot] = null;
+                onInventoryChanged();
+                return stack;
+            }
+            return null;
+        }
+
+        @Override
+        public int getInventoryStackLimit() {
+            return 1;
+        }
+
+        @Override
+        public String getInvName() {
+            return "Computer modules";  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public int getSizeInventory() {
+            return _moduleSlotsCount;
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return createStackFromModuleInSlot(slot);
+        }
+
+        @Override
+        public ItemStack getStackInSlotOnClosing(int slot) {
+            return createStackFromModuleInSlot(slot);
+        }
+
+        @Override
+        public boolean isInvNameLocalized() {
+            return false;
+        }
+
+        @Override
+        public boolean isStackValidForSlot(int i, ItemStack itemstack) {
+            final ComputerModule module = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
+            return module != null;
+        }
+
+        @Override
+        public boolean isUseableByPlayer(EntityPlayer entityplayer) {
+            return true;
+        }
+
+        @Override
+        public void onInventoryChanged() {
+            ComputerTileEntity.this.onInventoryChanged();
+        }
+
+        @Override
+        public void openChest() {
+        }
+
+        @Override
+        public void setInventorySlotContents(int i, ItemStack itemstack) {
+            if (itemstack != null)
+                _modules[i] = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
+            else
+                _modules[i] = null;
+        }
+    }
 
     public int getComputerId() {
         return _computerId;
@@ -56,6 +138,15 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
         _modules = new ComputerModule[_moduleSlotsCount];
     }
 
+    public void updateItemsSlotCount() {
+        int newSize = getItemSlotsCount();
+        if (newSize != _inventory.length) {
+            ItemStack[] oldItems = _inventory;
+            _inventory = new ItemStack[newSize];
+            System.arraycopy(oldItems, 0, _inventory, 0, Math.min(_inventory.length, oldItems.length));
+        }
+    }
+
     public int getItemSlotsCount() {
         int count = 0;
         for (ComputerModule module : _modules)
@@ -88,16 +179,22 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     @Override
     public ItemStack getStackInSlot(int slot) {
-        return createStackFromModuleInSlot(slot);
+        return _inventory[slot];
     }
 
     @Override
     public ItemStack decrStackSize(int slot, int count) {
-        if (_modules[slot] != null && count > 0) {
-            ItemStack stack = createStackFromModuleInSlot(slot);
-            _modules[slot] = null;
-            onInventoryChanged();
-            return stack;
+        if (_inventory[slot] != null && count > 0) {
+            if (_inventory[slot].stackSize<=count) {
+                ItemStack result = _inventory[slot];
+                _inventory[slot] = null;
+                onInventoryChanged();
+                return result;
+            } else {
+                ItemStack result = _inventory[slot].splitStack(count);
+                onInventoryChanged();
+                return result;
+            }
         }
         return null;
     }
@@ -112,15 +209,13 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     @Override
     public ItemStack getStackInSlotOnClosing(int slot) {
-        return createStackFromModuleInSlot(slot);
+        return _inventory[slot];
     }
 
     @Override
-    public void setInventorySlotContents(int i, ItemStack itemstack) {
-        if (itemstack != null)
-            _modules[i] = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
-        else
-            _modules[i] = null;
+    public void setInventorySlotContents(int slot, ItemStack itemStack) {
+        _inventory[slot] = itemStack;
+        onInventoryChanged();
     }
 
     @Override
@@ -135,7 +230,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     @Override
     public int getInventoryStackLimit() {
-        return 1;
+        return 64;
     }
 
     @Override
@@ -145,8 +240,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     @Override
     public boolean isStackValidForSlot(int i, ItemStack itemstack) {
-        final ComputerModule module = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
-        return module != null;
+        return true;
     }
 
     @Override
@@ -178,6 +272,17 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
             int metadata = moduleData.getInteger("MD");
             _modules[slot] = Automation.proxy.getRegistry().getModuleByItemId(id, metadata);
         }
+
+        int itemSlotCount = getItemSlotsCount();
+        _inventory = new ItemStack[itemSlotCount];
+        NBTTagList items = tagCompound.getTagList("Items");
+        for (int i = 0; i < items.tagCount(); i++) {
+            NBTTagCompound itemData = (NBTTagCompound) items.tagAt(0);
+            int j = itemData.getByte("Slot") & 255;
+
+            if (j >= 0 && j < itemSlotCount)
+                _inventory[j] = ItemStack.loadItemStackFromNBT(itemData);
+        }
     }
 
     @Override
@@ -200,5 +305,16 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
             }
         }
         tagCompound.setTag("Modules", moduleList);
+
+        NBTTagList itemList = new NBTTagList();
+        for (int i = 0; i < _inventory.length; ++i) {
+            if (_inventory[i] != null) {
+                NBTTagCompound itemData = new NBTTagCompound();
+                itemData.setByte("Slot", (byte) i);
+                _inventory[i].writeToNBT(itemData);
+                itemList.appendTag(itemData);
+            }
+        }
+        tagCompound.setTag("Items", itemList);
     }
 }

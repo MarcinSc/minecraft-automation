@@ -4,6 +4,7 @@ import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
@@ -13,10 +14,11 @@ public class ComputerContainer extends Container {
     public ComputerContainer(InventoryPlayer inventoryPlayer, ComputerTileEntity tileEntity) {
         _tileEntity = tileEntity;
 
+        IInventory moduleInventory = tileEntity.getModuleInventory();
         final int moduleSlotsCount = tileEntity.getModuleSlotsCount();
         int xModuleStart = (ComputerItemGuiBindings.WINDOW_WIDTH - 18 * moduleSlotsCount) / 2;
         for (int i = 0; i < moduleSlotsCount; i++)
-            addSlotToContainer(new ComputerModuleSlot(tileEntity, i, xModuleStart + 18 * i, ComputerItemGuiBindings.MODULE_ROW_START));
+            addSlotToContainer(new ComputerModuleSlot(moduleInventory, i, xModuleStart + 18 * i, ComputerItemGuiBindings.MODULE_ROW_START));
 
         int xItemStart = 8;
         int yItemStart = ComputerItemGuiBindings.TOP_HEIGHT
@@ -26,7 +28,7 @@ public class ComputerContainer extends Container {
 
         final int itemSlotsCount = tileEntity.getItemSlotsCount();
         for (int i = 0; i < itemSlotsCount; i++)
-            addSlotToContainer(new Slot(tileEntity, moduleSlotsCount + i, xItemStart + 18 * (i % 9), yItemStart + 18 * (i / 9)));
+            addSlotToContainer(new Slot(tileEntity, i, xItemStart + 18 * (i % 9), yItemStart + 18 * (i / 9)));
 
         bindPlayerInventory(inventoryPlayer, (itemSlotsCount + 8) / 9);
     }
@@ -93,5 +95,11 @@ public class ComputerContainer extends Container {
             slotObject.onPickupFromSlot(player, stackInSlot);
         }
         return stack;
+    }
+
+    @Override
+    public void onCraftGuiClosed(EntityPlayer par1EntityPlayer) {
+        super.onCraftGuiClosed(par1EntityPlayer);
+        _tileEntity.updateItemsSlotCount();
     }
 }

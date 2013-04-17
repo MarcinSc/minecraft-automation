@@ -19,12 +19,17 @@ public class StorageModule extends AbstractComputerModule {
 
     @Override
     public int getStorageSlots() {
-        return 9;
+        return 5;
     }
 
     @Override
     public String getModuleType() {
         return "Storage";
+    }
+
+    @Override
+    public String getModuleName() {
+        return "Storage module";
     }
 
     @Override

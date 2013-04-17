@@ -13,6 +13,11 @@ public class GPSModule extends AbstractComputerModule {
     }
 
     @Override
+    public String getModuleName() {
+        return "GPS module";
+    }
+
+    @Override
     public FunctionExecutable getFunctionByName(String name) {
         if (name.equals("getPosition"))
             return _getPositionFunction;
