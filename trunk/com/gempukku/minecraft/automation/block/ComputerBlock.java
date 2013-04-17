@@ -4,7 +4,6 @@ import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.ComputerEvent;
-import com.gempukku.minecraft.automation.computer.ComputerSpec;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 import cpw.mods.fml.relauncher.Side;
@@ -27,11 +26,13 @@ public abstract class ComputerBlock extends BlockContainer {
     private Icon _frontWorkingIcon;
     private Icon _frontReadyIcon;
     private Icon _sideIcon;
-    private ComputerSpec _computerSpec;
+    private String _computerType;
+    private int _moduleSlotCount;
 
-    public ComputerBlock(int id, ComputerSpec computerSpec) {
+    public ComputerBlock(int id, String computerType, int moduleSlotCount) {
         super(id, Material.ground);
-        _computerSpec = computerSpec;
+        _computerType = computerType;
+        _moduleSlotCount = moduleSlotCount;
         setHardness(1.5F);
         setResistance(10.0F);
         setUnlocalizedName("computer");
@@ -118,8 +119,8 @@ public abstract class ComputerBlock extends BlockContainer {
         ComputerTileEntity result = new ComputerTileEntity();
         // If it's a new computer, on the server we have to assign an id to it
         if (computerId == 0 && MinecraftUtils.isServer(world)) {
-            computerId = Automation.getServerProxy().getRegistry().storeNewComputer(playerPlacing, _computerSpec);
-            result.setModuleSlotsCount(_computerSpec.moduleSlotCount);
+            computerId = Automation.getServerProxy().getRegistry().storeNewComputer(playerPlacing, _computerType);
+            result.setModuleSlotsCount(_moduleSlotCount);
         }
         // On the client we have to forget the label for this computer, as it might change after it's placed
         if (!MinecraftUtils.isClient(world))

@@ -3,7 +3,6 @@ package com.gempukku.minecraft.automation.server;
 import com.gempukku.minecraft.automation.AbstractAutomationRegistry;
 import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
-import com.gempukku.minecraft.automation.computer.ComputerSpec;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraftforge.event.ForgeSubscribe;
 
@@ -57,12 +56,12 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         return getComputerSpecByType(computerType).maxStackSize;
     }
 
-    public int storeNewComputer(String owner, ComputerSpec computerSpec) {
+    public int storeNewComputer(String owner, String computerType) {
         int computerId = _nextId;
         _nextId++;
         final File computerDataFile = getComputerDataFile(computerId);
         computerDataFile.getParentFile().mkdirs();
-        ServerComputerData computerData = new ServerComputerData(computerId, owner, computerSpec.computerType);
+        ServerComputerData computerData = new ServerComputerData(computerId, owner, computerType);
         _computerDataMap.put(computerId, computerData);
         saveComputerDataToDisk(computerId);
         return computerId;

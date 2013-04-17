@@ -5,13 +5,11 @@ public class ComputerSpec {
     public final int speed;
     public final int maxStackSize;
     public final int memory;
-    public final int moduleSlotCount;
 
-    public ComputerSpec(String computerType, int maxStackSize, int memory, int speed, int moduleSlotCount) {
+    public ComputerSpec(String computerType, int maxStackSize, int memory, int speed) {
         this.computerType = computerType;
         this.maxStackSize = maxStackSize;
         this.memory = memory;
         this.speed = speed;
-        this.moduleSlotCount = moduleSlotCount;
     }
 }

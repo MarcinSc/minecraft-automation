@@ -74,7 +74,7 @@ public class Automation {
 
     @Mod.Init
     public void initialize(FMLInitializationEvent evt) {
-        smallComputerBlock = new SmallComputerBlock(_smallComputerBlockId, new ComputerSpec("small", 100, 100 * 1024, 100, 2));
+        smallComputerBlock = new SmallComputerBlock(_smallComputerBlockId, "small");
 
         moduleItem = new ComputerModuleItem(_moduleItemId);
         terminalItem = new ItemTerminal(_terminalItemId);
@@ -98,6 +98,7 @@ public class Automation {
 
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
+        proxy.getRegistry().registerComputerSpec(smallComputerBlock, new ComputerSpec("small", 100, 100 * 1024, 100));
         proxy.getRegistry().registerComputerModule(moduleItem, GPS_MODULE_METADATA, new GPSModule());
     }
 

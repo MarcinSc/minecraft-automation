@@ -1,10 +1,8 @@
 package com.gempukku.minecraft.automation.block;
 
-import com.gempukku.minecraft.automation.computer.ComputerSpec;
-
 public class SmallComputerBlock extends ComputerBlock {
-    public SmallComputerBlock(int id, ComputerSpec computerSpec) {
-        super(id, computerSpec);
+    public SmallComputerBlock(int id, String computerType) {
+        super(id, computerType, 2);
     }
 
     @Override
