@@ -6,6 +6,11 @@ import net.minecraft.world.World;
 
 public abstract class AbstractComputerModule implements ComputerModule {
     @Override
+    public boolean hasInventoryManipulator() {
+        return false;
+    }
+
+    @Override
     public int getStorageSlots() {
         return 0;
     }

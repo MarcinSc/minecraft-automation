@@ -13,6 +13,11 @@ public class StorageModule extends AbstractComputerModule {
     private FunctionExecutable _transferFromSelf = new TransferFromSelfFunction();
 
     @Override
+    public boolean hasInventoryManipulator() {
+        return true;
+    }
+
+    @Override
     public int getStorageSlots() {
         return 9;
     }

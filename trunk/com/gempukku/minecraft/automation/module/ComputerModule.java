@@ -10,6 +10,13 @@ import net.minecraft.world.World;
  */
 public interface ComputerModule {
     /**
+     * Returns if this module provides access to inventories, both outside (chests, machines) and its own.
+     *
+     * @return If this module allows manipulating items in inventories.
+     */
+    public boolean hasInventoryManipulator();
+
+    /**
      * Returns extra storage space provided by the module inside the computer.
      *
      * @return Storage space.
