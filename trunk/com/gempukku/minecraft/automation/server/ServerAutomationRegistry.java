@@ -134,7 +134,9 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
     }
 
     private File getComputerDataFile(String worldName, int computerId) {
-        final File computerFolder = new File(new File(_savesFolder, worldName), String.valueOf(computerId));
+        File worldFolder = new File(_savesFolder, worldName);
+        File automationFolder = new File(worldFolder, "automation");
+        final File computerFolder = new File(automationFolder, String.valueOf(computerId));
         return new File(computerFolder, "data.properties");
     }
 }
