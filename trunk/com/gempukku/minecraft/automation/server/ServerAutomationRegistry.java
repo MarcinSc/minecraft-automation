@@ -3,11 +3,13 @@ package com.gempukku.minecraft.automation.server;
 import com.gempukku.minecraft.automation.AbstractAutomationRegistry;
 import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
+import com.gempukku.minecraft.automation.computer.ComputerSpec;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraftforge.event.ForgeSubscribe;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,13 +45,26 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         return getComputerData(computerId).getLabel();
     }
 
-    public int storeNewComputer(String owner) {
+    public int getComputerSpeed(String computerType) {
+        return getComputerSpecByType(computerType).speed;
+    }
+
+    public int getComputerMaxMemory(String computerType) {
+        return getComputerSpecByType(computerType).memory;
+    }
+
+    public int getComputerMaxStackSize(String computerType) {
+        return getComputerSpecByType(computerType).maxStackSize;
+    }
+
+    public int storeNewComputer(String owner, ComputerSpec computerSpec) {
         int computerId = _nextId;
         _nextId++;
         final File computerDataFile = getComputerDataFile(computerId);
         computerDataFile.getParentFile().mkdirs();
-        ServerComputerData computerData = new ServerComputerData(computerId, owner);
+        ServerComputerData computerData = new ServerComputerData(computerId, owner, computerSpec.computerType);
         _computerDataMap.put(computerId, computerData);
+        saveComputerDataToDisk(computerId);
         return computerId;
     }
 
@@ -75,13 +90,40 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
             // TODO
         }
 
-        int id = Integer.parseInt((String) properties.get("id"));
-        String owner = (String) properties.get("owner");
-        ServerComputerData computerData = new ServerComputerData(id, owner);
-        String label = (String) properties.get("label");
+        int id = Integer.parseInt(properties.getProperty("id"));
+        String owner = properties.getProperty("owner");
+        String computerType = properties.getProperty("computerType");
+        String label = properties.getProperty("label");
+
+        ServerComputerData computerData = new ServerComputerData(id, owner, computerType);
         if (label != null)
             computerData.setLabel(label);
+
         return computerData;
+    }
+
+    private void saveComputerDataToDisk(int computerId) {
+        File computerDataFile = getComputerDataFile(computerId);
+        computerDataFile.getParentFile().mkdirs();
+
+        final ServerComputerData serverComputerData = _computerDataMap.get(computerId);
+
+        Properties properties = new Properties();
+        properties.setProperty("id", String.valueOf(computerId));
+        properties.setProperty("owner", serverComputerData.getOwner());
+        properties.setProperty("computerType", serverComputerData.getComputerType());
+        if (serverComputerData.getLabel() != null)
+            properties.setProperty("label", serverComputerData.getLabel());
+        try {
+            FileWriter writer = new FileWriter(computerDataFile);
+            try {
+                properties.store(writer, null);
+            } finally {
+                writer.close();
+            }
+        } catch (IOException exp) {
+            // TODO
+        }
     }
 
     private File getComputerDataFile(int computerId) {

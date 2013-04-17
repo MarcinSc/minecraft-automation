@@ -25,7 +25,7 @@ public class ProgramTest {
     }
 
     protected ExecutionContext initExecutionContext() {
-        ExecutionContext executionContext = new MinecraftComputerExecutionContext(new ServerComputerData(0, "owner"));
+        ExecutionContext executionContext = new MinecraftComputerExecutionContext(new ServerComputerData(0, "owner", "computerType"));
         executionContext.addPropertyProducer(Variable.Type.MAP, new MapPropertyProducer());
         executionContext.addPropertyProducer(Variable.Type.OBJECT, new ObjectPropertyProducer());
         return executionContext;

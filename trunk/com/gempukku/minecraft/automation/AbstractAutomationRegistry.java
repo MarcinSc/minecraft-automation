@@ -1,6 +1,8 @@
 package com.gempukku.minecraft.automation;
 
+import com.gempukku.minecraft.automation.computer.ComputerSpec;
 import com.gempukku.minecraft.automation.module.ComputerModule;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 
 import java.util.Collection;
@@ -12,6 +14,8 @@ public abstract class AbstractAutomationRegistry implements AutomationRegistry {
     private Map<Integer, Map<Integer, ComputerModule>> _modulesByItemId = new HashMap<Integer, Map<Integer, ComputerModule>>();
     private Map<String, Item> _moduleItemsByType = new HashMap<String, Item>();
     private Map<String, Integer> _moduleMetadataByType = new HashMap<String, Integer>();
+    private Map<Integer, ComputerSpec> _computerSpecsByBlockId = new HashMap<Integer, ComputerSpec>();
+    private Map<String, ComputerSpec> _computerSpecByType = new HashMap<String, ComputerSpec>();
 
     @Override
     public ComputerModule getModuleByItemId(int itemId, int metadata) {
@@ -49,5 +53,15 @@ public abstract class AbstractAutomationRegistry implements AutomationRegistry {
         moduleMetadataMap.put(metadata, module);
         _moduleItemsByType.put(module.getModuleType(), moduleItem);
         _moduleMetadataByType.put(module.getModuleType(), metadata);
+    }
+
+    @Override
+    public void registerComputerSpec(Block computerBlock, ComputerSpec computerSpec) {
+        _computerSpecsByBlockId.put(computerBlock.blockID, computerSpec);
+        _computerSpecByType.put(computerSpec.computerType, computerSpec);
+    }
+
+    protected ComputerSpec getComputerSpecByType(String computerType) {
+        return _computerSpecByType.get(computerType);
     }
 }

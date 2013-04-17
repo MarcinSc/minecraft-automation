@@ -4,6 +4,7 @@ import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.ComputerEvent;
+import com.gempukku.minecraft.automation.computer.ComputerSpec;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 import cpw.mods.fml.relauncher.Side;
@@ -22,18 +23,26 @@ import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 
-public class ComputerBlock extends BlockContainer {
+public abstract class ComputerBlock extends BlockContainer {
     private Icon _frontWorkingIcon;
     private Icon _frontReadyIcon;
     private Icon _sideIcon;
+    private ComputerSpec _computerSpec;
 
-    public ComputerBlock(int id) {
+    public ComputerBlock(int id, ComputerSpec computerSpec) {
         super(id, Material.ground);
+        _computerSpec = computerSpec;
         setHardness(1.5F);
         setResistance(10.0F);
         setUnlocalizedName("computer");
         setCreativeTab(CreativeTabs.tabBlock);
     }
+
+    protected abstract String getComputerFrontReadyIcon();
+
+    protected abstract String getComputerFrontWorkingIcon();
+
+    protected abstract String getComputerSideIcon();
 
     @Override
     public void breakBlock(World world, int x, int y, int z, int par5, int par6) {
@@ -50,37 +59,28 @@ public class ComputerBlock extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister iconRegister) {
-        _frontReadyIcon = iconRegister.registerIcon("computerFrontReady");
-        _frontWorkingIcon = iconRegister.registerIcon("computerFrontWorking");
-        _sideIcon = iconRegister.registerIcon("computerSide");
+        _frontReadyIcon = iconRegister.registerIcon(getComputerFrontReadyIcon());
+        _frontWorkingIcon = iconRegister.registerIcon(getComputerFrontWorkingIcon());
+        _sideIcon = iconRegister.registerIcon(getComputerSideIcon());
     }
 
     @Override
-    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata) {
-        if (side == metadata)
-            return _frontReadyIcon;
-        else
-            return _sideIcon;
+    public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
+        final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
+        if (tileEntity != null && side == tileEntity.getFacing()) {
+            if (tileEntity.isRunningProgram())
+                return _frontWorkingIcon;
+            else
+                return _frontReadyIcon;
+        }
+
+        return _sideIcon;
     }
 
     @Override
     public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune) {
         // We already dropped the items in breakBlock method, therefore not dropping here anything
         return new ArrayList<ItemStack>();
-    }
-
-    private ComputerTileEntity createTileEntityFromItemStack(World world, int computerId, String playerPlacing) {
-        ComputerTileEntity result = new ComputerTileEntity();
-        // If it's a new computer, on the server we have to assign an id to it
-        if (computerId == 0 && MinecraftUtils.isServer(world)) {
-            computerId = Automation.getServerProxy().getRegistry().storeNewComputer(playerPlacing);
-            result.setModuleSlotsCount(3);
-        }
-        // On the client we have to forget the label for this computer, as it might change after it's placed
-        if (!MinecraftUtils.isClient(world))
-            Automation.getClientProxy().getRegistry().clearLabelCache(computerId);
-        result.setComputerId(computerId);
-        return result;
     }
 
     @Override
@@ -107,11 +107,26 @@ public class ComputerBlock extends BlockContainer {
         return true;
     }
 
-    public void initializeBlockAfterPlaced(World world, int x, int y, int z, int computerId, String playerPlacing) {
-        ComputerTileEntity computerEntity = createTileEntityFromItemStack(world, computerId, playerPlacing);
+    public void initializeBlockAfterPlaced(World world, int x, int y, int z, int computerId, String playerPlacing, int blockFacing) {
+        ComputerTileEntity computerEntity = populateTileEntityAfterPlacing(world, computerId, playerPlacing, blockFacing);
         MinecraftUtils.updateTileEntity(world, x, y, z, computerEntity);
         if (MinecraftUtils.isServer(world))
             MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, computerEntity));
+    }
+
+    private ComputerTileEntity populateTileEntityAfterPlacing(World world, int computerId, String playerPlacing, int blockFacing) {
+        ComputerTileEntity result = new ComputerTileEntity();
+        // If it's a new computer, on the server we have to assign an id to it
+        if (computerId == 0 && MinecraftUtils.isServer(world)) {
+            computerId = Automation.getServerProxy().getRegistry().storeNewComputer(playerPlacing, _computerSpec);
+            result.setModuleSlotsCount(_computerSpec.moduleSlotCount);
+        }
+        // On the client we have to forget the label for this computer, as it might change after it's placed
+        if (!MinecraftUtils.isClient(world))
+            Automation.getClientProxy().getRegistry().clearLabelCache(computerId);
+        result.setComputerId(computerId);
+        result.setFacing(blockFacing);
+        return result;
     }
 
     @Override

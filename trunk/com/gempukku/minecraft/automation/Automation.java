@@ -2,11 +2,13 @@ package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.automation.block.ComputerBlock;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
+import com.gempukku.minecraft.automation.block.SmallComputerBlock;
 import com.gempukku.minecraft.automation.client.ClientAutomationPacketHandler;
 import com.gempukku.minecraft.automation.client.ClientAutomationProxy;
+import com.gempukku.minecraft.automation.computer.ComputerSpec;
 import com.gempukku.minecraft.automation.gui.ComputerGuiHandler;
-import com.gempukku.minecraft.automation.item.ComputerItemBlock;
 import com.gempukku.minecraft.automation.item.ItemTerminal;
+import com.gempukku.minecraft.automation.item.SmallComputerItemBlock;
 import com.gempukku.minecraft.automation.module.gps.ComputerModuleItem;
 import com.gempukku.minecraft.automation.module.gps.GPSModule;
 import com.gempukku.minecraft.automation.program.TickComputers;
@@ -42,7 +44,7 @@ public class Automation {
 
     private static File _modConfigDirectory;
 
-    public static ComputerBlock computerBlock;
+    public static ComputerBlock smallComputerBlock;
     private static int _computerBlockId;
 
     public static Item terminalItem;
@@ -72,17 +74,17 @@ public class Automation {
 
     @Mod.Init
     public void initialize(FMLInitializationEvent evt) {
-        computerBlock = new ComputerBlock(_computerBlockId);
+        smallComputerBlock = new SmallComputerBlock(_computerBlockId, new ComputerSpec("small", 100, 100 * 1024, 100, 2));
 
         moduleItem = new ComputerModuleItem(_moduleItemId);
         terminalItem = new ItemTerminal(_terminalItemId);
 
         GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
-        GameRegistry.registerBlock(computerBlock, ComputerItemBlock.class, "computer");
+        GameRegistry.registerBlock(smallComputerBlock, SmallComputerItemBlock.class, "smallComputer");
         GameRegistry.registerItem(moduleItem, "gpsModule");
         GameRegistry.registerItem(terminalItem, "terminal");
 
-        LanguageRegistry.addName(computerBlock, "Computer");
+        LanguageRegistry.addName(smallComputerBlock, "Computer");
         LanguageRegistry.addName(moduleItem, "GPS module");
         LanguageRegistry.addName(terminalItem, "Terminal");
 

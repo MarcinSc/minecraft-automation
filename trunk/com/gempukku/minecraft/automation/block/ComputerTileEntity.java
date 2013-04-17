@@ -21,6 +21,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     private boolean _runningProgram;
     private ComputerModule[] _modules;
     private int _moduleSlotsCount;
+    private int _facing;
 
     public int getComputerId() {
         return _computerId;
@@ -28,6 +29,14 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     public void setComputerId(int computerId) {
         _computerId = computerId;
+    }
+
+    public int getFacing() {
+        return _facing;
+    }
+
+    public void setFacing(int facing) {
+        _facing = facing;
     }
 
     public void setRunningProgram(boolean runningProgram) {
@@ -156,6 +165,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         _computerId = tagCompound.getInteger(ID_NAME);
+        _facing = tagCompound.getInteger(FACING);
         _runningProgram = tagCompound.getBoolean(RUNNING);
         _moduleSlotsCount = tagCompound.getInteger(MODULE_SLOTS_COUNT);
         _modules = new ComputerModule[_moduleSlotsCount];
@@ -174,6 +184,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     public void writeToNBT(NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger(ID_NAME, _computerId);
+        tagCompound.setInteger(FACING, _facing);
         tagCompound.setBoolean(RUNNING, _runningProgram);
         tagCompound.setInteger(MODULE_SLOTS_COUNT, _moduleSlotsCount);
 

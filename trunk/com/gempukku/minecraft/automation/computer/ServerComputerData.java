@@ -1,20 +1,19 @@
 package com.gempukku.minecraft.automation.computer;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.gempukku.minecraft.automation.Automation;
 
 public class ServerComputerData {
     private String _label;
+    private String _computerType;
     private int[] _location = new int[3];
     private int _facing;
     private int _id;
     private String _owner;
-    private Map<String, Map<String, String>> _moduleData = new HashMap<String, Map<String, String>>();
-    private int _moduleSlotCount;
 
-    public ServerComputerData(int id, String owner) {
+    public ServerComputerData(int id, String owner, String computerType) {
         _id = id;
         _owner = owner;
+        _computerType = computerType;
     }
 
     public int getId() {
@@ -33,25 +32,20 @@ public class ServerComputerData {
         return _owner;
     }
 
+    public String getComputerType() {
+        return _computerType;
+    }
+
     public int getSpeed() {
-        return 100;
+        return Automation.getServerProxy().getRegistry().getComputerSpeed(_computerType);
     }
 
     public int getMaxStackSize() {
-        return 100;
+        return Automation.getServerProxy().getRegistry().getComputerMaxStackSize(_computerType);
     }
 
     public int getMaxMemory() {
-        return 100 * 1024;
-    }
-
-    public Map<String, String> getModuleData(String moduleType) {
-        Map<String, String> moduleData = _moduleData.get(moduleType);
-        if (moduleData == null) {
-            moduleData = new HashMap<String, String>();
-            _moduleData.put(moduleType, moduleData);
-        }
-        return moduleData;
+        return Automation.getServerProxy().getRegistry().getComputerMaxMemory(_computerType);
     }
 
     public void appendToConsole(String text) {

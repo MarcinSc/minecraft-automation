@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class ComputerItemBlock extends ItemBlock {
+public abstract class ComputerItemBlock extends ItemBlock {
     private Icon _icon;
 
     public ComputerItemBlock(int id) {
@@ -21,6 +21,8 @@ public class ComputerItemBlock extends ItemBlock {
         this.setMaxStackSize(1);
         this.setHasSubtypes(true);
     }
+
+    protected abstract String getComputerIconToRegister();
 
     @Override
     public void addInformation(ItemStack itemStack, EntityPlayer player, List lines, boolean par4) {
@@ -49,7 +51,7 @@ public class ComputerItemBlock extends ItemBlock {
 
     @Override
     public void updateIcons(IconRegister par1IconRegister) {
-        _icon = par1IconRegister.registerIcon("computer");
+        _icon = par1IconRegister.registerIcon(getComputerIconToRegister());
     }
 
     private String getComputerLabel(ItemStack itemStack) {
@@ -65,9 +67,9 @@ public class ComputerItemBlock extends ItemBlock {
     @Override
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
         int blockFacing = getBlockFacingForEntity(player);
-        boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, blockFacing);
+        boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, metadata);
         if (placed)
-            Automation.computerBlock.initializeBlockAfterPlaced(world, x, y, z, stack.getItemDamage(), player.getEntityName());
+            Automation.smallComputerBlock.initializeBlockAfterPlaced(world, x, y, z, stack.getItemDamage(), player.getEntityName(), blockFacing);
 
         return placed;
     }
