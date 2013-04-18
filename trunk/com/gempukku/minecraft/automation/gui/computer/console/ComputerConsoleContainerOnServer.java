@@ -71,6 +71,7 @@ public class ComputerConsoleContainerOnServer extends Container implements Compu
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             DataOutputStream os = new DataOutputStream(baos);
+            os.writeInt(lines.length);
             for (String line : lines)
                 os.writeUTF(line);
             PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.APPEND_LINES_TO_CONSOLE, baos.toByteArray()), (Player) _player);
