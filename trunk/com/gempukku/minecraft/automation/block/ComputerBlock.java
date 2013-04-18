@@ -5,6 +5,7 @@ import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.gui.computer.ComputerGuiHandler;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -101,9 +102,9 @@ public abstract class ComputerBlock extends BlockContainer {
 
         final ItemStack usedItem = player.getItemInUse();
         if (usedItem != null && usedItem.getItem() == Automation.terminalItem)
-            player.openGui(Automation.instance, 0, world, x, y, z);
+            player.openGui(Automation.instance, ComputerGuiHandler.COMPUTER_PROGRAMMING_GUI, world, x, y, z);
         else
-            player.openGui(Automation.instance, 1, world, x, y, z);
+            player.openGui(Automation.instance, ComputerGuiHandler.COMPUTER_ITEM_GUI, world, x, y, z);
 
         return true;
     }

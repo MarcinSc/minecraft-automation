@@ -4,7 +4,8 @@ import com.gempukku.minecraft.automation.computer.ComputerConsole;
 import net.minecraft.client.gui.GuiScreen;
 
 public class ComputerConsoleGui extends GuiScreen {
-    private int _mode;
+    // mode=0 is user (player) console, mode=1 is program output console
+    private int _mode = 0;
     private ComputerConsole _consoleOnClient = new ComputerConsole();
 
     public void clearConsole() {
@@ -29,4 +30,6 @@ public class ComputerConsoleGui extends GuiScreen {
 
         _consoleOnClient.appendString(result.toString());
     }
+
+
 }
