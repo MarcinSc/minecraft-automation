@@ -14,6 +14,7 @@ public class ComputerConsoleGui extends GuiScreen {
     public static final int BUTTON_BG_INACTIVE_COLOR = 0xff3f3f3f;
 
     public static final int PLAYER_CONSOLE_TEXT_COLOR = 0xffffffff;
+    public static final int COMPUTER_CONSOLE_TEXT_COLOR = 0xffffffff;
 
     private static final int PADDING_HOR = 5;
     private static final int PADDING_VER = 5;
@@ -137,7 +138,9 @@ public class ComputerConsoleGui extends GuiScreen {
     }
 
     private void drawComputerConsole(float timeSinceLastTick) {
-
+        final String[] consoleLines = _playerConsole.getLines();
+        for (int i = 0; i < consoleLines.length; i++)
+            fontRenderer.drawString(consoleLines[i], 0, i * fontRenderer.FONT_HEIGHT, COMPUTER_CONSOLE_TEXT_COLOR);
     }
 
     private int getButBgColor(boolean hover, boolean inMode) {
