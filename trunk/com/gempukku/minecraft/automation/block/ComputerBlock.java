@@ -100,11 +100,13 @@ public abstract class ComputerBlock extends BlockContainer {
         if (player.isSneaking())
             return false;
 
-        final ItemStack usedItem = player.getItemInUse();
-        if (usedItem != null && usedItem.getItem() == Automation.terminalItem)
-            player.openGui(Automation.instance, ComputerGuiHandler.COMPUTER_PROGRAMMING_GUI, world, x, y, z);
-        else
-            player.openGui(Automation.instance, ComputerGuiHandler.COMPUTER_ITEM_GUI, world, x, y, z);
+        if (MinecraftUtils.isServer(world)) {
+            final ItemStack heldItem = player.getHeldItem();
+            if (heldItem != null && heldItem.itemID == Automation.terminalItem.itemID)
+                player.openGui(Automation.instance, ComputerGuiHandler.COMPUTER_PROGRAMMING_GUI, world, x, y, z);
+            else
+                player.openGui(Automation.instance, ComputerGuiHandler.COMPUTER_ITEM_GUI, world, x, y, z);
+        }
 
         return true;
     }
@@ -119,10 +121,10 @@ public abstract class ComputerBlock extends BlockContainer {
     private ComputerTileEntity populateTileEntityAfterPlacing(World world, int computerId, String playerPlacing, int blockFacing) {
         ComputerTileEntity result = new ComputerTileEntity();
         // If it's a new computer, on the server we have to assign an id to it
-        if (computerId == 0 && MinecraftUtils.isServer(world)) {
+        if (computerId == 0 && MinecraftUtils.isServer(world))
             computerId = Automation.getServerProxy().getRegistry().storeNewComputer(world, playerPlacing, _computerType);
-            result.setModuleSlotsCount(_moduleSlotCount);
-        }
+
+        result.setModuleSlotsCount(_moduleSlotCount);
         // On the client we have to forget the label for this computer, as it might change after it's placed
         if (!MinecraftUtils.isClient(world))
             Automation.getClientProxy().getRegistry().clearLabelCache(computerId);

@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class ComputerConsole {
     private Set<ComputerConsoleListener> _consoleListeners = new HashSet<ComputerConsoleListener>();
-    public static final int CONSOLE_WIDTH = 80;
-    public static final int CONSOLE_HEIGHT = 40;
+    public static final int CONSOLE_WIDTH = 50;
+    public static final int CONSOLE_HEIGHT = 20;
 
     // Please note, it's addressable by _chars[y][x] to allow easy creation of Strings based on line index
     private char[][] _chars = new char[CONSOLE_HEIGHT][CONSOLE_WIDTH];
