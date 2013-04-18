@@ -8,6 +8,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import java.util.List;
+
 public class ComputerContainer extends Container {
     private ComputerTileEntity _tileEntity;
 
@@ -98,8 +100,10 @@ public class ComputerContainer extends Container {
     }
 
     @Override
-    public void onCraftGuiClosed(EntityPlayer par1EntityPlayer) {
-        super.onCraftGuiClosed(par1EntityPlayer);
-        _tileEntity.updateItemsSlotCount();
+    public void onCraftGuiClosed(EntityPlayer entityPlayer) {
+        super.onCraftGuiClosed(entityPlayer);
+        final List<ItemStack> itemsToDrop = _tileEntity.updateItemsSlotCount();
+        for (ItemStack popIntoWorldItemStack : itemsToDrop)
+            entityPlayer.dropPlayerItem(popIntoWorldItemStack);
     }
 }

@@ -12,6 +12,9 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class ComputerTileEntity extends TileEntity implements IInventory {
     private static final String ID_NAME = "computerId";
     private static final String FACING = "facing";
@@ -138,13 +141,20 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
         _modules = new ComputerModule[_moduleSlotsCount];
     }
 
-    public void updateItemsSlotCount() {
+    public List<ItemStack> updateItemsSlotCount() {
+        List<ItemStack> itemsStacksToPopIntoWorld = new LinkedList<ItemStack>();
         int newSize = getItemSlotsCount();
         if (newSize != _inventory.length) {
             ItemStack[] oldItems = _inventory;
             _inventory = new ItemStack[newSize];
+            if (oldItems.length > _inventory.length) {
+                for (int i = _inventory.length; i < oldItems.length; i++)
+                    if (oldItems[i] != null)
+                        itemsStacksToPopIntoWorld.add(oldItems[i]);
+            }
             System.arraycopy(oldItems, 0, _inventory, 0, Math.min(_inventory.length, oldItems.length));
         }
+        return itemsStacksToPopIntoWorld;
     }
 
     public int getItemSlotsCount() {
@@ -185,7 +195,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     @Override
     public ItemStack decrStackSize(int slot, int count) {
         if (_inventory[slot] != null && count > 0) {
-            if (_inventory[slot].stackSize<=count) {
+            if (_inventory[slot].stackSize <= count) {
                 ItemStack result = _inventory[slot];
                 _inventory[slot] = null;
                 onInventoryChanged();
