@@ -22,6 +22,8 @@ public class ComputerConsoleGui extends GuiScreen {
     private static final int BUTTON_PADDING_VER = 3;
 
     private static final int BLINK_LENGTH = 10;
+    public static final String PLAYER_CONSOLE_TEXT = "Player console";
+    public static final String COMPUTER_CONSOLE_TEXT = "Computer console";
 
     // mode=0 is user (player) console, mode=1 is edit program mode, mode=2 is program output console
     private int _mode = 0;
@@ -83,11 +85,10 @@ public class ComputerConsoleGui extends GuiScreen {
         drawVerticalLine(0, 0, _screenHeight, FRAME_COLOR);
         drawVerticalLine(_screenWidth, 0, _screenHeight, FRAME_COLOR);
 
-
         int buttonHeight = BUTTON_PADDING_VER * 2 + fontRenderer.FONT_HEIGHT;
 
-        int playerConsoleButtonWidth = fontRenderer.getStringWidth("Player console") + BUTTON_PADDING_HOR * 2;
-        int computerConsoleButtonWidth = fontRenderer.getStringWidth("Computer console") + BUTTON_PADDING_HOR * 2;
+        int playerConsoleButtonWidth = fontRenderer.getStringWidth(PLAYER_CONSOLE_TEXT) + BUTTON_PADDING_HOR * 2;
+        int computerConsoleButtonWidth = fontRenderer.getStringWidth(COMPUTER_CONSOLE_TEXT) + BUTTON_PADDING_HOR * 2;
 
         boolean playerConsoleHover = mouseX >= PADDING_HOR && mouseX < PADDING_HOR + playerConsoleButtonWidth
                 && mouseY >= PADDING_VER && mouseY < PADDING_VER + buttonHeight;
@@ -97,11 +98,13 @@ public class ComputerConsoleGui extends GuiScreen {
         int playerConsoleButBgColor = getButBgColor(playerConsoleHover, (_mode == 0 || _mode == 1));
         int computerConsoleButBgColor = getButBgColor(computerConsoleHover, (_mode == 2));
 
+        // Draw button backgrounds
         drawRect(PADDING_HOR, PADDING_VER, PADDING_HOR + playerConsoleButtonWidth, PADDING_VER + buttonHeight, playerConsoleButBgColor);
         drawRect(PADDING_HOR + playerConsoleButtonWidth, PADDING_VER, PADDING_HOR + playerConsoleButtonWidth + computerConsoleButtonWidth, PADDING_VER + buttonHeight, computerConsoleButBgColor);
 
-        fontRenderer.drawString("Player console", PADDING_HOR + BUTTON_PADDING_HOR, PADDING_VER + BUTTON_PADDING_VER, BUTTON_TEXT_COLOR);
-        fontRenderer.drawString("Computer console", PADDING_HOR + BUTTON_PADDING_HOR + playerConsoleButtonWidth, PADDING_VER + BUTTON_PADDING_VER, BUTTON_TEXT_COLOR);
+        // Draw button texts
+        fontRenderer.drawString(PLAYER_CONSOLE_TEXT, PADDING_HOR + BUTTON_PADDING_HOR, PADDING_VER + BUTTON_PADDING_VER, BUTTON_TEXT_COLOR);
+        fontRenderer.drawString(COMPUTER_CONSOLE_TEXT, PADDING_HOR + BUTTON_PADDING_HOR + playerConsoleButtonWidth, PADDING_VER + BUTTON_PADDING_VER, BUTTON_TEXT_COLOR);
 
         GL11.glPushMatrix();
         try {
