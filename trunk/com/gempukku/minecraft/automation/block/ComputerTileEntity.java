@@ -170,10 +170,6 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
         return _modules[slot];
     }
 
-    public void setModule(int slot, ComputerModule module) {
-        _modules[slot] = module;
-    }
-
     @Override
     public void openChest() {
     }
