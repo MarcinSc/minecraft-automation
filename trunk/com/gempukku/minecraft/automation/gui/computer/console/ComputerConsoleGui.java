@@ -32,7 +32,7 @@ public class ComputerConsoleGui extends GuiScreen {
     private int _computerScreenWidth;
     private int _computerScreenHeight;
 
-    private String _currentCommand;
+    private StringBuilder _currentCommand;
     private int _cursorPositionInPlayerCommand = 0;
     private int _currentCommandDisplayStartIndex = 0;
 
@@ -50,6 +50,7 @@ public class ComputerConsoleGui extends GuiScreen {
         _computerScreenHeight = fontRenderer.FONT_HEIGHT * ComputerConsole.CONSOLE_HEIGHT;
         _playerConsole.appendString("AutomationOS v. 0.0");
         _playerConsole.appendString("Welcome " + player.getEntityName());
+        _currentCommand = new StringBuilder();
     }
 
     @Override
@@ -122,7 +123,7 @@ public class ComputerConsoleGui extends GuiScreen {
         for (int i = 1; i < consoleLines.length; i++)
             fontRenderer.drawString(consoleLines[i], 0, (i - 1) * fontRenderer.FONT_HEIGHT, PLAYER_CONSOLE_TEXT_COLOR);
 
-        String commandLine = (">" + _currentCommand).substring(_currentCommandDisplayStartIndex, _currentCommandDisplayStartIndex + ComputerConsole.CONSOLE_WIDTH);
+        String commandLine = (">" + _currentCommand.toString()).substring(_currentCommandDisplayStartIndex, _currentCommandDisplayStartIndex + ComputerConsole.CONSOLE_WIDTH);
         int cursorPositionInDisplayedCommandLine = 1 + _cursorPositionInPlayerCommand + _currentCommandDisplayStartIndex;
 
         final int lastLineY = fontRenderer.FONT_HEIGHT * (ComputerConsole.CONSOLE_HEIGHT - 1);
