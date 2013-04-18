@@ -113,7 +113,7 @@ public class ComputerProcessing {
         ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
         if (computerTileEntity != null) {
             computerTileEntity.setRunningProgram(running);
-            MinecraftUtils.updateTileEntity(world, computerData.getX(), computerData.getY(), computerData.getZ(), computerTileEntity);
+            MinecraftUtils.updateTileEntity(world, computerData.getX(), computerData.getY(), computerData.getZ());
         }
     }
 

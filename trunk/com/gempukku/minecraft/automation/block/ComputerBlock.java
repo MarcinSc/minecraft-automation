@@ -111,7 +111,7 @@ public abstract class ComputerBlock extends BlockContainer {
 
     public void initializeBlockAfterPlaced(World world, int x, int y, int z, int computerId, String playerPlacing, int blockFacing) {
         ComputerTileEntity computerEntity = populateTileEntityAfterPlacing(world, computerId, playerPlacing, blockFacing);
-        MinecraftUtils.updateTileEntity(world, x, y, z, computerEntity);
+        MinecraftUtils.setTileEntity(world, x, y, z, computerEntity);
         if (MinecraftUtils.isServer(world))
             MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, computerEntity));
     }

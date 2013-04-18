@@ -41,7 +41,7 @@ public class ComputerConsole {
             listener.clearScreen();
     }
 
-    // This method should not be called by the program directly
+    // This method should not be called by the program directly, only for internal use
     public void setConsoleState(String[] lines) {
         for (int i = 0; i < lines.length; i++) {
             lines[i] = stripInvalidCharacters(lines[i]);

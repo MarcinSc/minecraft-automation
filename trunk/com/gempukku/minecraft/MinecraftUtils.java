@@ -12,8 +12,12 @@ public class MinecraftUtils {
         return !world.isRemote;
     }
 
-    public static void updateTileEntity(World world, int x, int y, int z, TileEntity tileEntity) {
+    public static void setTileEntity(World world, int x, int y, int z, TileEntity tileEntity) {
         tileEntity.validate();
         world.setBlockTileEntity(x, y, z, tileEntity);
+    }
+
+    public static void updateTileEntity(World world, int x, int y, int z) {
+        world.markBlockForUpdate(x, y, z);
     }
 }
