@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.gui;
+package com.gempukku.minecraft.automation.gui.computer.item;
 
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -10,7 +10,7 @@ public class ComputerItemGui extends GuiContainer {
     private int _computerItemSlotRows;
 
     public ComputerItemGui(InventoryPlayer inventoryPlayer, ComputerTileEntity computerTileEntity) {
-        super(new ComputerContainer(inventoryPlayer, computerTileEntity));
+        super(new ComputerItemContainer(inventoryPlayer, computerTileEntity));
         _computerItemSlotRows = (computerTileEntity.getItemSlotsCount() + 8) / 9;
 
         xSize = ComputerItemGuiBindings.WINDOW_WIDTH;
@@ -35,11 +35,11 @@ public class ComputerItemGui extends GuiContainer {
 
         int yPos = 0;
         this.drawTexturedModalRect(x, y, 0, ComputerItemGuiBindings.TOP_START, xSize, ComputerItemGuiBindings.TOP_HEIGHT);
-        yPos+=ComputerItemGuiBindings.TOP_HEIGHT;
+        yPos += ComputerItemGuiBindings.TOP_HEIGHT;
 
         this.drawTexturedModalRect(x, y + yPos, 0, ComputerItemGuiBindings.MODULE_ROW_START, xSize, ComputerItemGuiBindings.MODULE_ROW_HEIGHT);
         yPos += ComputerItemGuiBindings.MODULE_ROW_HEIGHT;
-        
+
         if (_computerItemSlotRows > 0) {
             this.drawTexturedModalRect(x, y + yPos, 0, ComputerItemGuiBindings.COMPUTER_INVENTORY_START, xSize, ComputerItemGuiBindings.COMPUTER_INVENTORY_HEIGHT);
             yPos += ComputerItemGuiBindings.COMPUTER_INVENTORY_HEIGHT;

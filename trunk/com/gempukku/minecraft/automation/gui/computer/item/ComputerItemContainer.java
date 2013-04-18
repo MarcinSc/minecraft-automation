@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.gui;
+package com.gempukku.minecraft.automation.gui.computer.item;
 
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,10 +10,10 @@ import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
-public class ComputerContainer extends Container {
+public class ComputerItemContainer extends Container {
     private ComputerTileEntity _tileEntity;
 
-    public ComputerContainer(InventoryPlayer inventoryPlayer, ComputerTileEntity tileEntity) {
+    public ComputerItemContainer(InventoryPlayer inventoryPlayer, ComputerTileEntity tileEntity) {
         _tileEntity = tileEntity;
 
         IInventory moduleInventory = tileEntity.getModuleInventory();

@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.gui;
+package com.gempukku.minecraft.automation.gui.computer.item;
 
 import com.gempukku.minecraft.automation.Automation;
 import net.minecraft.inventory.IInventory;

@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.computer;
 import com.gempukku.minecraft.automation.Automation;
 
 public class ServerComputerData {
+    private ComputerConsole _console = new ComputerConsole();
     private String _label;
     private String _computerType;
     private int[] _location = new int[3];
@@ -14,6 +15,10 @@ public class ServerComputerData {
         _id = id;
         _owner = owner;
         _computerType = computerType;
+    }
+
+    public ComputerConsole getConsole() {
+        return _console;
     }
 
     public int getId() {
@@ -49,7 +54,7 @@ public class ServerComputerData {
     }
 
     public void appendToConsole(String text) {
-
+        _console.appendString(text);
     }
 
     public void setLocation(int x, int y, int z) {

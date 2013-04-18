@@ -6,7 +6,7 @@ import com.gempukku.minecraft.automation.block.SmallComputerBlock;
 import com.gempukku.minecraft.automation.client.ClientAutomationPacketHandler;
 import com.gempukku.minecraft.automation.client.ClientAutomationProxy;
 import com.gempukku.minecraft.automation.computer.ComputerSpec;
-import com.gempukku.minecraft.automation.gui.ComputerGuiHandler;
+import com.gempukku.minecraft.automation.gui.computer.ComputerGuiHandler;
 import com.gempukku.minecraft.automation.item.ComputerItemBlock;
 import com.gempukku.minecraft.automation.item.ItemTerminal;
 import com.gempukku.minecraft.automation.module.gps.ComputerModuleItem;
@@ -40,6 +40,10 @@ public class Automation {
     private static final String AUTOMATION_CHANNEL_PREFIX = "automation.";
     public static final String CLIENT_INIT = AUTOMATION_CHANNEL_PREFIX + "1";
     public static final String UPDATE_COMPUTER_LABEL = AUTOMATION_CHANNEL_PREFIX + "2";
+    public static final String CLEAR_CONSOLE_SCREEN = AUTOMATION_CHANNEL_PREFIX + "3";
+    public static final String SET_CONSOLE_STATE = AUTOMATION_CHANNEL_PREFIX + "4";
+    public static final String SET_CHARACTERS_IN_CONSOLE = AUTOMATION_CHANNEL_PREFIX + "5";
+    public static final String APPEND_LINES_TO_CONSOLE = AUTOMATION_CHANNEL_PREFIX + "6";
 
     @Mod.Instance("MarcinSc_Automation")
     public static Automation instance;
@@ -87,7 +91,7 @@ public class Automation {
         GameRegistry.registerBlock(smallComputerBlock, "smallComputer");
         GameRegistry.registerItem(moduleItem, "computerModule");
         GameRegistry.registerItem(terminalItem, "terminal");
-        GameRegistry.registerItem(new ComputerItemBlock(_smallComputerBlockId-256, smallComputerBlock), "smallComputerItem");
+        GameRegistry.registerItem(new ComputerItemBlock(_smallComputerBlockId - 256, smallComputerBlock), "smallComputerItem");
 
         LanguageRegistry.addName(smallComputerBlock, "Computer");
         LanguageRegistry.addName(terminalItem, "Terminal");
@@ -103,7 +107,7 @@ public class Automation {
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
         proxy.getRegistry().registerComputerSpec(smallComputerBlock, new ComputerSpec("small", 100, 100 * 1024, 100));
-        
+
         proxy.getRegistry().registerComputerModule(moduleItem, GPS_MODULE_METADATA, new GPSModule());
         proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
         proxy.getRegistry().registerComputerModule(moduleItem, MOBILITY_MODULE_METADATA, new MobilityModule());
