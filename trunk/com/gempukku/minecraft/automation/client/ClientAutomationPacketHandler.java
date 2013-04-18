@@ -5,10 +5,10 @@ import com.gempukku.minecraft.automation.computer.ComputerConsole;
 import com.gempukku.minecraft.automation.gui.computer.console.ComputerConsoleGui;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.src.ModLoader;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -78,7 +78,10 @@ public class ClientAutomationPacketHandler implements IPacketHandler {
     }
 
     private ComputerConsoleGui getComputerConsoleSafely() {
-        final GuiScreen currentScreen = ModLoader.getMinecraftInstance().currentScreen;
+        if (Minecraft.getMinecraft().inGameHasFocus)
+            return null;
+
+        final GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
         ComputerConsoleGui consoleGui = null;
         if (currentScreen instanceof ComputerConsoleGui)
             consoleGui = (ComputerConsoleGui) currentScreen;
