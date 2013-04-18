@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderEngine;
 import net.minecraft.entity.player.EntityPlayer;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -18,6 +19,7 @@ public class ComputerConsoleGui extends GuiScreen {
     public static final int BUTTON_BG_INACTIVE_COLOR = 0xff3f3f3f;
 
     public static final int PLAYER_CONSOLE_TEXT_COLOR = 0xffffffff;
+    public static final int PLAYER_CONSOLE_CURSOR_COLOR = 0xffff0000;
     public static final int COMPUTER_CONSOLE_TEXT_COLOR = 0xffffffff;
 
     private static final int PADDING_HOR = 5;
@@ -25,7 +27,7 @@ public class ComputerConsoleGui extends GuiScreen {
     private static final int BUTTON_PADDING_HOR = 3;
     private static final int BUTTON_PADDING_VER = 3;
 
-    private static final int FONT_HEIGHT=9;
+    private static final int FONT_HEIGHT = 9;
     private static final int BLINK_LENGTH = 20;
     public static final String PLAYER_CONSOLE_TEXT = "Player console";
     public static final String COMPUTER_CONSOLE_TEXT = "Computer console";
@@ -60,8 +62,6 @@ public class ComputerConsoleGui extends GuiScreen {
 
     public ComputerConsoleGui(EntityPlayer player) {
         _player = player;
-        for (int i = 0; i < 20; i++)
-            _playerConsole.appendString("Test line lkjfnvklesnfv shfvjsehbfvkjhs fvhjebsf vhbsefjvh eskjfbvj sehbfvjesb fjv");
         _renderEngine = Minecraft.getMinecraft().renderEngine;
         _playerConsole.appendString("AutomationOS v. 0.0");
         _playerConsole.appendString("Welcome " + _player.getEntityName());
@@ -73,6 +73,12 @@ public class ComputerConsoleGui extends GuiScreen {
         _characterWidth = 6;
         _computerScreenWidth = _characterWidth * ComputerConsole.CONSOLE_WIDTH;
         _computerScreenHeight = FONT_HEIGHT * ComputerConsole.CONSOLE_HEIGHT;
+        Keyboard.enableRepeatEvents(true);
+    }
+
+    @Override
+    public void onGuiClosed() {
+        Keyboard.enableRepeatEvents(false);
     }
 
     @Override
@@ -152,14 +158,14 @@ public class ComputerConsoleGui extends GuiScreen {
 
             String wholeCommandLine = ">" + _currentCommand.toString();
             String commandLine = wholeCommandLine.substring(_currentCommandDisplayStartIndex, Math.min(_currentCommandDisplayStartIndex + ComputerConsole.CONSOLE_WIDTH, wholeCommandLine.length()));
-            int cursorPositionInDisplayedCommandLine = 1 + _cursorPositionInPlayerCommand + _currentCommandDisplayStartIndex;
+            int cursorPositionInDisplayedCommandLine = 1 + _cursorPositionInPlayerCommand - _currentCommandDisplayStartIndex;
 
             final int lastLineY = FONT_HEIGHT * (ComputerConsole.CONSOLE_HEIGHT - 1);
             drawMonospacedLine(commandLine, 0, lastLineY, PLAYER_CONSOLE_TEXT_COLOR);
 
             _blinkTick = ((++_blinkTick) % BLINK_LENGTH);
             if (_blinkTick * 2 > BLINK_LENGTH)
-                drawVerticalLine(1 + cursorPositionInDisplayedCommandLine * _characterWidth, lastLineY, lastLineY + FONT_HEIGHT, PLAYER_CONSOLE_TEXT_COLOR);
+                drawVerticalLine(cursorPositionInDisplayedCommandLine * _characterWidth - 1, 1 + lastLineY, lastLineY + FONT_HEIGHT, PLAYER_CONSOLE_CURSOR_COLOR);
         }
     }
 
@@ -212,6 +218,42 @@ public class ComputerConsoleGui extends GuiScreen {
             _mode = 1;
         else if (_mode == 1 && _playerConsoleModeButton.contains(mouseX - _screenX, mouseY - _screenY))
             _mode = 0;
+    }
+
+    @Override
+    protected void keyTyped(char character, int keyboardCharId) {
+        super.keyTyped(character, keyboardCharId);
+        if (character >= 32 && character < 127) {
+            _currentCommand.insert(_cursorPositionInPlayerCommand, character);
+            _cursorPositionInPlayerCommand++;
+        } else if (keyboardCharId == Keyboard.KEY_BACK && _cursorPositionInPlayerCommand > 0) {
+            _currentCommand.delete(_cursorPositionInPlayerCommand - 1, _cursorPositionInPlayerCommand);
+            _cursorPositionInPlayerCommand--;
+        } else if (keyboardCharId == Keyboard.KEY_DELETE && _cursorPositionInPlayerCommand < _currentCommand.length()) {
+            _currentCommand.delete(_cursorPositionInPlayerCommand, _cursorPositionInPlayerCommand + 1);
+        } else if (keyboardCharId == Keyboard.KEY_LEFT && _cursorPositionInPlayerCommand > 0) {
+            _cursorPositionInPlayerCommand--;
+        } else if (keyboardCharId == Keyboard.KEY_RIGHT && _cursorPositionInPlayerCommand < _currentCommand.length()) {
+            _cursorPositionInPlayerCommand++;
+        } else if (keyboardCharId == Keyboard.KEY_HOME) {
+            _cursorPositionInPlayerCommand = 0;
+        } else if (keyboardCharId == Keyboard.KEY_END) {
+            _cursorPositionInPlayerCommand = _currentCommand.length();
+        }
+
+        // Adjust start position
+        int lineLength = _currentCommand.length() + 1;
+        if (lineLength <= ComputerConsole.CONSOLE_WIDTH)
+            _currentCommandDisplayStartIndex = 0;
+        else {
+            int cursorPositionInCommand = 1 + _cursorPositionInPlayerCommand;
+            if (_currentCommandDisplayStartIndex + ComputerConsole.CONSOLE_WIDTH > lineLength)
+                _currentCommandDisplayStartIndex = lineLength - ComputerConsole.CONSOLE_WIDTH;
+            else if (cursorPositionInCommand > ComputerConsole.CONSOLE_WIDTH + _currentCommandDisplayStartIndex)
+                _currentCommandDisplayStartIndex = cursorPositionInCommand - ComputerConsole.CONSOLE_WIDTH;
+            else if (cursorPositionInCommand - 1 < _currentCommandDisplayStartIndex)
+                _currentCommandDisplayStartIndex = cursorPositionInCommand - 1;
+        }
     }
 
     private int getButBgColor(boolean hover, boolean inMode) {
