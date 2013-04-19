@@ -69,6 +69,8 @@ public class ComputerConsoleGui extends GuiScreen {
 		_playerCommandConsoleGui.appendToConsole("AutomationOS v. 0.0");
 		_playerCommandConsoleGui.appendToConsole("You're logged in as " + _player.getEntityName() + ", use \"exit\" command to exit the console, use \"help\" to list commands.");
 		_programEditingConsoleGui = new ProgramEditingConsoleGui(this);
+
+		PacketDispatcher.sendPacketToServer(new Packet250CustomPayload(Automation.INIT_CONSOLE, new byte[0]));
 	}
 
 	@Override
