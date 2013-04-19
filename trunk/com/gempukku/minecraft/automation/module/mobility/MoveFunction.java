@@ -49,6 +49,9 @@ public class MoveFunction extends JavaFunctionExecutable {
 		final int newY = computer.getY() + Facing.offsetsYForSide[direction];
 		final int newZ = computer.getZ() + Facing.offsetsZForSide[direction];
 
+		if (!world.getChunkProvider().chunkExists(newX >> 4, newZ >> 4))
+			return false;
+
 		final Material blockMaterial = world.getBlockMaterial(newX, newY, newZ);
 		if (!blockMaterial.isReplaceable())
 			return false;
