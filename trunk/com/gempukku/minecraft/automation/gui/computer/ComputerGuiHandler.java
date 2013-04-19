@@ -23,7 +23,7 @@ public class ComputerGuiHandler implements IGuiHandler {
         if (id == COMPUTER_ITEM_GUI)
             return new ComputerItemGui(player.inventory, tileEntity);
         else if (id == COMPUTER_PROGRAMMING_GUI)
-            return new ComputerConsoleGui(player);
+            return new ComputerConsoleGui(player, tileEntity);
         return null;
     }
 

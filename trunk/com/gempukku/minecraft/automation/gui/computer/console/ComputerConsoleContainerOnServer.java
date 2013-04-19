@@ -15,68 +15,72 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class ComputerConsoleContainerOnServer extends Container implements ComputerConsoleListener {
-    private EntityPlayer _player;
-    private ServerComputerData _computerData;
+  private EntityPlayer _player;
+  private ServerComputerData _computerData;
 
-    public ComputerConsoleContainerOnServer(EntityPlayer player, ComputerTileEntity computerTileEntity) {
-        _player = player;
-        _computerData = Automation.getServerProxy().getRegistry().getComputerData(player.worldObj, computerTileEntity.getComputerId());
-        _computerData.getConsole().addConsoleListener(this);
-    }
+  public ComputerConsoleContainerOnServer(EntityPlayer player, ComputerTileEntity computerTileEntity) {
+    _player = player;
+    _computerData = Automation.getServerProxy().getRegistry().getComputerData(player.worldObj, computerTileEntity.getComputerId());
+    _computerData.getConsole().addConsoleListener(this);
+  }
 
-    @Override
-    public void onCraftGuiClosed(EntityPlayer par1EntityPlayer) {
-        _computerData.getConsole().removeConsoleListener(this);
-    }
+  public ServerComputerData getComputerData() {
+    return _computerData;
+  }
 
-    @Override
-    public boolean canInteractWith(EntityPlayer entityplayer) {
-        return true;
-    }
+  @Override
+  public void onCraftGuiClosed(EntityPlayer par1EntityPlayer) {
+    _computerData.getConsole().removeConsoleListener(this);
+  }
 
-    @Override
-    public void clearScreen() {
-        PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.CLEAR_CONSOLE_SCREEN, new byte[0]), (Player) _player);
-    }
+  @Override
+  public boolean canInteractWith(EntityPlayer entityplayer) {
+    return true;
+  }
 
-    @Override
-    public void setScreenState(String[] screen) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream os = new DataOutputStream(baos);
-            for (String s : screen)
-                os.writeUTF(s);
-            PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.SET_CONSOLE_STATE, baos.toByteArray()), (Player) _player);
-        } catch (IOException exp) {
-            // Can't happen, we're writing to ByteArrayOutputStream
-        }
-    }
+  @Override
+  public void clearScreen() {
+    PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.CLEAR_CONSOLE_SCREEN, new byte[0]), (Player) _player);
+  }
 
-    @Override
-    public void setCharactersStartingAt(int x, int y, String chars) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream os = new DataOutputStream(baos);
-            os.writeInt(x);
-            os.writeInt(y);
-            os.writeUTF(chars);
-            PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.SET_CHARACTERS_IN_CONSOLE, baos.toByteArray()), (Player) _player);
-        } catch (IOException exp) {
-            // Can't happen, we're writing to ByteArrayOutputStream
-        }
+  @Override
+  public void setScreenState(String[] screen) {
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      DataOutputStream os = new DataOutputStream(baos);
+      for (String s : screen)
+        os.writeUTF(s);
+      PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.SET_CONSOLE_STATE, baos.toByteArray()), (Player) _player);
+    } catch (IOException exp) {
+      // Can't happen, we're writing to ByteArrayOutputStream
     }
+  }
 
-    @Override
-    public void appendLines(String[] lines) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream os = new DataOutputStream(baos);
-            os.writeInt(lines.length);
-            for (String line : lines)
-                os.writeUTF(line);
-            PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.APPEND_LINES_TO_CONSOLE, baos.toByteArray()), (Player) _player);
-        } catch (IOException exp) {
-            // Can't happen, we're writing to ByteArrayOutputStream
-        }
+  @Override
+  public void setCharactersStartingAt(int x, int y, String chars) {
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      DataOutputStream os = new DataOutputStream(baos);
+      os.writeInt(x);
+      os.writeInt(y);
+      os.writeUTF(chars);
+      PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.SET_CHARACTERS_IN_CONSOLE, baos.toByteArray()), (Player) _player);
+    } catch (IOException exp) {
+      // Can't happen, we're writing to ByteArrayOutputStream
     }
+  }
+
+  @Override
+  public void appendLines(String[] lines) {
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      DataOutputStream os = new DataOutputStream(baos);
+      os.writeInt(lines.length);
+      for (String line : lines)
+        os.writeUTF(line);
+      PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.APPEND_LINES_TO_CONSOLE, baos.toByteArray()), (Player) _player);
+    } catch (IOException exp) {
+      // Can't happen, we're writing to ByteArrayOutputStream
+    }
+  }
 }

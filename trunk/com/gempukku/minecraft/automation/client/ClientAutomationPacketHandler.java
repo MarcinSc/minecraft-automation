@@ -15,76 +15,86 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 public class ClientAutomationPacketHandler implements IPacketHandler {
-    @Override
-    public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) {
-        final String channel = packet.channel;
-        if (channel.equals(Automation.UPDATE_COMPUTER_LABEL)) {
-            DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
-            try {
-                int compId = is.readInt();
-                String label = is.readUTF();
-                Automation.getClientProxy().getRegistry().updateComputerLabel(compId, label);
-            } catch (IOException exp) {
-                // Ignore
-            }
-        } else if (channel.equals(Automation.CLEAR_CONSOLE_SCREEN)) {
-            ComputerConsoleGui consoleGui = getComputerConsoleSafely();
-            if (consoleGui != null)
-                consoleGui.clearConsole();
-        } else if (channel.equals(Automation.SET_CONSOLE_STATE)) {
-            final ComputerConsoleGui consoleGui = getComputerConsoleSafely();
-            if (consoleGui != null) {
-                try {
-                    DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
-                    String[] console = new String[ComputerConsole.CONSOLE_HEIGHT];
-                    for (int i = 0; i < console.length; i++)
-                        console[i] = is.readUTF();
+  @Override
+  public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) {
+    final String channel = packet.channel;
+    if (channel.equals(Automation.UPDATE_COMPUTER_LABEL)) {
+      DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+      try {
+        int compId = is.readInt();
+        String label = is.readUTF();
+        Automation.getClientProxy().getRegistry().updateComputerLabel(compId, label);
+      } catch (IOException exp) {
+        // Ignore
+      }
+    } else if (channel.equals(Automation.CLEAR_CONSOLE_SCREEN)) {
+      ComputerConsoleGui consoleGui = getComputerConsoleSafely();
+      if (consoleGui != null)
+        consoleGui.clearConsole();
+    } else if (channel.equals(Automation.SET_CONSOLE_STATE)) {
+      final ComputerConsoleGui consoleGui = getComputerConsoleSafely();
+      if (consoleGui != null) {
+        try {
+          DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+          String[] console = new String[ComputerConsole.CONSOLE_HEIGHT];
+          for (int i = 0; i < console.length; i++)
+            console[i] = is.readUTF();
 
-                    consoleGui.setConsoleState(console);
-                } catch (IOException exp) {
-                    // TODO
-                }
-            }
-        } else if (channel.equals(Automation.SET_CHARACTERS_IN_CONSOLE)) {
-            final ComputerConsoleGui consoleGui = getComputerConsoleSafely();
-            if (consoleGui != null) {
-                try {
-                    DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
-                    int x = is.readInt();
-                    int y = is.readInt();
-                    String text = is.readUTF();
-
-                    consoleGui.setCharacters(x, y, text);
-                } catch (IOException exp) {
-                    // TODO
-                }
-            }
-        } else if (channel.equals(Automation.APPEND_LINES_TO_CONSOLE)) {
-            final ComputerConsoleGui consoleGui = getComputerConsoleSafely();
-            if (consoleGui != null) {
-                try {
-                    DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
-                    int linesCount = is.readInt();
-                    String[] lines = new String[linesCount];
-                    for (int i = 0; i < lines.length; i++)
-                        lines[i] = is.readUTF();
-
-                    consoleGui.appendLines(lines);
-                } catch (IOException exp) {
-                    // TODO
-                }
-            }
+          consoleGui.setConsoleState(console);
+        } catch (IOException exp) {
+          // TODO
         }
-    }
+      }
+    } else if (channel.equals(Automation.SET_CHARACTERS_IN_CONSOLE)) {
+      final ComputerConsoleGui consoleGui = getComputerConsoleSafely();
+      if (consoleGui != null) {
+        try {
+          DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+          int x = is.readInt();
+          int y = is.readInt();
+          String text = is.readUTF();
 
-    private ComputerConsoleGui getComputerConsoleSafely() {
-        if (Minecraft.getMinecraft().inGameHasFocus)
-            return null;
+          consoleGui.setCharacters(x, y, text);
+        } catch (IOException exp) {
+          // TODO
+        }
+      }
+    } else if (channel.equals(Automation.APPEND_LINES_TO_CONSOLE)) {
+      final ComputerConsoleGui consoleGui = getComputerConsoleSafely();
+      if (consoleGui != null) {
+        try {
+          DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+          int linesCount = is.readInt();
+          String[] lines = new String[linesCount];
+          for (int i = 0; i < lines.length; i++)
+            lines[i] = is.readUTF();
 
-        final GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        ComputerConsoleGui consoleGui = null;
-        if (currentScreen instanceof ComputerConsoleGui)
-            consoleGui = (ComputerConsoleGui) currentScreen;
-        return consoleGui;
+          consoleGui.appendLines(lines);
+        } catch (IOException exp) {
+          // TODO
+        }
+      }
+    } else if (channel.equals(Automation.PROGRAM_TEXT)) {
+      ComputerConsoleGui consoleGui = getComputerConsoleSafely();
+      if (consoleGui != null) {
+        try {
+          DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+          String programText = is.readUTF();
+          consoleGui.setProgramText(programText);
+        } catch (IOException exp) {
+          // TODO
+        }
+      }
     }
+  }
+
+  private ComputerConsoleGui getComputerConsoleSafely() {
+    if (Minecraft.getMinecraft().inGameHasFocus)
+      return null;
+
+    final GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+    if (currentScreen instanceof ComputerConsoleGui)
+      return (ComputerConsoleGui) currentScreen;
+    return null;
+  }
 }

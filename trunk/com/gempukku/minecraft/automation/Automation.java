@@ -34,114 +34,124 @@ import java.io.File;
 
 @Mod(modid = "MarcinSc_Automation", name = "Automation", version = "0.0")
 @NetworkMod(clientSideRequired = true,
-        clientPacketHandlerSpec = @NetworkMod.SidedPacketHandler(channels = {Automation.UPDATE_COMPUTER_LABEL}, packetHandler = ClientAutomationPacketHandler.class),
-        serverPacketHandlerSpec = @NetworkMod.SidedPacketHandler(channels = {Automation.UPDATE_COMPUTER_LABEL}, packetHandler = ServerAutomationPacketHandler.class))
+        clientPacketHandlerSpec = @NetworkMod.SidedPacketHandler(
+                channels = {Automation.CLEAR_CONSOLE_SCREEN,
+                        Automation.SET_CONSOLE_STATE, Automation.SET_CHARACTERS_IN_CONSOLE, Automation.APPEND_LINES_TO_CONSOLE,
+                        Automation.PROGRAM_TEXT},
+                packetHandler = ClientAutomationPacketHandler.class),
+        serverPacketHandlerSpec = @NetworkMod.SidedPacketHandler(
+                channels = {Automation.UPDATE_COMPUTER_LABEL, Automation.CLIENT_INIT,
+                        Automation.DOWNLOAD_PROGRAM, Automation.SAVE_PROGRAM},
+                packetHandler = ServerAutomationPacketHandler.class))
 public class Automation {
-    private static final String AUTOMATION_CHANNEL_PREFIX = "automation.";
-    public static final String CLIENT_INIT = AUTOMATION_CHANNEL_PREFIX + "1";
-    public static final String UPDATE_COMPUTER_LABEL = AUTOMATION_CHANNEL_PREFIX + "2";
-    public static final String CLEAR_CONSOLE_SCREEN = AUTOMATION_CHANNEL_PREFIX + "3";
-    public static final String SET_CONSOLE_STATE = AUTOMATION_CHANNEL_PREFIX + "4";
-    public static final String SET_CHARACTERS_IN_CONSOLE = AUTOMATION_CHANNEL_PREFIX + "5";
-    public static final String APPEND_LINES_TO_CONSOLE = AUTOMATION_CHANNEL_PREFIX + "6";
+  private static final String AUTOMATION_CHANNEL_PREFIX = "automation.";
+  public static final String CLIENT_INIT = AUTOMATION_CHANNEL_PREFIX + "1";
+  public static final String UPDATE_COMPUTER_LABEL = AUTOMATION_CHANNEL_PREFIX + "2";
+  public static final String CLEAR_CONSOLE_SCREEN = AUTOMATION_CHANNEL_PREFIX + "3";
+  public static final String SET_CONSOLE_STATE = AUTOMATION_CHANNEL_PREFIX + "4";
+  public static final String SET_CHARACTERS_IN_CONSOLE = AUTOMATION_CHANNEL_PREFIX + "5";
+  public static final String APPEND_LINES_TO_CONSOLE = AUTOMATION_CHANNEL_PREFIX + "6";
+  public static final String DOWNLOAD_PROGRAM = AUTOMATION_CHANNEL_PREFIX + "7";
+  public static final String PROGRAM_TEXT = AUTOMATION_CHANNEL_PREFIX + "8";
+  public static final String SAVE_PROGRAM = AUTOMATION_CHANNEL_PREFIX+"9";
 
-    @Mod.Instance("MarcinSc_Automation")
-    public static Automation instance;
+  @Mod.Instance("MarcinSc_Automation")
+  public static Automation instance;
 
-    private static File _modConfigDirectory;
+  private static File _modConfigDirectory;
 
-    public static ComputerBlock smallComputerBlock;
-    private static int _smallComputerBlockId;
+  public static ComputerBlock smallComputerBlock;
+  private static int _smallComputerBlockId;
 
-    public static Item terminalItem;
-    private static int _terminalItemId;
+  public static Item terminalItem;
+  private static int _terminalItemId;
 
-    public static Item moduleItem;
-    private static int _moduleItemId;
+  public static Item moduleItem;
+  private static int _moduleItemId;
 
-    public static final int GPS_MODULE_METADATA = 0;
-    public static final int STORAGE_MODULE_METADATA = 1;
-    public static final int MOBILITY_MODULE_METADATA = 2;
+  public static final int GPS_MODULE_METADATA = 0;
+  public static final int STORAGE_MODULE_METADATA = 1;
+  public static final int MOBILITY_MODULE_METADATA = 2;
 
-    @SidedProxy(clientSide = "com.gempukku.minecraft.automation.client.ClientAutomationProxy",
-            serverSide = "com.gempukku.minecraft.automation.server.ServerAutomationProxy")
-    public static AutomationProxy proxy;
+  @SidedProxy(clientSide = "com.gempukku.minecraft.automation.client.ClientAutomationProxy",
+          serverSide = "com.gempukku.minecraft.automation.server.ServerAutomationProxy")
+  public static AutomationProxy proxy;
 
-    private static ServerAutomationProxy _serverProxy;
-    private static ClientAutomationProxy _clientProxy;
+  private static ServerAutomationProxy _serverProxy;
+  private static ClientAutomationProxy _clientProxy;
 
-    @Mod.PreInit
-    public void preInitialize(FMLPreInitializationEvent evt) {
-        Configuration conf = new Configuration(evt.getSuggestedConfigurationFile());
-        conf.load();
-        _modConfigDirectory = evt.getModConfigurationDirectory();
-        _smallComputerBlockId = conf.getBlock("smallComputerBlock", 3624, "This is an ID of a computer block").getInt();
-        _moduleItemId = conf.getItem("computerModule", 4124, "This is an ID of a computer module item").getInt();
-        _terminalItemId = conf.getItem("keyboard", 4125, "This is an ID of a keyboard item").getInt();
+  @Mod.PreInit
+  public void preInitialize(FMLPreInitializationEvent evt) {
+    Configuration conf = new Configuration(evt.getSuggestedConfigurationFile());
+    conf.load();
+    _modConfigDirectory = evt.getModConfigurationDirectory();
+    _smallComputerBlockId = conf.getBlock("smallComputerBlock", 3624, "This is an ID of a computer block").getInt();
+    _moduleItemId = conf.getItem("computerModule", 4124, "This is an ID of a computer module item").getInt();
+    _terminalItemId = conf.getItem("keyboard", 4125, "This is an ID of a keyboard item").getInt();
+  }
+
+  @Mod.Init
+  public void initialize(FMLInitializationEvent evt) {
+    smallComputerBlock = new SmallComputerBlock(_smallComputerBlockId, "small");
+
+    moduleItem = new ComputerModuleItem(_moduleItemId);
+    terminalItem = new ItemTerminal(_terminalItemId);
+
+    GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
+    GameRegistry.registerBlock(smallComputerBlock, "smallComputer");
+    GameRegistry.registerItem(moduleItem, "computerModule");
+    GameRegistry.registerItem(terminalItem, "terminal");
+    GameRegistry.registerItem(new ComputerItemBlock(_smallComputerBlockId - 256, smallComputerBlock), "smallComputerItem");
+
+    LanguageRegistry.addName(smallComputerBlock, "Computer");
+    LanguageRegistry.addName(terminalItem, "Terminal");
+
+    TickRegistry.registerTickHandler(
+            new TickComputers(), Side.SERVER);
+
+    proxy.initialize(_modConfigDirectory);
+
+    NetworkRegistry.instance().registerGuiHandler(instance, new ComputerGuiHandler());
+  }
+
+  @Mod.PostInit
+  public void postInitialize(FMLPostInitializationEvent evt) {
+    proxy.getRegistry().registerComputerSpec(smallComputerBlock, new ComputerSpec("small", 100, 100 * 1024, 100));
+
+    proxy.getRegistry().registerComputerModule(moduleItem, GPS_MODULE_METADATA, new GPSModule());
+    proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
+    proxy.getRegistry().registerComputerModule(moduleItem, MOBILITY_MODULE_METADATA, new MobilityModule());
+  }
+
+  public static synchronized ServerAutomationProxy getServerProxy() {
+    if (_serverProxy == null) {
+      if (proxy instanceof ServerAutomationProxy)
+        _serverProxy = (ServerAutomationProxy) proxy;
+      else
+        _serverProxy = createServerProxy();
     }
+    return _serverProxy;
+  }
 
-    @Mod.Init
-    public void initialize(FMLInitializationEvent evt) {
-        smallComputerBlock = new SmallComputerBlock(_smallComputerBlockId, "small");
-
-        moduleItem = new ComputerModuleItem(_moduleItemId);
-        terminalItem = new ItemTerminal(_terminalItemId);
-
-        GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
-        GameRegistry.registerBlock(smallComputerBlock, "smallComputer");
-        GameRegistry.registerItem(moduleItem, "computerModule");
-        GameRegistry.registerItem(terminalItem, "terminal");
-        GameRegistry.registerItem(new ComputerItemBlock(_smallComputerBlockId - 256, smallComputerBlock), "smallComputerItem");
-
-        LanguageRegistry.addName(smallComputerBlock, "Computer");
-        LanguageRegistry.addName(terminalItem, "Terminal");
-
-        TickRegistry.registerTickHandler(
-                new TickComputers(), Side.SERVER);
-
-        proxy.initialize(_modConfigDirectory);
-
-        NetworkRegistry.instance().registerGuiHandler(instance, new ComputerGuiHandler());
+  public static synchronized ClientAutomationProxy getClientProxy() {
+    if (_clientProxy == null) {
+      if (proxy instanceof ClientAutomationProxy)
+        _clientProxy = (ClientAutomationProxy) proxy;
+      else
+        _clientProxy = createClientProxy();
     }
+    return _clientProxy;
+  }
 
-    @Mod.PostInit
-    public void postInitialize(FMLPostInitializationEvent evt) {
-        proxy.getRegistry().registerComputerSpec(smallComputerBlock, new ComputerSpec("small", 100, 100 * 1024, 100));
+  private static ClientAutomationProxy createClientProxy() {
+    ClientAutomationProxy proxy = new ClientAutomationProxy();
+    proxy.initialize(_modConfigDirectory);
+    return proxy;
+  }
 
-        proxy.getRegistry().registerComputerModule(moduleItem, GPS_MODULE_METADATA, new GPSModule());
-        proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
-        proxy.getRegistry().registerComputerModule(moduleItem, MOBILITY_MODULE_METADATA, new MobilityModule());
-    }
-
-    public static synchronized ServerAutomationProxy getServerProxy() {
-        if (_serverProxy == null) {
-            if (proxy instanceof ServerAutomationProxy)
-                _serverProxy = (ServerAutomationProxy) proxy;
-            else
-                _serverProxy = createServerProxy();
-        }
-        return _serverProxy;
-    }
-
-    public static synchronized ClientAutomationProxy getClientProxy() {
-        if (_clientProxy == null) {
-            if (proxy instanceof ClientAutomationProxy)
-                _clientProxy = (ClientAutomationProxy) proxy;
-            else
-                _clientProxy = createClientProxy();
-        }
-        return _clientProxy;
-    }
-
-    private static ClientAutomationProxy createClientProxy() {
-        ClientAutomationProxy proxy = new ClientAutomationProxy();
-        proxy.initialize(_modConfigDirectory);
-        return proxy;
-    }
-
-    private static ServerAutomationProxy createServerProxy() {
-        ServerAutomationProxy proxy = new ServerAutomationProxy();
-        proxy.initialize(_modConfigDirectory);
-        return proxy;
-    }
+  private static ServerAutomationProxy createServerProxy() {
+    ServerAutomationProxy proxy = new ServerAutomationProxy();
+    proxy.initialize(_modConfigDirectory);
+    return proxy;
+  }
 }

@@ -63,12 +63,6 @@ public class ComputerItemBlock extends ItemBlock {
         return Automation.proxy.getRegistry().getComputerLabel(null, itemStack.getItemDamage());
     }
 
-//    @Override
-//    public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer) {
-//        System.out.println("Item right clicked");
-//        return super.onItemRightClick(par1ItemStack, par2World, par3EntityPlayer);
-//    }
-
     @Override
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
         int blockFacing = getBlockFacingForEntity(player);
