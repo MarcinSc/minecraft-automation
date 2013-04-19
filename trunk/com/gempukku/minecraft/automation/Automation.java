@@ -10,7 +10,7 @@ import com.gempukku.minecraft.automation.gui.computer.ComputerGuiHandler;
 import com.gempukku.minecraft.automation.item.ComputerItemBlock;
 import com.gempukku.minecraft.automation.item.ItemTerminal;
 import com.gempukku.minecraft.automation.module.gps.ComputerModuleItem;
-import com.gempukku.minecraft.automation.module.gps.GPSModule;
+import com.gempukku.minecraft.automation.module.gps.PositioningModule;
 import com.gempukku.minecraft.automation.module.mobility.MobilityModule;
 import com.gempukku.minecraft.automation.module.storage.StorageModule;
 import com.gempukku.minecraft.automation.program.TickComputers;
@@ -75,7 +75,7 @@ public class Automation {
 	public static Item moduleItem;
 	private static int _moduleItemId;
 
-	public static final int GPS_MODULE_METADATA = 0;
+	public static final int POSITIONING_MODULE_METADATA = 0;
 	public static final int STORAGE_MODULE_METADATA = 1;
 	public static final int MOBILITY_MODULE_METADATA = 2;
 
@@ -119,7 +119,7 @@ public class Automation {
 
 		GameRegistry.addShapedRecipe(new ItemStack(personalComputerBlock), "xyx", "xxx", 'x', ironIngot, 'y', redstone);
 		GameRegistry.addShapedRecipe(new ItemStack(terminalItem), "xyx", "zzz", 'x', redstone, 'y', glassPane, 'z', woodenButton);
-		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, GPS_MODULE_METADATA), " x ", " x ", "yzy", 'x', coal, 'y', ironIngot, 'z', redstone);
+		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, POSITIONING_MODULE_METADATA), " x ", " x ", "yzy", 'x', coal, 'y', ironIngot, 'z', redstone);
 		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, STORAGE_MODULE_METADATA), "xyx", "xzx", 'x', ironIngot, 'y', chest, 'z', redstone);
 		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, MOBILITY_MODULE_METADATA), "xxx", "yzy", "xxx", 'x', ironIngot, 'y', redstone, 'z', goldIngot);
 
@@ -138,7 +138,7 @@ public class Automation {
 	public void postInitialize(FMLPostInitializationEvent evt) {
 		proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 100, 100 * 1024, 100));
 
-		proxy.getRegistry().registerComputerModule(moduleItem, GPS_MODULE_METADATA, new GPSModule());
+		proxy.getRegistry().registerComputerModule(moduleItem, POSITIONING_MODULE_METADATA, new PositioningModule());
 		proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
 		proxy.getRegistry().registerComputerModule(moduleItem, MOBILITY_MODULE_METADATA, new MobilityModule());
 	}
