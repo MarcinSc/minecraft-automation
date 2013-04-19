@@ -2,7 +2,7 @@ package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.automation.block.ComputerBlock;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
-import com.gempukku.minecraft.automation.block.SmallComputerBlock;
+import com.gempukku.minecraft.automation.block.PersonalComputerBlock;
 import com.gempukku.minecraft.automation.client.ClientAutomationPacketHandler;
 import com.gempukku.minecraft.automation.client.ClientAutomationProxy;
 import com.gempukku.minecraft.automation.computer.ComputerSpec;
@@ -27,7 +27,9 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Configuration;
 
 import java.io.File;
@@ -64,7 +66,7 @@ public class Automation {
 
 	private static File _modConfigDirectory;
 
-	public static ComputerBlock smallComputerBlock;
+	public static ComputerBlock personalComputerBlock;
 	private static int _smallComputerBlockId;
 
 	public static Item terminalItem;
@@ -96,18 +98,32 @@ public class Automation {
 
 	@Mod.Init
 	public void initialize(FMLInitializationEvent evt) {
-		smallComputerBlock = new SmallComputerBlock(_smallComputerBlockId, "small");
+		personalComputerBlock = new PersonalComputerBlock(_smallComputerBlockId, "personal");
 
 		moduleItem = new ComputerModuleItem(_moduleItemId);
 		terminalItem = new ItemTerminal(_terminalItemId);
 
 		GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
-		GameRegistry.registerBlock(smallComputerBlock, "smallComputer");
+		GameRegistry.registerBlock(personalComputerBlock, "personalComputer");
 		GameRegistry.registerItem(moduleItem, "computerModule");
 		GameRegistry.registerItem(terminalItem, "terminal");
-		GameRegistry.registerItem(new ComputerItemBlock(_smallComputerBlockId - 256, smallComputerBlock), "smallComputerItem");
+		GameRegistry.registerItem(new ComputerItemBlock(_smallComputerBlockId - 256, personalComputerBlock), "personalComputerItem");
 
-		LanguageRegistry.addName(smallComputerBlock, "Computer");
+		final ItemStack ironIngot = new ItemStack(Item.ingotIron);
+		final ItemStack redstone = new ItemStack(Item.redstone);
+		final ItemStack glassPane = new ItemStack(Block.thinGlass);
+		final ItemStack woodenButton = new ItemStack(Block.woodenButton);
+		final ItemStack coal = new ItemStack(Item.coal);
+		final ItemStack chest = new ItemStack(Block.chest);
+		final ItemStack goldIngot = new ItemStack(Item.ingotGold);
+
+		GameRegistry.addShapedRecipe(new ItemStack(personalComputerBlock), "xyx", "xxx", 'x', ironIngot, 'y', redstone);
+		GameRegistry.addShapedRecipe(new ItemStack(terminalItem), "xyx", "zzz", 'x', redstone, 'y', glassPane, 'z', woodenButton);
+		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, GPS_MODULE_METADATA), " x ", " x ", "yzy", 'x', coal, 'y', ironIngot, 'z', redstone);
+		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, STORAGE_MODULE_METADATA), "xyx", "xzx", 'x', ironIngot, 'y', chest, 'z', redstone);
+		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, MOBILITY_MODULE_METADATA), "xxx", "yzy", "xxx", 'x', ironIngot, 'y', redstone, 'z', goldIngot);
+
+		LanguageRegistry.addName(personalComputerBlock, "Personal Computer");
 		LanguageRegistry.addName(terminalItem, "Terminal");
 
 		TickRegistry.registerTickHandler(
@@ -120,7 +136,7 @@ public class Automation {
 
 	@Mod.PostInit
 	public void postInitialize(FMLPostInitializationEvent evt) {
-		proxy.getRegistry().registerComputerSpec(smallComputerBlock, new ComputerSpec("small", 100, 100 * 1024, 100));
+		proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 100, 100 * 1024, 100));
 
 		proxy.getRegistry().registerComputerModule(moduleItem, GPS_MODULE_METADATA, new GPSModule());
 		proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
