@@ -5,7 +5,8 @@ import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
-import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.io.File;
 import java.io.FileReader;
@@ -24,28 +25,32 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 		_savesFolder = savesFolder;
 	}
 
-	@ForgeSubscribe
-	public void readServerComputerDataAndStoreInMemory(ComputerEvent.ComputerAddedToWorldEvent evt) {
-		final ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
-		final ServerComputerData computerData = readComputerDataFromDisk(
-						evt.getWorld().getWorldInfo().getDimension(),
-						computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord,
-						computerTileEntity.getFacing(),
-						computerTileEntity.getComputerId());
+	public void ensureComputerLoaded(World world, ComputerTileEntity computerTileEntity) {
+		final int computerId = computerTileEntity.getComputerId();
+		if (!_computerDataMap.containsKey(computerId)) {
+			final ServerComputerData computerData = readComputerDataFromDisk(computerTileEntity.worldObj.getWorldInfo().getDimension(),
+							computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing(), computerId);
+			_computerDataMap.put(computerId, computerData);
+			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, computerTileEntity));
+			System.out.println("Added to world: " + computerId);
+		}
 	}
 
-	@ForgeSubscribe
-	public void updateComputerCoordinatesAndFacing(ComputerEvent.ComputerMovedInWorldEvent evt) {
-		final ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
-		final ServerComputerData computerData = _computerDataMap.get(computerTileEntity.getComputerId());
-		computerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
-		computerData.setFacing(computerTileEntity.getFacing());
+	public void updateComputerDataCoordinatesAndFacing(ComputerTileEntity computerTileEntity) {
+		int computerId = computerTileEntity.getComputerId();
+		final ServerComputerData serverComputerData = _computerDataMap.get(computerId);
+		serverComputerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
+		serverComputerData.setFacing(computerTileEntity.getFacing());
+		MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerMovedInWorldEvent(computerTileEntity.worldObj, computerTileEntity));
 	}
 
-	@ForgeSubscribe
-	public void removeComputerFromMemory(ComputerEvent.ComputerRemovedFromWorldEvent evt) {
-		final ComputerTileEntity computerTileEntity = evt.getComputerTileEntity();
-		_computerDataMap.remove(computerTileEntity.getComputerId());
+	public void unloadComputer(ComputerTileEntity computerTileEntity) {
+		int computerId = computerTileEntity.getComputerId();
+		if (_computerDataMap.containsKey(computerId)) {
+			System.out.println("Removing from world: " + computerId);
+			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(computerTileEntity.worldObj, computerTileEntity));
+			_computerDataMap.remove(computerId);
+		}
 	}
 
 	@Override

@@ -24,6 +24,6 @@ public class MemberAccessStatement implements ExecutableStatement {
 
 	@Override
 	public boolean requiresSemicolon() {
-		return false;
+		return true;
 	}
 }

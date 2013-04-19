@@ -3,7 +3,6 @@ package com.gempukku.minecraft.automation.block;
 import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
-import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.gui.computer.ComputerGuiHandler;
 import com.gempukku.minecraft.automation.module.ComputerModule;
@@ -19,7 +18,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 
@@ -52,11 +50,12 @@ public abstract class ComputerBlock extends BlockContainer {
 		if (computerTileEntity != null) {
 			dropBlockAsItem_do(world, x, y, z, new ItemStack(this, 1, computerTileEntity.getComputerId()));
 			if (MinecraftUtils.isServer(world))
-				MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(world, computerTileEntity));
+				Automation.getServerProxy().getRegistry().unloadComputer(computerTileEntity);
 		}
 
 		super.breakBlock(world, x, y, z, par5, par6);
 	}
+
 
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -115,7 +114,7 @@ public abstract class ComputerBlock extends BlockContainer {
 		ComputerTileEntity computerEntity = populateTileEntityAfterPlacing(world, computerId, playerPlacing, blockFacing);
 		MinecraftUtils.setTileEntity(world, x, y, z, computerEntity);
 		if (MinecraftUtils.isServer(world))
-			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, computerEntity));
+			Automation.getServerProxy().getRegistry().ensureComputerLoaded(computerEntity);
 	}
 
 	private ComputerTileEntity populateTileEntityAfterPlacing(World world, int computerId, String playerPlacing, int blockFacing) {

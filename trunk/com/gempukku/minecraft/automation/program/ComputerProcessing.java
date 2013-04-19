@@ -1,7 +1,9 @@
 package com.gempukku.minecraft.automation.program;
 
 import com.gempukku.minecraft.MinecraftUtils;
+import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
+import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ComputerConsole;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
@@ -10,6 +12,7 @@ import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import com.gempukku.minecraft.automation.server.ServerAutomationRegistry;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.event.ForgeSubscribe;
 
 import java.io.File;
 import java.io.FileReader;
@@ -33,7 +36,9 @@ public class ComputerProcessing {
 		_scriptParser = new ScriptParser();
 	}
 
-	public void startupComputer(ServerComputerData computerData) {
+	@ForgeSubscribe
+	public void startupComputer(ComputerEvent.ComputerAddedToWorldEvent evt) {
+		final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(evt.getComputerTileEntity().getComputerId());
 		final ComputerConsole computerConsole = computerData.getConsole();
 		computerConsole.appendString("Staring startup program");
 		String startupProgramResult = startProgram(computerData.getId(), STARTUP_PROGRAM);
@@ -41,8 +46,9 @@ public class ComputerProcessing {
 			computerConsole.appendString(startupProgramResult);
 	}
 
-	public void shutdownComputer(ServerComputerData computerData) {
-		_runningPrograms.remove(computerData.getId());
+	@ForgeSubscribe
+	public void shutdownComputer(ComputerEvent.ComputerRemovedFromWorldEvent evt) {
+		_runningPrograms.remove(evt.getComputerTileEntity().getComputerId());
 	}
 
 	public String startProgram(int computerId, String name) {
