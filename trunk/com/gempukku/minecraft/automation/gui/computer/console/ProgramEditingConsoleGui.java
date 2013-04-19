@@ -100,6 +100,8 @@ public class ProgramEditingConsoleGui {
 			_compileError = exp;
 		} catch (IOException exp) {
 			// Ignore, we are reading from String
+		} catch (RuntimeException exp) {
+			exp.printStackTrace();
 		}
 	}
 
@@ -223,8 +225,8 @@ public class ProgramEditingConsoleGui {
 	private void setAllDirty() {
 		_programSaveDirty = true;
 		_programCompileDirty = true;
-    _compileSuccess = false;
-    _compileError = null;
+		_compileSuccess = false;
+		_compileError = null;
 		_ticksSinceLastModified = 0;
 	}
 
