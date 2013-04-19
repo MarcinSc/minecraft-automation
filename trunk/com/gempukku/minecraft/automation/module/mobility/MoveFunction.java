@@ -2,7 +2,6 @@ package com.gempukku.minecraft.automation.module.mobility;
 
 import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.MinecraftUtils;
-import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
@@ -58,10 +57,12 @@ public class MoveFunction extends JavaFunctionExecutable {
 		if (tileEntity == null)
 			return false;
 
+		final int blockId = world.getBlockId(computer.getX(), computer.getY(), computer.getZ());
+
 		world.setBlockToAir(computer.getX(), computer.getY(), computer.getZ());
 		world.removeBlockTileEntity(computer.getX(), computer.getY(), computer.getZ());
 
-		world.setBlock(newX, newY, newZ, Automation.personalComputerBlock.blockID, computer.getId(), 2);
+		world.setBlock(newX, newY, newZ, blockId, computer.getId(), 2);
 		MinecraftUtils.setTileEntity(world, newX, newY, newZ, tileEntity);
 		MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerMovedInWorldEvent(world, tileEntity));
 
