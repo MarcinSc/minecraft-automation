@@ -31,6 +31,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.io.File;
 
@@ -42,13 +43,12 @@ import java.io.File;
 												Automation.PROGRAM_TEXT, Automation.DISPLAY_EXECUTION_RESULT},
 								packetHandler = ClientAutomationPacketHandler.class),
 				serverPacketHandlerSpec = @NetworkMod.SidedPacketHandler(
-								channels = {Automation.UPDATE_COMPUTER_LABEL, Automation.CLIENT_INIT,
+								channels = {Automation.UPDATE_COMPUTER_LABEL,
 												Automation.DOWNLOAD_PROGRAM, Automation.SAVE_PROGRAM,
 												Automation.INIT_CONSOLE, Automation.EXECUTE_PROGRAM},
 								packetHandler = ServerAutomationPacketHandler.class))
 public class Automation {
 	private static final String AUTOMATION_CHANNEL_PREFIX = "automation.";
-	public static final String CLIENT_INIT = AUTOMATION_CHANNEL_PREFIX + "1";
 	public static final String UPDATE_COMPUTER_LABEL = AUTOMATION_CHANNEL_PREFIX + "2";
 	public static final String CLEAR_CONSOLE_SCREEN = AUTOMATION_CHANNEL_PREFIX + "3";
 	public static final String SET_CONSOLE_STATE = AUTOMATION_CHANNEL_PREFIX + "4";
@@ -131,13 +131,14 @@ public class Automation {
 						new TickComputers(), Side.SERVER);
 
 		proxy.initialize(_modConfigDirectory);
+		MinecraftForge.EVENT_BUS.register(proxy);
 
 		NetworkRegistry.instance().registerGuiHandler(instance, new ComputerGuiHandler());
 	}
 
 	@Mod.PostInit
 	public void postInitialize(FMLPostInitializationEvent evt) {
-		proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 100, 100 * 1024, 100));
+		proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 100, 100 * 1024, 1000));
 
 		proxy.getRegistry().registerComputerModule(moduleItem, POSITIONING_MODULE_METADATA, new PositioningModule());
 		proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());

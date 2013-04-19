@@ -5,6 +5,7 @@ import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import cpw.mods.fml.common.FMLLog;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -13,8 +14,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
 
 public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 	private Map<Integer, ServerComputerData> _computerDataMap = new HashMap<Integer, ServerComputerData>();
@@ -32,7 +35,9 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 							computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing(), computerId);
 			_computerDataMap.put(computerId, computerData);
 			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, computerTileEntity));
-			System.out.println("Added to world: " + computerId);
+			FMLLog.log("Automation", Level.FINE, "Added to world computer with id %d", computerId);
+		} else {
+			FMLLog.log("Automation", Level.WARNING, "Asked to load computer with id %d, but already had it", computerId);
 		}
 	}
 
@@ -47,27 +52,28 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 	public void unloadComputer(ComputerTileEntity computerTileEntity) {
 		int computerId = computerTileEntity.getComputerId();
 		if (_computerDataMap.containsKey(computerId)) {
-			System.out.println("Removing from world: " + computerId);
+			FMLLog.log("Automation", Level.FINE, "Removing from world computer with id %d", computerId);
 			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(computerTileEntity.worldObj, computerTileEntity));
 			_computerDataMap.remove(computerId);
+		} else {
+			FMLLog.log("Automation", Level.WARNING, "Asked to unload computer with id %d, but it wasn't there", computerId);
+		}
+	}
+
+	public void unloadComputersFromDimension(int dimension) {
+		final Iterator<ServerComputerData> computerIterator = _computerDataMap.values().iterator();
+		while (computerIterator.hasNext()) {
+			final ServerComputerData computer = computerIterator.next();
+			if (computer.getDimension() == dimension) {
+				FMLLog.log("Automation", Level.FINE, "Removing from world computer with id %d due to World unload", computer.getId());
+				computerIterator.remove();
+			}
 		}
 	}
 
 	@Override
 	public String getComputerLabel(int computerId) {
 		return readLabelFromDisk(computerId);
-	}
-
-	public int getComputerSpeed(String computerType) {
-		return getComputerSpecByType(computerType).speed;
-	}
-
-	public int getComputerMaxMemory(String computerType) {
-		return getComputerSpecByType(computerType).memory;
-	}
-
-	public int getComputerMaxStackSize(String computerType) {
-		return getComputerSpecByType(computerType).maxStackSize;
 	}
 
 	public int storeNewComputerData(String owner, String computerType) {

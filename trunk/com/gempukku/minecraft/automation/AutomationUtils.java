@@ -27,6 +27,8 @@ public class AutomationUtils {
 		final TileEntity tileEntity = blockAccess.getBlockTileEntity(x, y, z);
 		if (tileEntity != null && tileEntity instanceof ComputerTileEntity)
 			return (ComputerTileEntity) tileEntity;
+		System.err.println("Unable to get ComputerTileEntity, stack trace follows");
+		new Exception().fillInStackTrace().printStackTrace();
 		return null;
 	}
 

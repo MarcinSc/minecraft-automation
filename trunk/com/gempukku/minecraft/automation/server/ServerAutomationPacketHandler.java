@@ -31,10 +31,6 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
 			} catch (IOException exp) {
 				// Ignore
 			}
-		} else if (channel.equals(Automation.CLIENT_INIT)) {
-			// We need to initialize the server proxy, as if it's working in single-player mode, it might not be
-			// initialized yet
-			Automation.getServerProxy();
 		} else if (channel.equals(Automation.DOWNLOAD_PROGRAM)) {
 			ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
 			if (container != null) {

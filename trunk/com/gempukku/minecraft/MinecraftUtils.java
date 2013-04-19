@@ -1,5 +1,7 @@
 package com.gempukku.minecraft;
 
+import cpw.mods.fml.common.network.PacketDispatcher;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -18,8 +20,10 @@ public class MinecraftUtils {
 		world.setBlockTileEntity(x, y, z, tileEntity);
 	}
 
-	public static void updateTileEntity(World world, int x, int y, int z) {
-		world.markBlockForUpdate(x, y, z);
+	public static void sendTileEntityUpdateToPlayers(World world, TileEntity tileEntity) {
+		final Packet descriptionPacket = tileEntity.getDescriptionPacket();
+		if (descriptionPacket != null)
+			PacketDispatcher.sendPacketToAllAround(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, 64d, world.getWorldInfo().getDimension(), descriptionPacket);
 	}
 
 	public static String getWorldNameOnServer() {

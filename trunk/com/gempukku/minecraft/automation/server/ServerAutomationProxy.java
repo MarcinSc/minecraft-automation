@@ -1,12 +1,12 @@
 package com.gempukku.minecraft.automation.server;
 
-import com.gempukku.minecraft.automation.AutomationProxy;
+import com.gempukku.minecraft.automation.CommonAutomationProxy;
 import com.gempukku.minecraft.automation.program.ComputerProcessing;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.io.File;
 
-public class ServerAutomationProxy implements AutomationProxy {
+public class ServerAutomationProxy extends CommonAutomationProxy {
 	private ServerAutomationRegistry _automationRegistry;
 	private ComputerProcessing _programProcessing;
 

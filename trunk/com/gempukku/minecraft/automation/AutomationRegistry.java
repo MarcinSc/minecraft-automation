@@ -24,4 +24,6 @@ public interface AutomationRegistry {
 	public void registerComputerModule(Item moduleItem, int metadata, ComputerModule module);
 
 	public void registerComputerSpec(Block computerBlock, ComputerSpec computerSpec);
+
+	public ComputerSpec getComputerSpecByType(String computerType);
 }

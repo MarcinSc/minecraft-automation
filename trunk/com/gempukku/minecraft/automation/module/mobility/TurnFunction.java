@@ -39,7 +39,7 @@ public class TurnFunction extends JavaFunctionExecutable {
 
 		int newFacing = _left ? BoxSide.getLeft(computer.getFacing()) : BoxSide.getRight(computer.getFacing());
 		tileEntity.setFacing(newFacing);
-		MinecraftUtils.updateTileEntity(world, tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+		MinecraftUtils.sendTileEntityUpdateToPlayers(world, tileEntity);
 		Automation.getServerProxy().getRegistry().updateComputerDataCoordinatesAndFacing(tileEntity);
 
 		return true;

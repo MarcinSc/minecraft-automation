@@ -50,15 +50,15 @@ public class ServerComputerData {
 	}
 
 	public int getSpeed() {
-		return Automation.getServerProxy().getRegistry().getComputerSpeed(_computerType);
+		return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).speed;
 	}
 
 	public int getMaxStackSize() {
-		return Automation.getServerProxy().getRegistry().getComputerMaxStackSize(_computerType);
+		return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).maxStackSize;
 	}
 
 	public int getMaxMemory() {
-		return Automation.getServerProxy().getRegistry().getComputerMaxMemory(_computerType);
+		return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).memory;
 	}
 
 	public void appendToConsole(String text) {

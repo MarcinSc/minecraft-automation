@@ -1,6 +1,5 @@
 package com.gempukku.minecraft.automation.block;
 
-import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,7 +11,6 @@ import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -261,6 +259,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 	@Override
 	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt) {
 		readFromNBT(pkt.customParam1);
+		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 
 	@Override
@@ -291,20 +290,6 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 			if (j >= 0 && j < itemSlotCount)
 				_inventory[j] = ItemStack.loadItemStackFromNBT(itemData);
 		}
-	}
-
-	@Override
-	public void setWorldObj(World par1World) {
-		super.setWorldObj(par1World);
-
-		if (MinecraftUtils.isServer(worldObj) && _computerId != 0)
-			Automation.getServerProxy().getRegistry().ensureComputerLoaded(worldObj, this);
-	}
-
-	@Override
-	public void onChunkUnload() {
-		if (MinecraftUtils.isServer(worldObj) && _computerId != 0)
-			Automation.getServerProxy().getRegistry().unloadComputer(this);
 	}
 
 	@Override

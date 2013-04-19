@@ -1,10 +1,10 @@
 package com.gempukku.minecraft.automation.client;
 
-import com.gempukku.minecraft.automation.AutomationProxy;
+import com.gempukku.minecraft.automation.CommonAutomationProxy;
 
 import java.io.File;
 
-public class ClientAutomationProxy implements AutomationProxy {
+public class ClientAutomationProxy extends CommonAutomationProxy {
 	private ClientAutomationRegistry _automationRegistry;
 
 	@Override

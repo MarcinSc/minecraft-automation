@@ -20,8 +20,8 @@ public class RunningProgram {
 
 	public void progressProgram() {
 		_speedConsumed -= _computerData.getSpeed();
-		while (_speedConsumed <= 0) {
-			try {
+		try {
+			while (_speedConsumed <= 0) {
 				final ExecutionProgress executionProgress = _executionContext.executeNext();
 				if (_executionContext.getStackTraceSize() > _computerData.getMaxStackSize())
 					throw new ExecutionException("StackOverflow");
@@ -33,10 +33,10 @@ public class RunningProgram {
 					_running = false;
 					return;
 				}
-			} catch (ExecutionException exp) {
-				_computerData.appendToConsole("ExecutionException - " + exp.getMessage());
-				_running = false;
 			}
+		} catch (ExecutionException exp) {
+			_computerData.appendToConsole("ExecutionException - " + exp.getMessage());
+			_running = false;
 		}
 	}
 

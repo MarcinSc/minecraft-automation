@@ -8,6 +8,7 @@ import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ComputerConsole;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.os.OSObjectDefinition;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import com.gempukku.minecraft.automation.server.ServerAutomationRegistry;
@@ -36,11 +37,16 @@ public class ComputerProcessing {
 		_scriptParser = new ScriptParser();
 	}
 
+	public boolean isRunningProgram(int computerId) {
+		return _runningPrograms.containsKey(computerId);
+	}
+
 	@ForgeSubscribe
 	public void startupComputer(ComputerEvent.ComputerAddedToWorldEvent evt) {
 		final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(evt.getComputerTileEntity().getComputerId());
 		final ComputerConsole computerConsole = computerData.getConsole();
 		computerConsole.appendString("Staring startup program");
+		updateProgramRunning(computerData, false);
 		String startupProgramResult = startProgram(computerData.getId(), STARTUP_PROGRAM);
 		if (startupProgramResult != null)
 			computerConsole.appendString(startupProgramResult);
@@ -67,10 +73,15 @@ public class ComputerProcessing {
 
 			MinecraftComputerExecutionContext exec = initExecutionContext(computerData);
 			CallContext context = new CallContext(null, false, true);
+			try {
+				context.defineVariable("os").setValue(new OSObjectDefinition());
+			} catch (ExecutionException exp) {
+				// Ignore
+			}
 			exec.stackExecutionGroup(context, parsedScript.createExecution(context));
 			_runningPrograms.put(computerId, new RunningProgram(computerData, exec));
 
-			setProgramRunning(computerData, true);
+			updateProgramRunning(computerData, true);
 
 			return null;
 		} catch (IllegalSyntaxException exp) {
@@ -85,7 +96,7 @@ public class ComputerProcessing {
 		final RunningProgram stoppedProgram = _runningPrograms.remove(computerId);
 		if (stoppedProgram != null) {
 			final ServerComputerData computerData = stoppedProgram.getComputerData();
-			setProgramRunning(computerData, false);
+			updateProgramRunning(computerData, false);
 		}
 		return null;
 	}
@@ -134,16 +145,16 @@ public class ComputerProcessing {
 			if (!program.isRunning()) {
 				iterator.remove();
 				final ServerComputerData computerData = program.getComputerData();
-				setProgramRunning(computerData, false);
+				updateProgramRunning(computerData, false);
 			}
 		}
 	}
 
-	private void setProgramRunning(ServerComputerData computerData, boolean running) {
+	private void updateProgramRunning(ServerComputerData computerData, boolean running) {
 		ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(computerData);
 		if (computerTileEntity != null) {
 			computerTileEntity.setRunningProgram(running);
-			MinecraftUtils.updateTileEntity(DimensionManager.getWorld(computerData.getDimension()), computerData.getX(), computerData.getY(), computerData.getZ());
+			MinecraftUtils.sendTileEntityUpdateToPlayers(DimensionManager.getWorld(computerData.getDimension()), computerTileEntity);
 		}
 	}
 
