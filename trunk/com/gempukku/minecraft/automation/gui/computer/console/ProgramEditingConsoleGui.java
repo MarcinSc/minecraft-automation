@@ -110,17 +110,12 @@ public class ProgramEditingConsoleGui {
 			_editedProgramCursorY++;
 			setDirty(true);
 		} else if (keyboardCharId == Keyboard.KEY_S && _computerConsoleGui.isCtrlKeyDown()) {
-			StringBuilder program = new StringBuilder();
-			for (int i = 0; i < _editedProgramLines.size(); i++) {
-				if (i > 0)
-					program.append("\n");
-				program.append(_editedProgramLines.get(i));
-			}
+			String program = getProgramText();
 			try {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				DataOutputStream os = new DataOutputStream(baos);
 				os.writeUTF(_editedProgramName);
-				os.writeUTF(program.toString());
+				os.writeUTF(program);
 				PacketDispatcher.sendPacketToServer(new Packet250CustomPayload(Automation.SAVE_PROGRAM, baos.toByteArray()));
 				setDirty(false);
 			} catch (IOException exp) {
@@ -131,6 +126,16 @@ public class ProgramEditingConsoleGui {
 		// Adjust cursor X position to be within the program line
 		if (_editedProgramCursorX > _editedProgramLines.get(_editedProgramCursorY).length())
 			_editedProgramCursorX = _editedProgramLines.get(_editedProgramCursorY).length();
+	}
+
+	private String getProgramText() {
+		StringBuilder program = new StringBuilder();
+		for (int i = 0; i < _editedProgramLines.size(); i++) {
+			if (i > 0)
+				program.append("\n");
+			program.append(_editedProgramLines.get(i));
+		}
+		return program.toString();
 	}
 
 	public void reset(String programName) {
