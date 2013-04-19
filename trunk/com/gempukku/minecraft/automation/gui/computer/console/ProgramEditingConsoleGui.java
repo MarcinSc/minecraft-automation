@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProgramEditingConsoleGui {
-	private static final int COMPILE_TICK_DELAY = 50;
+	private static final int COMPILE_TICK_DELAY = 30;
 	private static final int BLINK_LENGTH = 20;
 	private static final int PROGRAM_TEXT_COLOR = 0xffffffff;
 	private static final int PROGRAM_CURSOR_COLOR = 0xffff0000;
@@ -223,6 +223,8 @@ public class ProgramEditingConsoleGui {
 	private void setAllDirty() {
 		_programSaveDirty = true;
 		_programCompileDirty = true;
+    _compileSuccess = false;
+    _compileError = null;
 		_ticksSinceLastModified = 0;
 	}
 
