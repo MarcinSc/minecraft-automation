@@ -224,6 +224,9 @@ public class ComputerConsoleGui extends GuiScreen {
 		}
 	}
 
+	protected void exitProgramming() {
+		_editingProgram = false;
+	}
 
 	protected void executeCommand(String command) {
 		String[] commandParts = command.split(" ");

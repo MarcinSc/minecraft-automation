@@ -13,7 +13,7 @@ public class PlayerCommandConsoleGui {
 	private int _cursorPositionInPlayerCommand = 0;
 	private int _currentCommandDisplayStartIndex = 0;
 
-	private int _blinkTick;
+	private int _blinkDrawTick;
 
 	private ComputerConsoleGui _computerConsoleGui;
 
@@ -34,8 +34,8 @@ public class PlayerCommandConsoleGui {
 		final int lastLineY = ComputerConsoleGui.FONT_HEIGHT * (ComputerConsole.CONSOLE_HEIGHT - 1);
 		_computerConsoleGui.drawMonospacedLine(commandLine, 0, lastLineY, PLAYER_CONSOLE_TEXT_COLOR);
 
-		_blinkTick = ((++_blinkTick) % BLINK_LENGTH);
-		if (_blinkTick * 2 > BLINK_LENGTH)
+		_blinkDrawTick = ((++_blinkDrawTick) % BLINK_LENGTH);
+		if (_blinkDrawTick * 2 > BLINK_LENGTH)
 			_computerConsoleGui.drawVerticalLine(cursorPositionInDisplayedCommandLine * ComputerConsoleGui.CHARACTER_WIDTH - 1, 1 + lastLineY, lastLineY + ComputerConsoleGui.FONT_HEIGHT, PLAYER_CONSOLE_CURSOR_COLOR);
 	}
 
