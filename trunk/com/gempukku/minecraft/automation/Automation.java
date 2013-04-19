@@ -116,10 +116,11 @@ public class Automation {
 		final ItemStack coal = new ItemStack(Item.coal);
 		final ItemStack chest = new ItemStack(Block.chest);
 		final ItemStack goldIngot = new ItemStack(Item.ingotGold);
+		final ItemStack compass = new ItemStack(Item.compass);
 
 		GameRegistry.addShapedRecipe(new ItemStack(personalComputerBlock), "xyx", "xxx", 'x', ironIngot, 'y', redstone);
 		GameRegistry.addShapedRecipe(new ItemStack(terminalItem), "xyx", "zzz", 'x', redstone, 'y', glassPane, 'z', woodenButton);
-		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, POSITIONING_MODULE_METADATA), " x ", " x ", "yzy", 'x', coal, 'y', ironIngot, 'z', redstone);
+		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, POSITIONING_MODULE_METADATA), " x ", " x ", "yzy", 'x', coal, 'y', ironIngot, 'z', compass);
 		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, STORAGE_MODULE_METADATA), "xyx", "xzx", 'x', ironIngot, 'y', chest, 'z', redstone);
 		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, MOBILITY_MODULE_METADATA), "xxx", "yzy", "xxx", 'x', ironIngot, 'y', redstone, 'z', goldIngot);
 
