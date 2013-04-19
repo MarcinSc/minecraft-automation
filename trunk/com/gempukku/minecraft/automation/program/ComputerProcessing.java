@@ -1,9 +1,7 @@
 package com.gempukku.minecraft.automation.program;
 
 import com.gempukku.minecraft.MinecraftUtils;
-import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
-import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ComputerConsole;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
@@ -11,8 +9,7 @@ import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import com.gempukku.minecraft.automation.server.ServerAutomationRegistry;
-import net.minecraft.world.World;
-import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.common.DimensionManager;
 
 import java.io.File;
 import java.io.FileReader;
@@ -36,31 +33,27 @@ public class ComputerProcessing {
 		_scriptParser = new ScriptParser();
 	}
 
-	@ForgeSubscribe
-	public void computerAddedToWorld(ComputerEvent.ComputerAddedToWorldEvent evt) {
-		final int computerId = evt.getComputerTileEntity().getComputerId();
-		final ComputerConsole computerConsole = Automation.getServerProxy().getRegistry().getComputerData(evt.getWorld(), computerId).getConsole();
+	public void startupComputer(ServerComputerData computerData) {
+		final ComputerConsole computerConsole = computerData.getConsole();
 		computerConsole.appendString("Staring startup program");
-		String startupProgramResult = startProgram(evt.getWorld(), computerId, STARTUP_PROGRAM);
+		String startupProgramResult = startProgram(computerData.getId(), STARTUP_PROGRAM);
 		if (startupProgramResult != null)
 			computerConsole.appendString(startupProgramResult);
 	}
 
-	@ForgeSubscribe
-	public void computerRemovedFromWorld(ComputerEvent.ComputerRemovedFromWorldEvent evt) {
-		final int computerId = evt.getComputerTileEntity().getComputerId();
-		_runningPrograms.remove(computerId);
+	public void shutdownComputer(ServerComputerData computerData) {
+		_runningPrograms.remove(computerData.getId());
 	}
 
-	public String startProgram(World world, int computerId, String name) {
+	public String startProgram(int computerId, String name) {
 		if (_runningPrograms.containsKey(computerId))
 			return "Computer already runs a program.";
 
-		final File computerProgram = getComputerProgram(world.getWorldInfo().getWorldName(), computerId, name);
+		final File computerProgram = getComputerProgram(computerId, name);
 		if (computerProgram == null)
 			return "Cannot find program " + name + ".";
 
-		final ServerComputerData computerData = _registry.getComputerData(world, computerId);
+		final ServerComputerData computerData = _registry.getComputerData(computerId);
 		try {
 			ScriptExecutable parsedScript = parseScript(computerProgram);
 			if (parsedScript == null)
@@ -71,7 +64,7 @@ public class ComputerProcessing {
 			exec.stackExecutionGroup(context, parsedScript.createExecution(context));
 			_runningPrograms.put(computerId, new RunningProgram(computerData, exec));
 
-			setProgramRunning(world, computerData, true);
+			setProgramRunning(computerData, true);
 
 			return null;
 		} catch (IllegalSyntaxException exp) {
@@ -79,20 +72,20 @@ public class ComputerProcessing {
 		}
 	}
 
-	public String stopProgram(World world, int computerId) {
+	public String stopProgram(int computerId) {
 		if (!_runningPrograms.containsKey(computerId))
 			return "Computer is not running any programs.";
 
 		final RunningProgram stoppedProgram = _runningPrograms.remove(computerId);
 		if (stoppedProgram != null) {
 			final ServerComputerData computerData = stoppedProgram.getComputerData();
-			setProgramRunning(world, computerData, false);
+			setProgramRunning(computerData, false);
 		}
 		return null;
 	}
 
-	public List<String> listPrograms(String worldName, int computerId) {
-		final File computerFolder = getComputerFolder(worldName, computerId);
+	public List<String> listPrograms(int computerId) {
+		final File computerFolder = getComputerFolder(computerId);
 		if (computerFolder == null)
 			return null;
 		final File[] files = computerFolder.listFiles();
@@ -103,8 +96,8 @@ public class ComputerProcessing {
 		return result;
 	}
 
-	public String getProgram(String worldName, int computerId, String programName) {
-		File computerProgramFile = getComputerProgramFile(worldName, computerId, programName);
+	public String getProgram(int computerId, String programName) {
+		File computerProgramFile = getComputerProgramFile(computerId, programName);
 		if (computerProgramFile.exists() && computerProgramFile.isFile()) {
 			return readFileContents(computerProgramFile);
 		} else {
@@ -112,8 +105,8 @@ public class ComputerProcessing {
 		}
 	}
 
-	public void saveProgram(String worldName, int id, String programName, String programText) {
-		File computerProgramFile = getComputerProgramFile(worldName, id, programName);
+	public void saveProgram(int id, String programName, String programText) {
+		File computerProgramFile = getComputerProgramFile(id, programName);
 		computerProgramFile.getParentFile().mkdirs();
 		try {
 			FileWriter writer = new FileWriter(computerProgramFile);
@@ -127,24 +120,24 @@ public class ComputerProcessing {
 		}
 	}
 
-	public void tickComputers(World world) {
+	public void tickComputers() {
 		final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
 		while (iterator.hasNext()) {
 			final RunningProgram program = iterator.next();
-			program.progressProgram(world);
+			program.progressProgram();
 			if (!program.isRunning()) {
 				iterator.remove();
 				final ServerComputerData computerData = program.getComputerData();
-				setProgramRunning(world, computerData, false);
+				setProgramRunning(computerData, false);
 			}
 		}
 	}
 
-	private void setProgramRunning(World world, ServerComputerData computerData, boolean running) {
-		ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
+	private void setProgramRunning(ServerComputerData computerData, boolean running) {
+		ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(computerData);
 		if (computerTileEntity != null) {
 			computerTileEntity.setRunningProgram(running);
-			MinecraftUtils.updateTileEntity(world, computerData.getX(), computerData.getY(), computerData.getZ());
+			MinecraftUtils.updateTileEntity(DimensionManager.getWorld(computerData.getDimension()), computerData.getX(), computerData.getY(), computerData.getZ());
 		}
 	}
 
@@ -191,8 +184,8 @@ public class ComputerProcessing {
 		}
 	}
 
-	private File getComputerProgram(String worldName, int computerId, String name) {
-		final File computerFolder = getComputerFolder(worldName, computerId);
+	private File getComputerProgram(int computerId, String name) {
+		final File computerFolder = getComputerFolder(computerId);
 		if (computerFolder == null)
 			return null;
 		File program = new File(computerFolder, name + ".ajs");
@@ -201,12 +194,12 @@ public class ComputerProcessing {
 		return null;
 	}
 
-	private File getComputerProgramFile(String worldName, int computerId, String name) {
-		return new File(AutomationUtils.getComputerSavesFolder(_savesFolder, worldName, computerId), name + ".ajs");
+	private File getComputerProgramFile(int computerId, String name) {
+		return new File(AutomationUtils.getComputerSavesFolder(_savesFolder, computerId), name + ".ajs");
 	}
 
-	private File getComputerFolder(String worldName, int computerId) {
-		File computerFolder = AutomationUtils.getComputerSavesFolder(_savesFolder, worldName, computerId);
+	private File getComputerFolder(int computerId) {
+		File computerFolder = AutomationUtils.getComputerSavesFolder(_savesFolder, computerId);
 		if (computerFolder.exists() && computerFolder.isDirectory())
 			return computerFolder;
 		return null;

@@ -1,6 +1,7 @@
 package com.gempukku.minecraft.automation.module.mobility;
 
 import com.gempukku.minecraft.BoxSide;
+import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
@@ -23,7 +24,8 @@ public class CanMoveFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(ServerComputerData computer, World world, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		final World world = AutomationUtils.getWorldComputerIsIn(computer);
 		final int facing = computer.getFacing();
 		Variable sideVar = parameters.get("direction");
 

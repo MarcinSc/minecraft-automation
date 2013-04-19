@@ -28,7 +28,8 @@ public class MoveFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(ServerComputerData computer, World world, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		World world = AutomationUtils.getWorldComputerIsIn(computer);
 		final int facing = computer.getFacing();
 		Variable sideVar = parameters.get("direction");
 
@@ -56,7 +57,7 @@ public class MoveFunction extends JavaFunctionExecutable {
 		if (!blockMaterial.isReplaceable())
 			return false;
 
-		final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
+		final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(computer);
 		if (tileEntity == null)
 			return false;
 

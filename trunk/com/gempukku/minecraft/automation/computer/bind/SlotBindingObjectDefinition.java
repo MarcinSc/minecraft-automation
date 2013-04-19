@@ -11,26 +11,26 @@ import com.gempukku.minecraft.automation.lang.Variable;
 import com.gempukku.minecraft.automation.module.ComputerModule;
 
 public class SlotBindingObjectDefinition implements ObjectDefinition {
-    private ServerComputerData _computerData;
-    private int _slotNo;
+	private ServerComputerData _computerData;
+	private int _slotNo;
 
-    public SlotBindingObjectDefinition(ServerComputerData computerData, int slotNo) {
-        _computerData = computerData;
-        _slotNo = slotNo;
-    }
+	public SlotBindingObjectDefinition(ServerComputerData computerData, int slotNo) {
+		_computerData = computerData;
+		_slotNo = slotNo;
+	}
 
-    @Override
-    public Variable getMember(ExecutionContext context, String name) {
-        final MinecraftComputerExecutionContext minecraftExecutionContext = (MinecraftComputerExecutionContext) context;
-        final ServerComputerData computerData = minecraftExecutionContext.getComputerData();
-        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(minecraftExecutionContext.getWorld(), computerData);
-        if (computerTileEntity == null)
-            return null;
-        final ComputerModule module = computerTileEntity.getModule(_slotNo);
-        if (module == null)
-            return new Variable(null);
+	@Override
+	public Variable getMember(ExecutionContext context, String name) {
+		final MinecraftComputerExecutionContext minecraftExecutionContext = (MinecraftComputerExecutionContext) context;
+		final ServerComputerData computerData = minecraftExecutionContext.getComputerData();
+		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(computerData);
+		if (computerTileEntity == null)
+			return null;
+		final ComputerModule module = computerTileEntity.getModule(_slotNo);
+		if (module == null)
+			return new Variable(null);
 
-        final FunctionExecutable function = module.getFunctionByName(name);
-        return new Variable(new BindingFunctionWrapper(_computerData, module, _slotNo, function));
-    }
+		final FunctionExecutable function = module.getFunctionByName(name);
+		return new Variable(new BindingFunctionWrapper(_computerData, module, _slotNo, function));
+	}
 }

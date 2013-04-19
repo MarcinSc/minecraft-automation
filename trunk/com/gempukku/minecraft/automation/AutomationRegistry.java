@@ -11,17 +11,17 @@ import java.util.Collection;
  * This class is used to control the data associated with Automation module.
  */
 public interface AutomationRegistry {
-    public String getComputerLabel(String worldName, int computerId);
+	public String getComputerLabel(int computerId);
 
-    public Item getModuleItemByType(String moduleType);
+	public Item getModuleItemByType(String moduleType);
 
-    public int getModuleItemMetadataByType(String moduleType);
+	public int getModuleItemMetadataByType(String moduleType);
 
-    public Collection<Integer> getModuleItemMetadataForItem(int itemId);
+	public Collection<Integer> getModuleItemMetadataForItem(int itemId);
 
-    public ComputerModule getModuleByItemId(int itemId, int metadata);
+	public ComputerModule getModuleByItemId(int itemId, int metadata);
 
-    public void registerComputerModule(Item moduleItem, int metadata, ComputerModule module);
+	public void registerComputerModule(Item moduleItem, int metadata, ComputerModule module);
 
-    public void registerComputerSpec(Block computerBlock, ComputerSpec computerSpec);
+	public void registerComputerSpec(Block computerBlock, ComputerSpec computerSpec);
 }

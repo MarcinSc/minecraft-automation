@@ -5,12 +5,10 @@ import com.gempukku.minecraft.automation.gui.computer.console.ComputerConsoleCon
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.world.World;
 
 import java.io.*;
 
@@ -22,7 +20,7 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
 			DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
 			try {
 				int compId = is.readInt();
-				final String label = Automation.getServerProxy().getRegistry().getComputerLabel(getWorldNameForPlayer(player), compId);
+				final String label = Automation.getServerProxy().getRegistry().getComputerLabel(compId);
 				if (label != null) {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					DataOutputStream os = new DataOutputStream(baos);
@@ -43,7 +41,7 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
 				DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
 				try {
 					String programName = is.readUTF();
-					String programText = Automation.getServerProxy().getComputerProcessing().getProgram(getWorldNameForPlayer(player), container.getComputerData().getId(), programName);
+					String programText = Automation.getServerProxy().getComputerProcessing().getProgram(container.getComputerData().getId(), programName);
 					if (programText != null) {
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
 						DataOutputStream os = new DataOutputStream(baos);
@@ -61,7 +59,7 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
 				try {
 					String programName = is.readUTF();
 					String programText = is.readUTF();
-					Automation.getServerProxy().getComputerProcessing().saveProgram(getWorldNameForPlayer(player), container.getComputerData().getId(), programName, programText);
+					Automation.getServerProxy().getComputerProcessing().saveProgram(container.getComputerData().getId(), programName, programText);
 				} catch (IOException exp) {
 					// Ignore
 				}
@@ -76,7 +74,7 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
 				DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
 				try {
 					String programName = is.readUTF();
-					String executeResult = Automation.getServerProxy().getComputerProcessing().startProgram(getWorldForPlayer(player), container.getComputerData().getId(), programName);
+					String executeResult = Automation.getServerProxy().getComputerProcessing().startProgram(container.getComputerData().getId(), programName);
 					if (executeResult == null)
 						executeResult = "Program " + programName + " executed successfully";
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -96,13 +94,5 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
 		if (container instanceof ComputerConsoleContainerOnServer)
 			return (ComputerConsoleContainerOnServer) container;
 		return null;
-	}
-
-	private World getWorldForPlayer(Player player) {
-		return ((EntityPlayer) player).worldObj;
-	}
-
-	private String getWorldNameForPlayer(Player player) {
-		return ((EntityPlayer) player).worldObj.getWorldInfo().getWorldName();
 	}
 }

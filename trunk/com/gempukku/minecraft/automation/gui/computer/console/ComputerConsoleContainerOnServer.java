@@ -20,7 +20,7 @@ public class ComputerConsoleContainerOnServer extends Container implements Compu
 
 	public ComputerConsoleContainerOnServer(EntityPlayer player, ComputerTileEntity computerTileEntity) {
 		_player = player;
-		_computerData = Automation.getServerProxy().getRegistry().getComputerData(player.worldObj, computerTileEntity.getComputerId());
+		_computerData = Automation.getServerProxy().getRegistry().getComputerData(computerTileEntity.getComputerId());
 	}
 
 	public ServerComputerData getComputerData() {
