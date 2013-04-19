@@ -22,6 +22,10 @@ public class ProgramEditingConsoleGui {
 	private static final int PROGRAM_CURSOR_COLOR = 0xffff0000;
 	private static final int PROGRAM_LAST_LINE_COLOR = 0xffff0000;
 
+	private static final int COMPILE_PENDING_COLOR = 0xffffff00;
+	private static final int COMPILE_ERROR_COLOR = 0xffff0000;
+	private static final int COMPILE_OK_COLOR = 0xff00ff00;
+
 	private boolean _waitingForExitConfirmation = false;
 
 	private boolean _programSaveDirty;
@@ -55,15 +59,29 @@ public class ProgramEditingConsoleGui {
 			String programLine = _editedProgramLines.get(line).toString();
 			if (programLine.length() > _editedDisplayStartX) {
 				String displayedLine = programLine.substring(_editedDisplayStartX, Math.min(programLine.length(), _editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH));
-				_computerConsoleGui.drawMonospacedLine(displayedLine, 0, (line - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_TEXT_COLOR);
+				_computerConsoleGui.drawMonospacedText(displayedLine, 0, (line - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_TEXT_COLOR);
 			}
 		}
 
+		// Draw status line
 		final int lastLineY = ComputerConsoleGui.FONT_HEIGHT * (ComputerConsole.CONSOLE_HEIGHT - 1);
 		if (_waitingForExitConfirmation) {
-			_computerConsoleGui.drawMonospacedLine("File was not saved, exit? [Y]es/[N]o", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
+			_computerConsoleGui.drawMonospacedText("File was not saved, exit? [Y]es/[N]o", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
 		} else {
-			_computerConsoleGui.drawMonospacedLine("[S]ave E[x]it", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
+			_computerConsoleGui.drawMonospacedText("[S]ave E[x]it", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
+
+			String compileStatus = "...";
+			int compileColor = COMPILE_PENDING_COLOR;
+			if (_compileSuccess) {
+				compileStatus = "OK";
+				compileColor = COMPILE_OK_COLOR;
+			} else if (_compileError != null) {
+				compileStatus = "Error";
+				compileColor = COMPILE_ERROR_COLOR;
+			}
+
+			int index = ComputerConsole.CONSOLE_WIDTH - compileStatus.length();
+			_computerConsoleGui.drawMonospacedText(compileStatus, index * ComputerConsoleGui.CHARACTER_WIDTH, lastLineY, compileColor);
 		}
 
 		_blinkDrawTick = ((++_blinkDrawTick) % BLINK_LENGTH);

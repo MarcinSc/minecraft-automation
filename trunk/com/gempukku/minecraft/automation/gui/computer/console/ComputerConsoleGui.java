@@ -165,7 +165,7 @@ public class ComputerConsoleGui extends GuiScreen {
 	private void drawComputerConsole(float timeSinceLastTick) {
 		final String[] consoleLines = _computerConsole.getLines();
 		for (int i = 0; i < consoleLines.length; i++)
-			drawMonospacedLine(consoleLines[i], 0, i * FONT_HEIGHT, COMPUTER_CONSOLE_TEXT_COLOR);
+			drawMonospacedText(consoleLines[i], 0, i * FONT_HEIGHT, COMPUTER_CONSOLE_TEXT_COLOR);
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class ComputerConsoleGui extends GuiScreen {
 		super.drawVerticalLine(par1, par2, par3, par4);
 	}
 
-	protected void drawMonospacedLine(String line, int x, int y, int color) {
+	protected void drawMonospacedText(String text, int x, int y, int color) {
 		_renderEngine.bindTexture("/font/default.png");
 
 		float blue = (float) (color >> 8 & 255) / 255.0F;
@@ -183,7 +183,7 @@ public class ComputerConsoleGui extends GuiScreen {
 		GL11.glColor4f(red, blue, green, alpha);
 
 		// For some reason the text is actually drawn a bit higher than expected, so to correct it, I add 2 to "y"
-		char[] chars = line.toCharArray();
+		char[] chars = text.toCharArray();
 		for (int i = 0; i < chars.length; i++)
 			renderCharAt(chars[i], x + i * CHARACTER_WIDTH, y + 2);
 	}

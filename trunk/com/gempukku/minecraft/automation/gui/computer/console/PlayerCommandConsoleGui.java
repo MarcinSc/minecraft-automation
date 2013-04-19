@@ -25,14 +25,14 @@ public class PlayerCommandConsoleGui {
 		final String[] consoleLines = _playerConsole.getLines();
 		// Draw all lines but first (we need to fill current edited line at the bottom)
 		for (int i = 1; i < consoleLines.length; i++)
-			_computerConsoleGui.drawMonospacedLine(consoleLines[i], 0, (i - 1) * ComputerConsoleGui.FONT_HEIGHT, PLAYER_CONSOLE_TEXT_COLOR);
+			_computerConsoleGui.drawMonospacedText(consoleLines[i], 0, (i - 1) * ComputerConsoleGui.FONT_HEIGHT, PLAYER_CONSOLE_TEXT_COLOR);
 
 		String wholeCommandLine = ">" + _currentCommand.toString();
 		String commandLine = wholeCommandLine.substring(_currentCommandDisplayStartIndex, Math.min(_currentCommandDisplayStartIndex + ComputerConsole.CONSOLE_WIDTH, wholeCommandLine.length()));
 		int cursorPositionInDisplayedCommandLine = 1 + _cursorPositionInPlayerCommand - _currentCommandDisplayStartIndex;
 
 		final int lastLineY = ComputerConsoleGui.FONT_HEIGHT * (ComputerConsole.CONSOLE_HEIGHT - 1);
-		_computerConsoleGui.drawMonospacedLine(commandLine, 0, lastLineY, PLAYER_CONSOLE_TEXT_COLOR);
+		_computerConsoleGui.drawMonospacedText(commandLine, 0, lastLineY, PLAYER_CONSOLE_TEXT_COLOR);
 
 		_blinkDrawTick = ((++_blinkDrawTick) % BLINK_LENGTH);
 		if (_blinkDrawTick * 2 > BLINK_LENGTH)
