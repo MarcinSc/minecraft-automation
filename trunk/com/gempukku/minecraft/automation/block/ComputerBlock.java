@@ -114,7 +114,7 @@ public abstract class ComputerBlock extends BlockContainer {
 		ComputerTileEntity computerEntity = populateTileEntityAfterPlacing(world, computerId, playerPlacing, blockFacing);
 		MinecraftUtils.setTileEntity(world, x, y, z, computerEntity);
 		if (MinecraftUtils.isServer(world))
-			Automation.getServerProxy().getRegistry().ensureComputerLoaded(world, computerEntity);
+			Automation.getServerProxy().getRegistry().ensureComputerLoaded(computerEntity);
 	}
 
 	private ComputerTileEntity populateTileEntityAfterPlacing(World world, int computerId, String playerPlacing, int blockFacing) {

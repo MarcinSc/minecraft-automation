@@ -19,7 +19,7 @@ public abstract class CommonAutomationProxy implements AutomationProxy {
 		if (MinecraftUtils.isServer(chunk.worldObj))
 			for (TileEntity tileEntity : (Collection<TileEntity>) chunk.chunkTileEntityMap.values()) {
 				if (tileEntity instanceof ComputerTileEntity)
-					serverRegistry.ensureComputerLoaded(chunk.worldObj, (ComputerTileEntity) tileEntity);
+					serverRegistry.ensureComputerLoaded((ComputerTileEntity) tileEntity);
 			}
 	}
 

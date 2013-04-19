@@ -6,7 +6,6 @@ import com.gempukku.minecraft.automation.ComputerEvent;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import cpw.mods.fml.common.FMLLog;
-import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.io.File;
@@ -28,13 +27,13 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 		_savesFolder = savesFolder;
 	}
 
-	public void ensureComputerLoaded(World world, ComputerTileEntity computerTileEntity) {
+	public void ensureComputerLoaded(ComputerTileEntity computerTileEntity) {
 		final int computerId = computerTileEntity.getComputerId();
 		if (!_computerDataMap.containsKey(computerId)) {
 			final ServerComputerData computerData = readComputerDataFromDisk(computerTileEntity.worldObj.getWorldInfo().getDimension(),
 							computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing(), computerId);
 			_computerDataMap.put(computerId, computerData);
-			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(world, computerTileEntity));
+			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(computerTileEntity));
 			FMLLog.log("Automation", Level.FINE, "Added to world computer with id %d", computerId);
 		} else {
 			FMLLog.log("Automation", Level.WARNING, "Asked to load computer with id %d, but already had it", computerId);
@@ -46,14 +45,14 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 		final ServerComputerData serverComputerData = _computerDataMap.get(computerId);
 		serverComputerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
 		serverComputerData.setFacing(computerTileEntity.getFacing());
-		MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerMovedInWorldEvent(computerTileEntity.worldObj, computerTileEntity));
+		MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerMovedInWorldEvent(computerTileEntity));
 	}
 
 	public void unloadComputer(ComputerTileEntity computerTileEntity) {
 		int computerId = computerTileEntity.getComputerId();
 		if (_computerDataMap.containsKey(computerId)) {
 			FMLLog.log("Automation", Level.FINE, "Removing from world computer with id %d", computerId);
-			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(computerTileEntity.worldObj, computerTileEntity));
+			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(computerTileEntity));
 			_computerDataMap.remove(computerId);
 		} else {
 			FMLLog.log("Automation", Level.WARNING, "Asked to unload computer with id %d, but it wasn't there", computerId);
