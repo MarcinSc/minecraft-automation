@@ -90,6 +90,10 @@ public class ComputerConsoleGui extends GuiScreen {
 		Keyboard.enableRepeatEvents(false);
 	}
 
+	public void appendToPlayerConsole(String text) {
+		_playerCommandConsoleGui.appendToConsole(text);
+	}
+
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float timeSinceLastTick) {
 		// Draw the overlay on the world view (gradient)
@@ -258,9 +262,25 @@ public class ComputerConsoleGui extends GuiScreen {
 						// TODO
 					}
 				}
+			} else if (commandParts[0].equals("execute")) {
+				if (commandParts.length != 2) {
+					_playerCommandConsoleGui.appendToConsole("Usage:");
+					_playerCommandConsoleGui.appendToConsole("execute [programName] - executes specified program");
+				} else if (!isValidProgramName(commandParts[1]))
+					_playerCommandConsoleGui.appendToConsole("Invalid program name - only letters and digits allowed");
+				else {
+					try {
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						DataOutputStream os = new DataOutputStream(baos);
+						os.writeUTF(commandParts[1]);
+						PacketDispatcher.sendPacketToServer(new Packet250CustomPayload(Automation.EXECUTE_PROGRAM, baos.toByteArray()));
+					} catch (IOException exp) {
+						// TODO
+					}
+				}
 			} else {
 				if (commandParts[0].length() > 0)
-					_playerCommandConsoleGui.appendToConsole("Unkown command - " + commandParts[0]);
+					_playerCommandConsoleGui.appendToConsole("Unknown command - " + commandParts[0]);
 			}
 		}
 	}

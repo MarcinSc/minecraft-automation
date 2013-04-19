@@ -37,12 +37,12 @@ import java.io.File;
 				clientPacketHandlerSpec = @NetworkMod.SidedPacketHandler(
 								channels = {Automation.UPDATE_COMPUTER_LABEL, Automation.CLEAR_CONSOLE_SCREEN,
 												Automation.SET_CONSOLE_STATE, Automation.SET_CHARACTERS_IN_CONSOLE, Automation.APPEND_LINES_TO_CONSOLE,
-												Automation.PROGRAM_TEXT},
+												Automation.PROGRAM_TEXT, Automation.DISPLAY_EXECUTION_RESULT},
 								packetHandler = ClientAutomationPacketHandler.class),
 				serverPacketHandlerSpec = @NetworkMod.SidedPacketHandler(
 								channels = {Automation.UPDATE_COMPUTER_LABEL, Automation.CLIENT_INIT,
 												Automation.DOWNLOAD_PROGRAM, Automation.SAVE_PROGRAM,
-												Automation.INIT_CONSOLE},
+												Automation.INIT_CONSOLE, Automation.EXECUTE_PROGRAM},
 								packetHandler = ServerAutomationPacketHandler.class))
 public class Automation {
 	private static final String AUTOMATION_CHANNEL_PREFIX = "automation.";
@@ -56,6 +56,8 @@ public class Automation {
 	public static final String PROGRAM_TEXT = AUTOMATION_CHANNEL_PREFIX + "8";
 	public static final String SAVE_PROGRAM = AUTOMATION_CHANNEL_PREFIX + "9";
 	public static final String INIT_CONSOLE = AUTOMATION_CHANNEL_PREFIX + "10";
+	public static final String EXECUTE_PROGRAM = AUTOMATION_CHANNEL_PREFIX + "11";
+	public static final String DISPLAY_EXECUTION_RESULT = AUTOMATION_CHANNEL_PREFIX + "12";
 
 	@Mod.Instance("MarcinSc_Automation")
 	public static Automation instance;
