@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.item;
 import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.block.ComputerBlock;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,9 +19,9 @@ public class ComputerItemBlock extends ItemBlock {
 	private Icon _icon;
 	private ComputerBlock _computerBlock;
 
-	public ComputerItemBlock(int id, ComputerBlock computerBlock) {
+	public ComputerItemBlock(int id, Block computerBlock) {
 		super(id);
-		_computerBlock = computerBlock;
+		_computerBlock = (ComputerBlock) computerBlock;
 		this.setMaxStackSize(1);
 		this.setHasSubtypes(true);
 	}

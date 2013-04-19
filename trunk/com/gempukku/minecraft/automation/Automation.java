@@ -104,10 +104,9 @@ public class Automation {
 		terminalItem = new ItemTerminal(_terminalItemId);
 
 		GameRegistry.registerTileEntity(ComputerTileEntity.class, "computerTileEntity");
-		GameRegistry.registerBlock(personalComputerBlock, "personalComputer");
+		GameRegistry.registerBlock(personalComputerBlock, ComputerItemBlock.class, "personalComputer");
 		GameRegistry.registerItem(moduleItem, "computerModule");
 		GameRegistry.registerItem(terminalItem, "terminal");
-		GameRegistry.registerItem(new ComputerItemBlock(_smallComputerBlockId - 256, personalComputerBlock), "personalComputerItem");
 
 		final ItemStack ironIngot = new ItemStack(Item.ingotIron);
 		final ItemStack redstone = new ItemStack(Item.redstone);

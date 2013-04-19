@@ -35,7 +35,7 @@ public class ScriptParser {
 
 	private List<ExecutableStatement> seekStatementsInBlock(TermBlock termBlock) throws IllegalSyntaxException {
 		if (termBlock.isTerm()) {
-			throw new IllegalStateException("Should not get here");
+			throw new IllegalSyntaxException("Expression expected");
 		} else {
 			List<ExecutableStatement> result = new LinkedList<ExecutableStatement>();
 			List<TermBlock> blocks = termBlock.getTermBlocks();
@@ -51,7 +51,7 @@ public class ScriptParser {
 	}
 
 	private ExecutableStatement produceStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-		TermBlock firstTermBlock = termIterator.peek();
+		TermBlock firstTermBlock = peekNextTermBlockSafely(termIterator);
 		if (firstTermBlock.isTerm()) {
 			Term firstTerm = firstTermBlock.getTerm();
 			if (firstTerm.getType() == Term.Type.STRING) {
@@ -623,7 +623,7 @@ public class ScriptParser {
 		}
 
 		if (termBlocksStack.size() > 0)
-			throw new IllegalStateException("Unclosed bracket - }");
+			throw new IllegalSyntaxException("Unclosed bracket - }");
 
 		return result;
 	}
