@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation.computer;
 
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
+import net.minecraft.world.World;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +22,7 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
 				for (String parameterName : parameterNames)
 					parameters.put(parameterName, callContext.getVariableValue(parameterName));
 
-				context.setReturnValue(new Variable(executeFunction(computer, parameters)));
+				context.setReturnValue(new Variable(executeFunction(minecraftExecutionContext.getWorld(), computer, parameters)));
 				return new ExecutionProgress(getDuration());
 			}
 		};
@@ -47,11 +48,12 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
 	 * If an execution of the program should be stopped due to a fatal exception, ExecutionException should be thrown by
 	 * the method.
 	 *
+	 * @param world			World this computer is in.
 	 * @param computer	 Computer this function is executed on.
 	 * @param parameters Parameters that were sent to this function.
 	 * @return Object that has to be set in context of the caller (return value).
 	 * @throws ExecutionException Fatal exception that will be communicated to the computer console. When thrown,
 	 *                            the execution of the program will stop.
 	 */
-	protected abstract Object executeFunction(ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException;
+	protected abstract Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException;
 }

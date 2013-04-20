@@ -1,6 +1,5 @@
 package com.gempukku.minecraft.automation.module.storage;
 
-import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
@@ -23,8 +22,7 @@ public class GetItemCountFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
-		World world = AutomationUtils.getWorldComputerIsIn(computer);
+	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final String functionName = "getItemCount";
 		final Variable sideParam = parameters.get("side");
 		final Variable slotParam = parameters.get("slot");

@@ -27,8 +27,7 @@ public class MoveFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
-		World world = AutomationUtils.getWorldComputerIsIn(computer);
+	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final int facing = computer.getFacing();
 		Variable sideVar = parameters.get("direction");
 

@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 public class StorageModuleUtils {
 	public static TileEntity getBlockEntityAtFace(ServerComputerData computer, World world, Variable sideVar, String functionName) throws ExecutionException {
 		int lookAt = getComputerFacingSide(computer, sideVar, functionName);
+		System.out.println(lookAt);
 
 		return world.getBlockTileEntity(
 						computer.getX() + Facing.offsetsXForSide[lookAt],
@@ -69,9 +70,9 @@ public class StorageModuleUtils {
 		else if (side.equals("right"))
 			lookAt = BoxSide.getRight(facing);
 		else if (side.equals("top"))
-			lookAt = BoxSide.TOP;
-		else if (side.equals("bottom"))
 			lookAt = BoxSide.BOTTOM;
+		else if (side.equals("bottom"))
+			lookAt = BoxSide.TOP;
 		return lookAt;
 	}
 }

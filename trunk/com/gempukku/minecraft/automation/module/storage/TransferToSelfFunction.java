@@ -26,8 +26,7 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
-		World world = AutomationUtils.getWorldComputerIsIn(computer);
+	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable sideParam = parameters.get("side");
 		final Variable slotParam = parameters.get("slot");
 		final Variable countParam = parameters.get("count");
@@ -55,7 +54,9 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 			return false;
 
 		ItemStack stackInSlot = inventory.getStackInSlot(inventoryIndex);
-		int toTransfer = Math.max(stackInSlot.stackSize, count);
+		if (stackInSlot == null)
+			return false;
+		int toTransfer = Math.min(stackInSlot.stackSize, count);
 		int transferred = 0;
 		int startFrom = 0;
 		int computerSlotIndex;

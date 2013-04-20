@@ -7,6 +7,7 @@ import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import com.gempukku.minecraft.automation.module.ComputerModule;
+import net.minecraft.world.World;
 
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class GetModuleTypeFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable slot = parameters.get("slot");
 		if (slot.getType() != Variable.Type.NUMBER)
 			throw new ExecutionException("Number expected");

@@ -7,6 +7,7 @@ import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class GetSelfItemCountFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		String functionName = "getSelfItemCount";
 
 		final Variable slotParam = parameters.get("slot");

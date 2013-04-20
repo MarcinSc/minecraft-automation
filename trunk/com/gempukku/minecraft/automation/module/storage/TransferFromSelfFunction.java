@@ -26,9 +26,7 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
-		World world = AutomationUtils.getWorldComputerIsIn(computer);
-
+	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable sideParam = parameters.get("side");
 		final Variable slotParam = parameters.get("slot");
 		final Variable countParam = parameters.get("count");
@@ -56,7 +54,9 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 			return false;
 
 		final ItemStack stackInSlot = computerTileEntity.getStackInSlot(computerSlotIndex);
-		int toTransfer = Math.max(stackInSlot.stackSize, count);
+		if (stackInSlot == null)
+			return false;
+		int toTransfer = Math.min(stackInSlot.stackSize, count);
 		int transferred = 0;
 		int startFrom = 0;
 		int inventorySlotIndex;
@@ -67,7 +67,7 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 			int availableSpace = (stackInInventory != null) ? stackInInventory.getMaxStackSize() - stackInInventory.stackSize : 64;
 			int transferCount = Math.min(toTransfer - transferred, availableSpace);
 			final ItemStack itemStack = computerTileEntity.decrStackSize(computerSlotIndex, transferCount);
-			computerTileEntity.setInventorySlotContents(computerSlotIndex, new ItemStack(itemStack.itemID, itemStack.stackSize + inventoryStackSize, itemStack.getItemDamage()));
+			inventory.setInventorySlotContents(inventorySlotIndex, new ItemStack(itemStack.itemID, itemStack.stackSize + inventoryStackSize, itemStack.getItemDamage()));
 			transferred += transferCount;
 			startFrom = inventorySlotIndex + 1;
 		}

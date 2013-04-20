@@ -12,7 +12,8 @@ import com.gempukku.minecraft.automation.computer.os.OSObjectDefinition;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import com.gempukku.minecraft.automation.server.ServerAutomationRegistry;
-import net.minecraftforge.common.DimensionManager;
+import cpw.mods.fml.common.FMLLog;
+import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeSubscribe;
 
 import java.io.File;
@@ -20,6 +21,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * This class is used on server only and controls processing of programs and computer ticks.
@@ -46,10 +48,15 @@ public class ComputerProcessing {
 		final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(evt.computerId);
 		final ComputerConsole computerConsole = computerData.getConsole();
 		computerConsole.appendString("Staring startup program");
-		updateProgramRunning(computerData, false);
-		String startupProgramResult = startProgram(computerData.getId(), STARTUP_PROGRAM);
-		if (startupProgramResult != null)
-			computerConsole.appendString(startupProgramResult);
+		final World world = AutomationUtils.getWorldComputerIsIn(computerData);
+		if (world != null) {
+			updateProgramRunning(world, computerData, false);
+			String startupProgramResult = startProgram(world, computerData.getId(), STARTUP_PROGRAM);
+			if (startupProgramResult != null)
+				computerConsole.appendString(startupProgramResult);
+		} else {
+			FMLLog.log(Level.WARNING, "Couldn't find a world for computer id=%d", evt.computerId);
+		}
 	}
 
 	@ForgeSubscribe
@@ -57,7 +64,7 @@ public class ComputerProcessing {
 		_runningPrograms.remove(evt.computerId);
 	}
 
-	public String startProgram(int computerId, String name) {
+	public String startProgram(World world, int computerId, String name) {
 		if (_runningPrograms.containsKey(computerId))
 			return "Computer already runs a program.";
 
@@ -81,7 +88,7 @@ public class ComputerProcessing {
 			exec.stackExecutionGroup(context, parsedScript.createExecution(context));
 			_runningPrograms.put(computerId, new RunningProgram(computerData, exec));
 
-			updateProgramRunning(computerData, true);
+			updateProgramRunning(world, computerData, true);
 
 			return null;
 		} catch (IllegalSyntaxException exp) {
@@ -89,14 +96,14 @@ public class ComputerProcessing {
 		}
 	}
 
-	public String stopProgram(int computerId) {
+	public String stopProgram(World world, int computerId) {
 		if (!_runningPrograms.containsKey(computerId))
 			return "Computer is not running any programs.";
 
 		final RunningProgram stoppedProgram = _runningPrograms.remove(computerId);
 		if (stoppedProgram != null) {
 			final ServerComputerData computerData = stoppedProgram.getComputerData();
-			updateProgramRunning(computerData, false);
+			updateProgramRunning(world, computerData, false);
 		}
 		return null;
 	}
@@ -137,24 +144,26 @@ public class ComputerProcessing {
 		}
 	}
 
-	public void tickComputers() {
+	public void tickComputersInWorld(World world) {
+		int dimension = world.getWorldInfo().getDimension();
 		final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
 		while (iterator.hasNext()) {
 			final RunningProgram program = iterator.next();
-			program.progressProgram();
+			program.progressProgram(world);
 			if (!program.isRunning()) {
 				iterator.remove();
 				final ServerComputerData computerData = program.getComputerData();
-				updateProgramRunning(computerData, false);
+				if (computerData.getDimension() == dimension)
+					updateProgramRunning(world, computerData, false);
 			}
 		}
 	}
 
-	private void updateProgramRunning(ServerComputerData computerData, boolean running) {
+	private void updateProgramRunning(World world, ServerComputerData computerData, boolean running) {
 		ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(computerData);
 		if (computerTileEntity != null) {
 			computerTileEntity.setRunningProgram(running);
-			MinecraftUtils.sendTileEntityUpdateToPlayers(DimensionManager.getWorld(computerData.getDimension()), computerTileEntity);
+			MinecraftUtils.sendTileEntityUpdateToPlayers(world, computerTileEntity);
 		}
 	}
 

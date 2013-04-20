@@ -3,16 +3,22 @@ package com.gempukku.minecraft.automation;
 import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 
 import java.io.File;
 
 public class AutomationUtils {
 	public static World getWorldComputerIsIn(ServerComputerData computerData) {
-		return DimensionManager.getWorld(computerData.getId());
+		for (WorldServer worldServer : MinecraftServer.getServer().worldServers) {
+			if (worldServer.getWorldInfo().getDimension() == computerData.getDimension())
+				return worldServer;
+		}
+		return null;
 	}
 
 	public static ComputerTileEntity getComputerEntitySafely(IBlockAccess blockAccess, ServerComputerData computerData) {
