@@ -228,6 +228,8 @@ public class ProgramEditingConsoleGui {
 		_editedProgramLines.add(new StringBuilder());
 		_editedProgramCursorX = 0;
 		_editedProgramCursorY = 0;
+		_editedDisplayStartX = 0;
+		_editedDisplayStartY = 0;
 	}
 
 	public void setProgramText(String programText) {
@@ -237,6 +239,8 @@ public class ProgramEditingConsoleGui {
 
 		_editedProgramCursorX = 0;
 		_editedProgramCursorY = 0;
+		_editedDisplayStartX = 0;
+		_editedDisplayStartY = 0;
 		setDirty(false, true);
 	}
 

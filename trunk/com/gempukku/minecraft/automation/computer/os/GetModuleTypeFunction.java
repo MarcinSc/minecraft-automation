@@ -10,7 +10,7 @@ import com.gempukku.minecraft.automation.module.ComputerModule;
 
 import java.util.Map;
 
-public class GetModuleNameFunction extends JavaFunctionExecutable {
+public class GetModuleTypeFunction extends JavaFunctionExecutable {
 	@Override
 	public String[] getParameterNames() {
 		return new String[]{"slot"};

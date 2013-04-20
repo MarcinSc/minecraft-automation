@@ -180,7 +180,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
 	@Override
 	public int getSizeInventory() {
-		return _moduleSlotsCount;
+		return _inventory.length;
 	}
 
 	@Override
