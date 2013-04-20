@@ -191,6 +191,24 @@ public class ProgramEditingConsoleGui {
 			// Adjust cursor X position to be within the program line
 			if (_editedProgramCursorX > _editedProgramLines.get(_editedProgramCursorY).length())
 				_editedProgramCursorX = _editedProgramLines.get(_editedProgramCursorY).length();
+
+			final int editedLineLength = _editedProgramLines.get(_editedProgramCursorY).length();
+			if (_editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH > editedLineLength) {
+				_editedDisplayStartX = Math.max(0, editedLineLength - ComputerConsole.CONSOLE_WIDTH);
+			} else if (_editedProgramCursorX > _editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH) {
+				_editedDisplayStartX = _editedProgramCursorX - ComputerConsole.CONSOLE_WIDTH;
+			} else if (_editedProgramCursorX < _editedDisplayStartX) {
+				_editedDisplayStartX = _editedProgramCursorX;
+			}
+
+			final int linesCount = _editedProgramLines.size();
+			if (_editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 1 > linesCount) {
+				_editedDisplayStartY = Math.max(0, linesCount - ComputerConsole.CONSOLE_HEIGHT + 1);
+			} else if (_editedProgramCursorY > _editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 2) {
+				_editedDisplayStartY = _editedProgramCursorY - ComputerConsole.CONSOLE_HEIGHT + 2;
+			} else if (_editedProgramCursorY < _editedDisplayStartY) {
+				_editedDisplayStartY = _editedProgramCursorY;
+			}
 		}
 	}
 
