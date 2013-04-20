@@ -396,9 +396,11 @@ public class ScriptParser {
 			return new AddStatement(left, right);
 		else if (operator == Operator.EQUALS || operator == Operator.NOT_EQUALS)
 			return new ComparisonStatement(left, operator, right);
-		else if (operator == Operator.MEMBER_ACCESS)
+		else if (operator == Operator.MEMBER_ACCESS) {
+			if (!(right instanceof VariableStatement))
+				throw new IllegalSyntaxException("property name expected");
 			return new MemberAccessStatement(left, ((VariableStatement) right).getName());
-		else if (operator == Operator.AND || operator == Operator.OR)
+		} else if (operator == Operator.AND || operator == Operator.OR)
 			return new LogicalOperatorStatement(left, operator, right);
 		else if (operator == Operator.NOT)
 			return new NegateStatement(left);
