@@ -9,6 +9,8 @@ public class OSObjectDefinition implements ObjectDefinition {
 	private Variable _getModuleSlotCount = new Variable(new GetModuleSlotCountFunction());
 	private Variable _getModuleName = new Variable(new GetModuleNameFunction());
 	private Variable _appendToConsole = new Variable(new AppendToConsoleFunction());
+	private Variable _clearConsole = new Variable(new ClearConsoleFunction());
+	private Variable _writeToConsole = new Variable(new WriteToConsoleFunction());
 
 	@Override
 	public Variable getMember(ExecutionContext context, String name) {
@@ -20,6 +22,10 @@ public class OSObjectDefinition implements ObjectDefinition {
 			return _getModuleName;
 		else if (name.equals("appendToConsole"))
 			return _appendToConsole;
+		else if (name.equals("clearConsole"))
+			return _clearConsole;
+		else if (name.equals("writeToConsole"))
+			return _writeToConsole;
 
 		return new Variable(null);
 	}
