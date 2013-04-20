@@ -43,7 +43,7 @@ public class ComputerProcessing {
 
 	@ForgeSubscribe
 	public void startupComputer(ComputerEvent.ComputerAddedToWorldEvent evt) {
-		final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(evt.getComputerTileEntity().getComputerId());
+		final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(evt.computerId);
 		final ComputerConsole computerConsole = computerData.getConsole();
 		computerConsole.appendString("Staring startup program");
 		updateProgramRunning(computerData, false);
@@ -54,7 +54,7 @@ public class ComputerProcessing {
 
 	@ForgeSubscribe
 	public void shutdownComputer(ComputerEvent.ComputerRemovedFromWorldEvent evt) {
-		_runningPrograms.remove(evt.getComputerTileEntity().getComputerId());
+		_runningPrograms.remove(evt.computerId);
 	}
 
 	public String startProgram(int computerId, String name) {

@@ -33,7 +33,8 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 			final ServerComputerData computerData = readComputerDataFromDisk(computerTileEntity.worldObj.getWorldInfo().getDimension(),
 							computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing(), computerId);
 			_computerDataMap.put(computerId, computerData);
-			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(computerTileEntity));
+			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(computerTileEntity.getComputerId(),
+							computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing()));
 			FMLLog.log("Automation", Level.FINE, "Added to world computer with id %d", computerId);
 		} else {
 			FMLLog.log("Automation", Level.WARNING, "Asked to load computer with id %d, but already had it", computerId);
@@ -45,14 +46,16 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 		final ServerComputerData serverComputerData = _computerDataMap.get(computerId);
 		serverComputerData.setLocation(computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord);
 		serverComputerData.setFacing(computerTileEntity.getFacing());
-		MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerMovedInWorldEvent(computerTileEntity));
+		MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerMovedInWorldEvent(computerTileEntity.getComputerId(),
+						computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing()));
 	}
 
 	public void unloadComputer(ComputerTileEntity computerTileEntity) {
 		int computerId = computerTileEntity.getComputerId();
 		if (_computerDataMap.containsKey(computerId)) {
 			FMLLog.log("Automation", Level.FINE, "Removing from world computer with id %d", computerId);
-			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(computerTileEntity));
+			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(computerTileEntity.getComputerId(),
+							computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing()));
 			_computerDataMap.remove(computerId);
 		} else {
 			FMLLog.log("Automation", Level.WARNING, "Asked to unload computer with id %d, but it wasn't there", computerId);

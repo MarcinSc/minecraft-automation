@@ -135,7 +135,7 @@ public abstract class ComputerBlock extends BlockContainer {
 	@Override
 	public int isProvidingStrongPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
 		final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
-		if (tileEntity != null) {
+		if (tileEntity != null && MinecraftUtils.isServer((World) blockAccess)) {
 			final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(tileEntity.getComputerId());
 			int count = tileEntity.getModuleSlotsCount();
 			int input = 0;
@@ -154,7 +154,7 @@ public abstract class ComputerBlock extends BlockContainer {
 	@Override
 	public int isProvidingWeakPower(IBlockAccess blockAccess, int x, int y, int z, int side) {
 		final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
-		if (tileEntity != null) {
+		if (tileEntity != null && MinecraftUtils.isServer((World) blockAccess)) {
 			final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(tileEntity.getComputerId());
 			int count = tileEntity.getModuleSlotsCount();
 			int input = 0;

@@ -14,30 +14,33 @@ import java.util.Collection;
 public abstract class CommonAutomationProxy implements AutomationProxy {
 	@ForgeSubscribe
 	public void chunkLoaded(ChunkEvent.Load evt) {
-		final ServerAutomationRegistry serverRegistry = Automation.getServerProxy().getRegistry();
 		final Chunk chunk = evt.getChunk();
-		if (MinecraftUtils.isServer(chunk.worldObj))
+		if (MinecraftUtils.isServer(chunk.worldObj)) {
+			final ServerAutomationRegistry serverRegistry = Automation.getServerProxy().getRegistry();
 			for (TileEntity tileEntity : (Collection<TileEntity>) chunk.chunkTileEntityMap.values()) {
 				if (tileEntity instanceof ComputerTileEntity)
 					serverRegistry.ensureComputerLoaded((ComputerTileEntity) tileEntity);
 			}
+		}
 	}
 
 	@ForgeSubscribe
 	public void chunkUnloaded(ChunkEvent.Unload evt) {
-		final ServerAutomationRegistry serverRegistry = Automation.getServerProxy().getRegistry();
 		final Chunk chunk = evt.getChunk();
-		if (MinecraftUtils.isServer(chunk.worldObj))
+		if (MinecraftUtils.isServer(chunk.worldObj)) {
+			final ServerAutomationRegistry serverRegistry = Automation.getServerProxy().getRegistry();
 			for (TileEntity tileEntity : (Collection<TileEntity>) chunk.chunkTileEntityMap.values()) {
 				if (tileEntity instanceof ComputerTileEntity)
 					serverRegistry.unloadComputer((ComputerTileEntity) tileEntity);
 			}
+		}
 	}
 
 	@ForgeSubscribe
 	public void worldUnload(WorldEvent.Unload evt) {
-		final ServerAutomationRegistry serverRegistry = Automation.getServerProxy().getRegistry();
-		if (MinecraftUtils.isServer(evt.world))
+		if (MinecraftUtils.isServer(evt.world)) {
+			final ServerAutomationRegistry serverRegistry = Automation.getServerProxy().getRegistry();
 			serverRegistry.unloadComputersFromDimension(evt.world.getWorldInfo().getDimension());
+		}
 	}
 }

@@ -1,40 +1,43 @@
 package com.gempukku.minecraft.automation;
 
-import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import net.minecraftforge.event.Event;
 
 public class ComputerEvent extends Event {
-	private final ComputerTileEntity _computerTileEntity;
+	public final int computerId;
+	public final int x;
+	public final int y;
+	public final int z;
+	public final int facing;
 
-	protected ComputerEvent(ComputerTileEntity computerTileEntity) {
-		_computerTileEntity = computerTileEntity;
-	}
-
-	public ComputerTileEntity getComputerTileEntity() {
-		return _computerTileEntity;
+	public ComputerEvent(int computerId, int x, int y, int z, int facing) {
+		this.computerId = computerId;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.facing = facing;
 	}
 
 	public static class ComputerAddedToWorldEvent extends ComputerEvent {
-		public ComputerAddedToWorldEvent(ComputerTileEntity computerTileEntity) {
-			super(computerTileEntity);
+		public ComputerAddedToWorldEvent(int computerId, int x, int y, int z, int facing) {
+			super(computerId, x, y, z, facing);
 		}
 	}
 
 	public static class ComputerRemovedFromWorldEvent extends ComputerEvent {
-		public ComputerRemovedFromWorldEvent(ComputerTileEntity computerTileEntity) {
-			super(computerTileEntity);
+		public ComputerRemovedFromWorldEvent(int computerId, int x, int y, int z, int facing) {
+			super(computerId, x, y, z, facing);
 		}
 	}
 
 	public static class ComputerMovedInWorldEvent extends ComputerEvent {
-		public ComputerMovedInWorldEvent(ComputerTileEntity computerTileEntity) {
-			super(computerTileEntity);
+		public ComputerMovedInWorldEvent(int computerId, int x, int y, int z, int facing) {
+			super(computerId, x, y, z, facing);
 		}
 	}
 
 	public static class ComputerModulesChangedEvent extends ComputerEvent {
-		public ComputerModulesChangedEvent(ComputerTileEntity computerTileEntity) {
-			super(computerTileEntity);
+		public ComputerModulesChangedEvent(int computerId, int x, int y, int z, int facing) {
+			super(computerId, x, y, z, facing);
 		}
 	}
 }
