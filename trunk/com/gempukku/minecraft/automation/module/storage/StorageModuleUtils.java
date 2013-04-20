@@ -14,7 +14,6 @@ import net.minecraft.world.World;
 public class StorageModuleUtils {
 	public static TileEntity getBlockEntityAtFace(ServerComputerData computer, World world, Variable sideVar, String functionName) throws ExecutionException {
 		int lookAt = getComputerFacingSide(computer, sideVar, functionName);
-		System.out.println(lookAt);
 
 		return world.getBlockTileEntity(
 						computer.getX() + Facing.offsetsXForSide[lookAt],

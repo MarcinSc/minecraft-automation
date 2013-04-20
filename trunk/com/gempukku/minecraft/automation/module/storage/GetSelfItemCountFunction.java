@@ -30,7 +30,7 @@ public class GetSelfItemCountFunction extends JavaFunctionExecutable {
 		if (slotParam.getType() != Variable.Type.NUMBER)
 			throw new ExecutionException("Expected number in slot parameter in " + functionName + " function");
 
-		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(computer);
+		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
 		if (computerTileEntity == null)
 			return null;
 

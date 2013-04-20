@@ -145,22 +145,24 @@ public class ComputerProcessing {
 	}
 
 	public void tickComputersInWorld(World world) {
-		int dimension = world.getWorldInfo().getDimension();
+		int dimension = world.provider.dimensionId;
 		final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
 		while (iterator.hasNext()) {
 			final RunningProgram program = iterator.next();
-			program.progressProgram(world);
-			if (!program.isRunning()) {
-				iterator.remove();
-				final ServerComputerData computerData = program.getComputerData();
-				if (computerData.getDimension() == dimension)
-					updateProgramRunning(world, computerData, false);
+			final ServerComputerData computerData = program.getComputerData();
+			if (computerData.getDimension() == dimension) {
+				program.progressProgram(world);
+				if (!program.isRunning()) {
+					iterator.remove();
+					if (computerData.getDimension() == dimension)
+						updateProgramRunning(world, computerData, false);
+				}
 			}
 		}
 	}
 
 	private void updateProgramRunning(World world, ServerComputerData computerData, boolean running) {
-		ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(computerData);
+		ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
 		if (computerTileEntity != null) {
 			computerTileEntity.setRunningProgram(running);
 			MinecraftUtils.sendTileEntityUpdateToPlayers(world, computerTileEntity);

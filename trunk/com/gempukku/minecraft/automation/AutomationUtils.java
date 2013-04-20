@@ -8,14 +8,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 
 import java.io.File;
 
 public class AutomationUtils {
 	public static World getWorldComputerIsIn(ServerComputerData computerData) {
 		for (WorldServer worldServer : MinecraftServer.getServer().worldServers) {
-			if (worldServer.getWorldInfo().getDimension() == computerData.getDimension())
+			if (worldServer.provider.dimensionId == computerData.getDimension())
 				return worldServer;
 		}
 		return null;
@@ -23,10 +22,6 @@ public class AutomationUtils {
 
 	public static ComputerTileEntity getComputerEntitySafely(IBlockAccess blockAccess, ServerComputerData computerData) {
 		return getComputerEntitySafely(blockAccess, computerData.getX(), computerData.getY(), computerData.getZ());
-	}
-
-	public static ComputerTileEntity getComputerEntitySafely(ServerComputerData computerData) {
-		return getComputerEntitySafely(DimensionManager.getWorld(computerData.getDimension()), computerData.getX(), computerData.getY(), computerData.getZ());
 	}
 
 	public static ComputerTileEntity getComputerEntitySafely(IBlockAccess blockAccess, int x, int y, int z) {

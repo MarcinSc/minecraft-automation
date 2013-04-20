@@ -55,7 +55,7 @@ public class MoveFunction extends JavaFunctionExecutable {
 		if (!blockMaterial.isReplaceable())
 			return false;
 
-		final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(computer);
+		final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
 		if (tileEntity == null)
 			return false;
 

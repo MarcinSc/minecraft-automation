@@ -29,7 +29,7 @@ public class GetModuleTypeFunction extends JavaFunctionExecutable {
 			throw new ExecutionException("Number expected");
 
 		int slotNo = ((Number) slot.getValue()).intValue();
-		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(computer);
+		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
 		if (computerTileEntity == null)
 			return null;
 

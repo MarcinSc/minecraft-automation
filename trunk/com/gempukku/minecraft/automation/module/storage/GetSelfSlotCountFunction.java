@@ -23,7 +23,7 @@ public class GetSelfSlotCountFunction extends JavaFunctionExecutable {
 
 	@Override
 	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
-		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(computer);
+		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
 		if (computerTileEntity == null)
 			return 0;
 		return computerTileEntity.getItemSlotsCount();

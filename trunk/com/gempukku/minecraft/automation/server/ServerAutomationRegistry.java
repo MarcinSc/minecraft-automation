@@ -30,7 +30,7 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 	public void ensureComputerLoaded(ComputerTileEntity computerTileEntity) {
 		final int computerId = computerTileEntity.getComputerId();
 		if (!_computerDataMap.containsKey(computerId)) {
-			final ServerComputerData computerData = readComputerDataFromDisk(computerTileEntity.worldObj.getWorldInfo().getDimension(),
+			final ServerComputerData computerData = readComputerDataFromDisk(computerTileEntity.worldObj.provider.dimensionId,
 							computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing(), computerId);
 			_computerDataMap.put(computerId, computerData);
 			MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(computerTileEntity.getComputerId(),

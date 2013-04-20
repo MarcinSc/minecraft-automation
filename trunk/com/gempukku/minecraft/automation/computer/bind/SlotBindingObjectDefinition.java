@@ -23,7 +23,7 @@ public class SlotBindingObjectDefinition implements ObjectDefinition {
 	public Variable getMember(ExecutionContext context, String name) {
 		final MinecraftComputerExecutionContext minecraftExecutionContext = (MinecraftComputerExecutionContext) context;
 		final ServerComputerData computerData = minecraftExecutionContext.getComputerData();
-		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(computerData);
+		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(minecraftExecutionContext.getWorld(), computerData);
 		if (computerTileEntity == null)
 			return null;
 		final ComputerModule module = computerTileEntity.getModule(_slotNo);

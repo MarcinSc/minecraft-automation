@@ -23,7 +23,7 @@ public class MinecraftUtils {
 	public static void sendTileEntityUpdateToPlayers(World world, TileEntity tileEntity) {
 		final Packet descriptionPacket = tileEntity.getDescriptionPacket();
 		if (descriptionPacket != null)
-			PacketDispatcher.sendPacketToAllAround(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, 64d, world.getWorldInfo().getDimension(), descriptionPacket);
+			PacketDispatcher.sendPacketToAllAround(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, 64d, world.provider.dimensionId, descriptionPacket);
 	}
 
 	public static String getWorldNameOnServer() {
