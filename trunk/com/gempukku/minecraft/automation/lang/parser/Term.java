@@ -1,31 +1,37 @@
 package com.gempukku.minecraft.automation.lang.parser;
 
 public class Term {
-    public enum Type {PROGRAM, STRING, COMMENT}
+	public enum Type {PROGRAM, STRING, COMMENT}
 
-    private Type _type;
-    private String _value;
-    private int _line;
+	private Type _type;
+	private String _value;
+	private int _line;
+	private int _column;
 
-    public Term(Type type, String value, int line) {
-        _type = type;
-        _value = value;
-        _line = line;
-    }
+	public Term(Type type, String value, int line, int column) {
+		_type = type;
+		_value = value;
+		_line = line;
+		_column = column;
+	}
 
-    public Type getType() {
-        return _type;
-    }
+	public Type getType() {
+		return _type;
+	}
 
-    public String getValue() {
-        return _value;
-    }
+	public String getValue() {
+		return _value;
+	}
 
-    public void setValue(String value) {
-        _value = value;
-    }
+	public void setValue(String value) {
+		_value = value;
+	}
 
-    public int getLine() {
-        return _line;
-    }
+	public int getLine() {
+		return _line;
+	}
+
+	public int getColumn() {
+		return _column;
+	}
 }
