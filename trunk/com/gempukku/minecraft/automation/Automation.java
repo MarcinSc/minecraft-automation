@@ -138,7 +138,7 @@ public class Automation {
 
 	@Mod.PostInit
 	public void postInitialize(FMLPostInitializationEvent evt) {
-		proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 100, 100 * 1024, 1000));
+		proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 100, 100 * 1024, 100));
 
 		proxy.getRegistry().registerComputerModule(moduleItem, POSITIONING_MODULE_METADATA, new PositioningModule());
 		proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
