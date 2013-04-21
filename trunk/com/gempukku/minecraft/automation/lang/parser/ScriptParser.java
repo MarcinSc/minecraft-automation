@@ -56,7 +56,7 @@ public class ScriptParser {
 			Term firstTerm = firstTermBlock.getTerm();
 			if (firstTerm.getType() == Term.Type.STRING) {
 				// We do not allow at the moment any statements starting with constant
-				throw new IllegalSyntaxException("Illegal start of statement");
+				throw new IllegalSyntaxException(firstTerm, "Illegal start of statement");
 			} else {
 				// It's a program term
 				String literal = getFirstLiteral(firstTerm.getValue());
@@ -204,6 +204,8 @@ public class ScriptParser {
 		Term functionDefTerm = peekNextProgramTermSafely(termIterator);
 
 		String functionName = getFirstLiteral(functionDefTerm.getValue());
+		if (LangDefinition.isReservedWord(functionName))
+			throw new IllegalSyntaxException("Invalid function name");
 		consumeCharactersFromTerm(termIterator, functionName.length());
 
 		if (!isNextTermStartingWith(termIterator, "("))
@@ -235,7 +237,7 @@ public class ScriptParser {
 		final Term variableTerm = peekNextProgramTermSafely(termIterator);
 		String variableName = getFirstLiteral(variableTerm.getValue());
 		if (LangDefinition.isReservedWord(variableName))
-			throw new IllegalSyntaxException("Invalid variable name");
+			throw new IllegalSyntaxException(variableTerm, "Invalid variable name");
 		consumeCharactersFromTerm(termIterator, variableName.length());
 
 		if (isNextTermStartingWithSemicolon(termIterator))
@@ -480,12 +482,18 @@ public class ScriptParser {
 			if (!property.isTerm())
 				throw new IllegalSyntaxException("Property name expected");
 			String propertyName;
+			int propertyLine;
+			int propertyColumn;
 			if (property.getTerm().getType() == Term.Type.STRING) {
 				propertyName = property.getTerm().getValue();
 				// Consume the string
 				iterator.next();
+				propertyLine = property.getTerm().getLine();
+				propertyColumn = property.getTerm().getColumn();
 			} else {
 				propertyName = getFirstLiteral(property.getTerm().getValue());
+				propertyLine = property.getTerm().getLine();
+				propertyColumn = property.getTerm().getColumn();
 				consumeCharactersFromTerm(iterator, propertyName.length());
 			}
 
@@ -493,7 +501,7 @@ public class ScriptParser {
 				throw new IllegalSyntaxException(": expected");
 			consumeCharactersFromTerm(iterator, 1);
 
-			mapStatement.addProperty(propertyName, produceExpressionFromIterator(iterator));
+			mapStatement.addProperty(propertyLine, propertyColumn, propertyName, produceExpressionFromIterator(iterator));
 
 			first = false;
 		}

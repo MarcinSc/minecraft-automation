@@ -11,8 +11,6 @@ public class DefineFunctionStatement implements ExecutableStatement {
 	private List<ExecutableStatement> _statements;
 
 	public DefineFunctionStatement(String name, List<String> parameterNames, List<ExecutableStatement> statements) throws IllegalSyntaxException {
-		if (LangDefinition.isReservedWord(name))
-			throw new IllegalSyntaxException("Invalid function name");
 		_name = name;
 		_parameterNames = parameterNames;
 		_statements = statements;
