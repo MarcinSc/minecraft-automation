@@ -148,6 +148,7 @@ public class Automation {
 	@Mod.ServerAboutToStart
 	public void initializeServerProxyIfNeeded(FMLServerAboutToStartEvent event) {
 		// Initialize server Proxy (and all server-side objects)
+		// This is needed to be able to initialize server objects in single-player mode
 		Automation.getServerProxy();
 	}
 
