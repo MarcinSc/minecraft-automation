@@ -2,8 +2,6 @@ package com.gempukku.minecraft.automation.gui.computer.console;
 
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.computer.ComputerConsole;
-import com.gempukku.minecraft.automation.lang.IllegalSyntaxException;
-import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import org.lwjgl.input.Keyboard;
@@ -11,12 +9,10 @@ import org.lwjgl.input.Keyboard;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProgramEditingConsoleGui {
-	private static final int COMPILE_TICK_DELAY = 0;
 	private static final int BLINK_LENGTH = 20;
 	private static final int PROGRAM_TEXT_COLOR = 0xffffffff;
 	private static final int PROGRAM_CURSOR_COLOR = 0xffff0000;
@@ -30,10 +26,6 @@ public class ProgramEditingConsoleGui {
 
 	private boolean _programSaveDirty;
 	private boolean _programCompileDirty;
-	private int _ticksSinceLastModified;
-
-	private IllegalSyntaxException _compileError;
-	private boolean _compileSuccess;
 
 	private String _editedProgramName;
 	private List<StringBuilder> _editedProgramLines;
@@ -45,16 +37,15 @@ public class ProgramEditingConsoleGui {
 	private int _blinkDrawTick;
 
 	private ComputerConsoleGui _computerConsoleGui;
+	private CompileScriptOnTheFly _onTheFlyCompiler;
 
 	public ProgramEditingConsoleGui(ComputerConsoleGui computerConsoleGui) {
 		_computerConsoleGui = computerConsoleGui;
+		_onTheFlyCompiler = new CompileScriptOnTheFly();
+		_onTheFlyCompiler.startCompiler();
 	}
 
 	public void drawEditProgramConsole(float timeSinceLastTick) {
-		if (_ticksSinceLastModified > COMPILE_TICK_DELAY && _programCompileDirty) {
-			compileProgram();
-		}
-
 		for (int line = _editedDisplayStartY; line < Math.min(_editedProgramLines.size(), _editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 1); line++) {
 			String programLine = _editedProgramLines.get(line).toString();
 			if (programLine.length() > _editedDisplayStartX) {
@@ -72,12 +63,15 @@ public class ProgramEditingConsoleGui {
 
 			String compileStatus = "...";
 			int compileColor = COMPILE_PENDING_COLOR;
-			if (_compileSuccess) {
-				compileStatus = "OK";
-				compileColor = COMPILE_OK_COLOR;
-			} else if (_compileError != null) {
-				compileStatus = "Error";
-				compileColor = COMPILE_ERROR_COLOR;
+			final CompileScriptOnTheFly.CompileStatus compileStatusObj = _onTheFlyCompiler.getCompileStatus();
+			if (compileStatusObj != null) {
+				if (compileStatusObj.success) {
+					compileStatus = "OK";
+					compileColor = COMPILE_OK_COLOR;
+				} else {
+					compileStatus = "Error";
+					compileColor = COMPILE_ERROR_COLOR;
+				}
 			}
 
 			int index = ComputerConsole.CONSOLE_WIDTH - compileStatus.length();
@@ -87,22 +81,6 @@ public class ProgramEditingConsoleGui {
 		_blinkDrawTick = ((++_blinkDrawTick) % BLINK_LENGTH);
 		if (_blinkDrawTick * 2 > BLINK_LENGTH)
 			_computerConsoleGui.drawVerticalLine((_editedProgramCursorX - _editedDisplayStartX) * ComputerConsoleGui.CHARACTER_WIDTH - 1, 1 + (_editedProgramCursorY - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, (_editedProgramCursorY - _editedDisplayStartY + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_CURSOR_COLOR);
-
-		_ticksSinceLastModified++;
-	}
-
-	private void compileProgram() {
-		ScriptParser parser = new ScriptParser();
-		try {
-			parser.parseScript(new StringReader(getProgramText()));
-			_compileSuccess = true;
-		} catch (IllegalSyntaxException exp) {
-			_compileError = exp;
-		} catch (IOException exp) {
-			// Ignore, we are reading from String
-		} catch (RuntimeException exp) {
-			exp.printStackTrace();
-		}
 	}
 
 	public void keyTypedInEditingProgram(char character, int keyboardCharId) {
@@ -176,7 +154,7 @@ public class ProgramEditingConsoleGui {
 					os.writeUTF(_editedProgramName);
 					os.writeUTF(program);
 					PacketDispatcher.sendPacketToServer(new Packet250CustomPayload(Automation.SAVE_PROGRAM, baos.toByteArray()));
-					setDirty(false, true);
+					_programSaveDirty = false;
 				} catch (IOException exp) {
 					// TODO
 				}
@@ -210,6 +188,11 @@ public class ProgramEditingConsoleGui {
 				_editedDisplayStartY = _editedProgramCursorY;
 			}
 		}
+
+		if (_programCompileDirty) {
+			_onTheFlyCompiler.submitCompileRequest(getProgramText());
+			_programCompileDirty = false;
+		}
 	}
 
 	private String getProgramText() {
@@ -241,24 +224,11 @@ public class ProgramEditingConsoleGui {
 		_editedProgramCursorY = 0;
 		_editedDisplayStartX = 0;
 		_editedDisplayStartY = 0;
-		setDirty(false, true);
+		_programSaveDirty = false;
 	}
 
 	private void setAllDirty() {
 		_programSaveDirty = true;
 		_programCompileDirty = true;
-		_compileSuccess = false;
-		_compileError = null;
-		_ticksSinceLastModified = 0;
-	}
-
-	private void setDirty(boolean saveDirty, boolean compileDirty) {
-		_programSaveDirty = saveDirty;
-		_programCompileDirty = compileDirty;
-		if (compileDirty) {
-			_compileSuccess = false;
-			_compileError = null;
-		}
-		_ticksSinceLastModified = 0;
 	}
 }
