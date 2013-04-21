@@ -17,7 +17,7 @@ public class VariableStatement implements ExecutableStatement {
 			@Override
 			protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
 				context.setContextValue(context.peekCallContext().getVariableValue(_name));
-				return new ExecutionProgress(100);
+				return new ExecutionProgress(ExecutionTimes.SET_CONTEXT_VALUE);
 			}
 		};
 	}

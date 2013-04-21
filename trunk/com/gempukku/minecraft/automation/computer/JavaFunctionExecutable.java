@@ -23,7 +23,7 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
 					parameters.put(parameterName, callContext.getVariableValue(parameterName));
 
 				context.setReturnValue(new Variable(executeFunction(minecraftExecutionContext.getWorld(), computer, parameters)));
-				return new ExecutionProgress(getDuration());
+				return new ExecutionProgress(ExecutionTimes.SET_RETURN_VALUE + getDuration());
 			}
 		};
 	}

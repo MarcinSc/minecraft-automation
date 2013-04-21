@@ -18,7 +18,7 @@ public class DefineStatement implements ExecutableStatement {
 			@Override
 			protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
 				context.peekCallContext().defineVariable(_name);
-				return new ExecutionProgress(100);
+				return new ExecutionProgress(ExecutionTimes.DEFINE_VARIABLE);
 			}
 		};
 	}

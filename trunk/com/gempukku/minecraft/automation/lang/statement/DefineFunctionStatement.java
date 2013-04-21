@@ -29,7 +29,7 @@ public class DefineFunctionStatement implements ExecutableStatement {
 				final CallContext callContext = context.peekCallContext();
 				final Variable variable = callContext.defineVariable(_name);
 				context.setVariableValue(variable, functionExecutable);
-				return new ExecutionProgress(100);
+				return new ExecutionProgress(ExecutionTimes.SET_VARIABLE);
 			}
 		};
 	}
