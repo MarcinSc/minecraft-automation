@@ -88,9 +88,8 @@ public class ProgramEditingConsoleGui {
 				final int errorColumn = error.getColumn() - _editedDisplayStartX;
 
 				if (errorLine >= 0 && errorLine < ComputerConsole.CONSOLE_HEIGHT - 1
-								&& errorColumn >= 0 && errorColumn < ComputerConsole.CONSOLE_WIDTH) {
-					_computerConsoleGui.drawHorizontalLine(errorColumn * ComputerConsoleGui.CHARACTER_WIDTH, (errorColumn + 1) * ComputerConsoleGui.CHARACTER_WIDTH, errorLine * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_ERROR_UNDERLINE_COLOR);
-				}
+								&& errorColumn >= 0 && errorColumn < ComputerConsole.CONSOLE_WIDTH)
+					_computerConsoleGui.drawHorizontalLine(errorColumn * ComputerConsoleGui.CHARACTER_WIDTH, (errorColumn + 1) * ComputerConsoleGui.CHARACTER_WIDTH, (errorLine + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_ERROR_UNDERLINE_COLOR);
 			}
 		}
 
@@ -176,6 +175,7 @@ public class ProgramEditingConsoleGui {
 				}
 			} else if (keyboardCharId == Keyboard.KEY_X && _computerConsoleGui.isCtrlKeyDown()) {
 				if (!_programSaveDirty) {
+					_onTheFlyCompiler.finishedEditing();
 					_computerConsoleGui.exitProgramming();
 				} else {
 					_waitingForExitConfirmation = true;
@@ -248,6 +248,7 @@ public class ProgramEditingConsoleGui {
 		_editedDisplayStartX = 0;
 		_editedDisplayStartY = 0;
 		_programSaveDirty = false;
+		_onTheFlyCompiler.submitCompileRequest(getProgramText());
 	}
 
 	private void setAllDirty() {

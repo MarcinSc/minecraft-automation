@@ -18,13 +18,13 @@ public class ScriptParser {
 		ScriptExecutable result = new ScriptExecutable();
 		List<Term> terms = parseToTerms(bufferedReader);
 
-		for (Term term : terms)
-			System.out.println(term.getType() + "(" + term.getLine() + ", " + term.getColumn() + "):" + term.getValue());
+//		for (Term term : terms)
+//			System.out.println(term.getType() + "(" + term.getLine() + ", " + term.getColumn() + "):" + term.getValue());
 
 		TermBlock termBlockStructure = constructBlocks(terms);
 
-		System.out.println("Printing program structure");
-		printTerms(0, termBlockStructure);
+//		System.out.println("Printing program structure");
+//		printTerms(0, termBlockStructure);
 
 		List<ExecutableStatement> statements = seekStatementsInBlock(termBlockStructure);
 		result.setStatement(new BlockStatement(statements, false, true));

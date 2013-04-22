@@ -58,6 +58,7 @@ public class CompileScriptOnTheFly {
 					newCompileStatus = new CompileStatus(true, null);
 				} catch (IllegalSyntaxException exp) {
 					newCompileStatus = new CompileStatus(false, exp);
+					System.out.println(exp.getMessage());
 				} catch (IOException exp) {
 					// Can't really happen, as we use StringReader, but oh well
 					newCompileStatus = new CompileStatus(false, null);
