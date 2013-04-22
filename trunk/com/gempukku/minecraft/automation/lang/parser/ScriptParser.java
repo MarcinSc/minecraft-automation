@@ -39,7 +39,7 @@ public class ScriptParser {
 			List<ExecutableStatement> result = new LinkedList<ExecutableStatement>();
 			List<TermBlock> blocks = termBlock.getTermBlocks();
 			LastPeekingIterator<TermBlock> termBlockIter = new LastPeekingIterator<TermBlock>(Iterators.peekingIterator(blocks.iterator()));
-			while (termBlockIter.hasNext()) {
+			while (termBlockIter.hasNext() && (!termBlockIter.peek().isTerm() || termBlockIter.peek().getTerm().getValue().length() > 0)) {
 				final ExecutableStatement resultStatement = produceStatementFromIterator(termBlockIter);
 				result.add(resultStatement);
 				if (resultStatement.requiresSemicolon())
@@ -74,7 +74,7 @@ public class ScriptParser {
 				} else if (literal.equals("break")) {
 					return produceBreakStatement(termIterator);
 				} else {
-					return produceExpressionFromIterator(termIterator);
+					return produceExpressionFromIterator(termIterator, false);
 				}
 			}
 		} else {
@@ -94,7 +94,7 @@ public class ScriptParser {
 			throw new IllegalSyntaxException(termIterator, "( expected");
 		consumeCharactersFromTerm(termIterator, 1);
 
-		ExecutableStatement condition = produceExpressionFromIterator(termIterator);
+		ExecutableStatement condition = produceExpressionFromIterator(termIterator, true);
 
 		if (!isNextTermStartingWith(termIterator, ")"))
 			throw new IllegalSyntaxException(termIterator, ") expected");
@@ -117,7 +117,7 @@ public class ScriptParser {
 			firstStatement = produceStatementFromIterator(termIterator);
 		consumeSemicolon(termIterator);
 
-		final ExecutableStatement terminationCondition = produceExpressionFromIterator(termIterator);
+		final ExecutableStatement terminationCondition = produceExpressionFromIterator(termIterator, true);
 		consumeSemicolon(termIterator);
 
 		ExecutableStatement statementExecutedAfterEachLoop = null;
@@ -181,7 +181,7 @@ public class ScriptParser {
 			throw new IllegalSyntaxException(termIterator, "( expected");
 		consumeCharactersFromTerm(termIterator, 1);
 
-		ExecutableStatement condition = produceExpressionFromIterator(termIterator);
+		ExecutableStatement condition = produceExpressionFromIterator(termIterator, true);
 
 		if (!isNextTermStartingWith(termIterator, ")"))
 			throw new IllegalSyntaxException(termIterator, ") expected");
@@ -247,7 +247,7 @@ public class ScriptParser {
 
 		consumeCharactersFromTerm(termIterator, 1);
 
-		final ExecutableStatement value = produceExpressionFromIterator(termIterator);
+		final ExecutableStatement value = produceExpressionFromIterator(termIterator, true);
 		return new DefineAndAssignStatement(variableName, value);
 	}
 
@@ -255,15 +255,16 @@ public class ScriptParser {
 		consumeCharactersFromTerm(termIterator, 6);
 		if (isNextTermStartingWithSemicolon(termIterator))
 			return new ReturnStatement(new ConstantStatement(new Variable(null)));
-		return new ReturnStatement(produceExpressionFromIterator(termIterator));
+		return new ReturnStatement(produceExpressionFromIterator(termIterator, true));
 	}
 
 	private void consumeCharactersFromTerm(LastPeekingIterator<TermBlock> termIterator, int charCount) {
 		final Term term = termIterator.peek().getTerm();
 		String termText = term.getValue();
+		int previousLength = termText.length();
 		String termRemainder = termText.substring(charCount).trim();
 		if (termRemainder.length() > 0)
-			term.setValue(termRemainder);
+			term.setValue(termRemainder, previousLength - termRemainder.length());
 		else
 			termIterator.next();
 	}
@@ -276,8 +277,11 @@ public class ScriptParser {
 		consumeCharactersFromTerm(termIterator, 1);
 	}
 
-	private ExecutableStatement produceExpressionFromIterator(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
-		return parseExpression(termIterator, parseNextOperationToken(termIterator), Integer.MAX_VALUE);
+	private ExecutableStatement produceExpressionFromIterator(LastPeekingIterator<TermBlock> termIterator, boolean acceptsVariable) throws IllegalSyntaxException {
+		final ExecutableStatement executableStatement = parseExpression(termIterator, parseNextOperationToken(termIterator), Integer.MAX_VALUE);
+		if (!acceptsVariable && executableStatement instanceof VariableStatement)
+			throw new IllegalSyntaxException(termIterator, "Expression expected");
+		return executableStatement;
 	}
 
 	private ExecutableStatement parseExpression(LastPeekingIterator<TermBlock> termIterator, ExecutableStatement left, int maxPriority) throws IllegalSyntaxException {
@@ -337,7 +341,7 @@ public class ScriptParser {
 				consumeCharactersFromTerm(termIterator, 1);
 			}
 
-			parameters.add(produceExpressionFromIterator(termIterator));
+			parameters.add(produceExpressionFromIterator(termIterator, true));
 			first = false;
 		}
 		consumeCharactersFromTerm(termIterator, parametersClosing.length());
@@ -430,7 +434,7 @@ public class ScriptParser {
 				String termValue = term.getValue();
 				if (termValue.charAt(0) == '(') {
 					consumeCharactersFromTerm(termIterator, 1);
-					result = produceExpressionFromIterator(termIterator);
+					result = produceExpressionFromIterator(termIterator, true);
 					if (!isNextTermStartingWith(termIterator, ")"))
 						throw new IllegalSyntaxException(termIterator, ") expected");
 					consumeCharactersFromTerm(termIterator, 1);
@@ -503,7 +507,7 @@ public class ScriptParser {
 				throw new IllegalSyntaxException(iterator, ": expected");
 			consumeCharactersFromTerm(iterator, 1);
 
-			mapStatement.addProperty(propertyLine, propertyColumn, propertyName, produceExpressionFromIterator(iterator));
+			mapStatement.addProperty(propertyLine, propertyColumn, propertyName, produceExpressionFromIterator(iterator, true));
 
 			first = false;
 		}
@@ -648,8 +652,10 @@ public class ScriptParser {
 			}
 		}
 
-		if (termBlocksStack.size() > 0)
-			throw new IllegalSyntaxException(0, 0, "Unclosed bracket - }");
+		if (termBlocksStack.size() > 0) {
+			final Term lastTerm = terms.get(terms.size() - 1);
+			throw new IllegalSyntaxException(lastTerm.getLine(), lastTerm.getColumn() + lastTerm.getValue().length(), "Unclosed bracket - }");
+		}
 
 		return result;
 	}

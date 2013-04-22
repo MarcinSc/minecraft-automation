@@ -23,8 +23,9 @@ public class Term {
 		return _value;
 	}
 
-	public void setValue(String value) {
+	public void setValue(String value, int columnIncr) {
 		_value = value;
+		_column += columnIncr;
 	}
 
 	public int getLine() {

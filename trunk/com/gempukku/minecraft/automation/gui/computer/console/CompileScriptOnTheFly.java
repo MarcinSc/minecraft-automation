@@ -63,6 +63,7 @@ public class CompileScriptOnTheFly {
 					// Can't really happen, as we use StringReader, but oh well
 					newCompileStatus = new CompileStatus(false, null);
 				} catch (RuntimeException exp) {
+					exp.printStackTrace();
 					newCompileStatus = new CompileStatus(false, null);
 				}
 			}
