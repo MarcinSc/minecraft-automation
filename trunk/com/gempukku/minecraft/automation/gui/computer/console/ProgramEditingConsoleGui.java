@@ -16,7 +16,8 @@ import java.util.List;
 public class ProgramEditingConsoleGui {
 	private static final int BLINK_LENGTH = 20;
 	private static final int PROGRAM_TEXT_COLOR = 0xffffffff;
-	private static final int PROGRAM_CURSOR_COLOR = 0xffff0000;
+	private static final int PROGRAM_CURSOR_COLOR = 0xff0000ff;
+	private static final int PROGRAM_ERROR_UNDERLINE_COLOR = 0xffff0000;
 	private static final int PROGRAM_LAST_LINE_COLOR = 0xffff0000;
 
 	private static final int COMPILE_PENDING_COLOR = 0xffffff00;
@@ -80,11 +81,22 @@ public class ProgramEditingConsoleGui {
 
 			int index = ComputerConsole.CONSOLE_WIDTH - compileStatus.length();
 			_computerConsoleGui.drawMonospacedText(compileStatus, index * ComputerConsoleGui.CHARACTER_WIDTH, lastLineY, compileColor);
+
+			if (compileStatusObj != null && compileStatusObj.error != null) {
+				final IllegalSyntaxException error = compileStatusObj.error;
+				final int errorLine = error.getLine() - _editedDisplayStartY;
+				final int errorColumn = error.getColumn() - _editedDisplayStartX;
+
+				if (errorLine >= 0 && errorLine < ComputerConsole.CONSOLE_HEIGHT - 1
+								&& errorColumn >= 0 && errorColumn < ComputerConsole.CONSOLE_WIDTH) {
+					_computerConsoleGui.drawHorizontalLine(errorColumn * ComputerConsoleGui.CHARACTER_WIDTH, (errorColumn + 1) * ComputerConsoleGui.CHARACTER_WIDTH, errorLine * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_ERROR_UNDERLINE_COLOR);
+				}
+			}
 		}
 
 		_blinkDrawTick = ((++_blinkDrawTick) % BLINK_LENGTH);
 		if (_blinkDrawTick * 2 > BLINK_LENGTH)
-			_computerConsoleGui.drawVerticalLine((_editedProgramCursorX - _editedDisplayStartX) * ComputerConsoleGui.CHARACTER_WIDTH - 1, 1 + (_editedProgramCursorY - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, (_editedProgramCursorY - _editedDisplayStartY + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_CURSOR_COLOR);
+			_computerConsoleGui.drawVerticalLine((_editedProgramCursorX - _editedDisplayStartX) * ComputerConsoleGui.CHARACTER_WIDTH - 1, (_editedProgramCursorY - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, 1 + (_editedProgramCursorY - _editedDisplayStartY + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_CURSOR_COLOR);
 	}
 
 	public void keyTypedInEditingProgram(char character, int keyboardCharId) {

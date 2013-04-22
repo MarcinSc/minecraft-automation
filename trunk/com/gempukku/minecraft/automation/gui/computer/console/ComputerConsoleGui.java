@@ -179,6 +179,11 @@ public class ComputerConsoleGui extends GuiScreen {
 		super.drawVerticalLine(par1, par2, par3, par4);
 	}
 
+	@Override
+	protected void drawHorizontalLine(int par1, int par2, int par3, int par4) {
+		super.drawHorizontalLine(par1, par2, par3, par4);
+	}
+
 	protected void drawMonospacedText(String text, int x, int y, int color) {
 		_renderEngine.bindTexture("/font/default.png");
 
