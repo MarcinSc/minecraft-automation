@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation.gui.computer.console;
 
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.computer.ComputerConsole;
+import com.gempukku.minecraft.automation.lang.IllegalSyntaxException;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import org.lwjgl.input.Keyboard;
@@ -68,8 +69,11 @@ public class ProgramEditingConsoleGui {
 				if (compileStatusObj.success) {
 					compileStatus = "OK";
 					compileColor = COMPILE_OK_COLOR;
+				} else if (compileStatusObj.error != null) {
+					compileStatus = "[E]rror";
+					compileColor = COMPILE_ERROR_COLOR;
 				} else {
-					compileStatus = "Error";
+					compileStatus = "Unknown error";
 					compileColor = COMPILE_ERROR_COLOR;
 				}
 			}
@@ -163,6 +167,13 @@ public class ProgramEditingConsoleGui {
 					_computerConsoleGui.exitProgramming();
 				} else {
 					_waitingForExitConfirmation = true;
+				}
+			} else if (keyboardCharId == Keyboard.KEY_E && _computerConsoleGui.isCtrlKeyDown()) {
+				final CompileScriptOnTheFly.CompileStatus compileStatus = _onTheFlyCompiler.getCompileStatus();
+				if (compileStatus != null && compileStatus.error != null) {
+					final IllegalSyntaxException error = compileStatus.error;
+					_editedProgramCursorY = error.getLine();
+					_editedProgramCursorX = error.getColumn();
 				}
 			}
 

@@ -7,8 +7,6 @@ public class VariableStatement implements ExecutableStatement {
 	private String _name;
 
 	public VariableStatement(String name) throws IllegalSyntaxException {
-		if (LangDefinition.isReservedWord(name))
-			throw new IllegalSyntaxException("Invalid variable name");
 		_name = name;
 	}
 

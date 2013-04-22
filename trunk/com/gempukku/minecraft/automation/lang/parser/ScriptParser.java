@@ -3,7 +3,6 @@ package com.gempukku.minecraft.automation.lang.parser;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.statement.*;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.PeekingIterator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,11 +34,11 @@ public class ScriptParser {
 
 	private List<ExecutableStatement> seekStatementsInBlock(TermBlock termBlock) throws IllegalSyntaxException {
 		if (termBlock.isTerm()) {
-			throw new IllegalSyntaxException("Expression expected");
+			throw new IllegalSyntaxException(termBlock.getTerm(), "Expression expected");
 		} else {
 			List<ExecutableStatement> result = new LinkedList<ExecutableStatement>();
 			List<TermBlock> blocks = termBlock.getTermBlocks();
-			PeekingIterator<TermBlock> termBlockIter = Iterators.peekingIterator(blocks.iterator());
+			LastPeekingIterator<TermBlock> termBlockIter = new LastPeekingIterator<TermBlock>(Iterators.peekingIterator(blocks.iterator()));
 			while (termBlockIter.hasNext()) {
 				final ExecutableStatement resultStatement = produceStatementFromIterator(termBlockIter);
 				result.add(resultStatement);
@@ -50,7 +49,7 @@ public class ScriptParser {
 		}
 	}
 
-	private ExecutableStatement produceStatementFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceStatementFromIterator(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		TermBlock firstTermBlock = peekNextTermBlockSafely(termIterator);
 		if (firstTermBlock.isTerm()) {
 			Term firstTerm = firstTermBlock.getTerm();
@@ -83,22 +82,22 @@ public class ScriptParser {
 		}
 	}
 
-	private ExecutableStatement produceBreakStatement(PeekingIterator<TermBlock> termIterator) {
+	private ExecutableStatement produceBreakStatement(LastPeekingIterator<TermBlock> termIterator) {
 		consumeCharactersFromTerm(termIterator, 5);
 		return new BreakStatement();
 	}
 
-	private ExecutableStatement produceWhileStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceWhileStatement(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		consumeCharactersFromTerm(termIterator, 5);
 
 		if (!isNextTermStartingWith(termIterator, "("))
-			throw new IllegalSyntaxException("( expected");
+			throw new IllegalSyntaxException(termIterator, "( expected");
 		consumeCharactersFromTerm(termIterator, 1);
 
 		ExecutableStatement condition = produceExpressionFromIterator(termIterator);
 
 		if (!isNextTermStartingWith(termIterator, ")"))
-			throw new IllegalSyntaxException(") expected");
+			throw new IllegalSyntaxException(termIterator, ") expected");
 		consumeCharactersFromTerm(termIterator, 1);
 
 		ExecutableStatement statementInLoop = produceStatementFromGroupOrTerm(termIterator);
@@ -106,11 +105,11 @@ public class ScriptParser {
 		return new WhileStatement(condition, statementInLoop);
 	}
 
-	private ExecutableStatement produceForStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceForStatement(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		consumeCharactersFromTerm(termIterator, 3);
 
 		if (!isNextTermStartingWith(termIterator, "("))
-			throw new IllegalSyntaxException("( expected");
+			throw new IllegalSyntaxException(termIterator, "( expected");
 		consumeCharactersFromTerm(termIterator, 1);
 
 		ExecutableStatement firstStatement = null;
@@ -126,7 +125,7 @@ public class ScriptParser {
 			statementExecutedAfterEachLoop = produceStatementFromIterator(termIterator);
 
 		if (!isNextTermStartingWith(termIterator, ")"))
-			throw new IllegalSyntaxException(") expected");
+			throw new IllegalSyntaxException(termIterator, ") expected");
 		consumeCharactersFromTerm(termIterator, 1);
 
 		final ExecutableStatement statementInLoop = produceStatementFromGroupOrTerm(termIterator);
@@ -134,7 +133,7 @@ public class ScriptParser {
 		return new ForStatement(firstStatement, terminationCondition, statementExecutedAfterEachLoop, statementInLoop);
 	}
 
-	private ExecutableStatement produceIfStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceIfStatement(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		consumeCharactersFromTerm(termIterator, 2);
 
 		ExecutableStatement condition = produceConditionInBrackets(termIterator);
@@ -159,7 +158,7 @@ public class ScriptParser {
 		return ifStatement;
 	}
 
-	private ExecutableStatement produceStatementFromGroupOrTerm(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceStatementFromGroupOrTerm(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		ExecutableStatement statement;
 		final TermBlock ifExecute = peekNextTermBlockSafely(termIterator);
 		if (ifExecute.isTerm()) {
@@ -177,20 +176,20 @@ public class ScriptParser {
 		return statement;
 	}
 
-	private ExecutableStatement produceConditionInBrackets(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceConditionInBrackets(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		if (!isNextTermStartingWith(termIterator, "("))
-			throw new IllegalSyntaxException("( expected");
+			throw new IllegalSyntaxException(termIterator, "( expected");
 		consumeCharactersFromTerm(termIterator, 1);
 
 		ExecutableStatement condition = produceExpressionFromIterator(termIterator);
 
 		if (!isNextTermStartingWith(termIterator, ")"))
-			throw new IllegalSyntaxException(") expected");
+			throw new IllegalSyntaxException(termIterator, ") expected");
 		consumeCharactersFromTerm(termIterator, 1);
 		return condition;
 	}
 
-	private boolean isNextLiteral(PeekingIterator<TermBlock> termIterator, String literal) throws IllegalSyntaxException {
+	private boolean isNextLiteral(LastPeekingIterator<TermBlock> termIterator, String literal) throws IllegalSyntaxException {
 		if (isNextTermStartingWith(termIterator, literal)) {
 			final Term term = peekNextProgramTermSafely(termIterator);
 			if (getFirstLiteral(term.getValue()).equals(literal))
@@ -199,17 +198,17 @@ public class ScriptParser {
 		return false;
 	}
 
-	private ExecutableStatement produceDefineFunctionStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceDefineFunctionStatement(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		consumeCharactersFromTerm(termIterator, 8);
 		Term functionDefTerm = peekNextProgramTermSafely(termIterator);
 
 		String functionName = getFirstLiteral(functionDefTerm.getValue());
 		if (LangDefinition.isReservedWord(functionName))
-			throw new IllegalSyntaxException("Invalid function name");
+			throw new IllegalSyntaxException(functionDefTerm, "Invalid function name");
 		consumeCharactersFromTerm(termIterator, functionName.length());
 
 		if (!isNextTermStartingWith(termIterator, "("))
-			throw new IllegalSyntaxException("( expected");
+			throw new IllegalSyntaxException(termIterator, "( expected");
 		consumeCharactersFromTerm(termIterator, 1);
 
 		List<String> parameterNames = new ArrayList<String>();
@@ -223,16 +222,16 @@ public class ScriptParser {
 		consumeCharactersFromTerm(termIterator, 1);
 
 		if (!termIterator.hasNext())
-			throw new IllegalSyntaxException("{ expected");
+			throw new IllegalSyntaxException(termIterator, "{ expected");
 		final TermBlock functionBodyBlock = termIterator.next();
 		if (functionBodyBlock.isTerm())
-			throw new IllegalSyntaxException("{ expected");
+			throw new IllegalSyntaxException(termIterator, "{ expected");
 
 		final List<ExecutableStatement> functionBody = seekStatementsInBlock(functionBodyBlock);
 		return new DefineFunctionStatement(functionName, parameterNames, functionBody);
 	}
 
-	private ExecutableStatement produceVarStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceVarStatement(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		consumeCharactersFromTerm(termIterator, 3);
 		final Term variableTerm = peekNextProgramTermSafely(termIterator);
 		String variableName = getFirstLiteral(variableTerm.getValue());
@@ -244,7 +243,7 @@ public class ScriptParser {
 			return new DefineStatement(variableName);
 
 		if (!isNextTermStartingWith(termIterator, "="))
-			throw new IllegalSyntaxException("Expected =");
+			throw new IllegalSyntaxException(termIterator, "Expected =");
 
 		consumeCharactersFromTerm(termIterator, 1);
 
@@ -252,14 +251,14 @@ public class ScriptParser {
 		return new DefineAndAssignStatement(variableName, value);
 	}
 
-	private ExecutableStatement produceReturnStatement(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceReturnStatement(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		consumeCharactersFromTerm(termIterator, 6);
 		if (isNextTermStartingWithSemicolon(termIterator))
 			return new ReturnStatement(new ConstantStatement(new Variable(null)));
 		return new ReturnStatement(produceExpressionFromIterator(termIterator));
 	}
 
-	private void consumeCharactersFromTerm(PeekingIterator<TermBlock> termIterator, int charCount) {
+	private void consumeCharactersFromTerm(LastPeekingIterator<TermBlock> termIterator, int charCount) {
 		final Term term = termIterator.peek().getTerm();
 		String termText = term.getValue();
 		String termRemainder = termText.substring(charCount).trim();
@@ -269,19 +268,19 @@ public class ScriptParser {
 			termIterator.next();
 	}
 
-	private void consumeSemicolon(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private void consumeSemicolon(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		Term term = peekNextProgramTermSafely(termIterator);
 		String value = term.getValue();
 		if (!value.startsWith(";"))
-			throw new IllegalSyntaxException("; expected");
+			throw new IllegalSyntaxException(term, "; expected");
 		consumeCharactersFromTerm(termIterator, 1);
 	}
 
-	private ExecutableStatement produceExpressionFromIterator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement produceExpressionFromIterator(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		return parseExpression(termIterator, parseNextOperationToken(termIterator), Integer.MAX_VALUE);
 	}
 
-	private ExecutableStatement parseExpression(PeekingIterator<TermBlock> termIterator, ExecutableStatement left, int maxPriority) throws IllegalSyntaxException {
+	private ExecutableStatement parseExpression(LastPeekingIterator<TermBlock> termIterator, ExecutableStatement left, int maxPriority) throws IllegalSyntaxException {
 		// Based on algorithm from http://en.wikipedia.org/wiki/Operator-precedence_parser on March 28, 2013
 		Operator operator;
 		while ((operator = peekNextOperator(termIterator)) != null &&
@@ -295,7 +294,7 @@ public class ScriptParser {
 
 				ExecutableStatement right = parseNextOperationToken(termIterator);
 				if (right == null)
-					throw new IllegalSyntaxException("Expression expected");
+					throw new IllegalSyntaxException(termIterator, "Expression expected");
 				Operator nextOperator;
 				while ((nextOperator = peekNextOperator(termIterator)) != null &&
 								(nextOperator.getPriority() < operator.getPriority() ||
@@ -327,14 +326,14 @@ public class ScriptParser {
 		return left;
 	}
 
-	private List<ExecutableStatement> parseParameters(PeekingIterator<TermBlock> termIterator, String parametersClosing) throws IllegalSyntaxException {
+	private List<ExecutableStatement> parseParameters(LastPeekingIterator<TermBlock> termIterator, String parametersClosing) throws IllegalSyntaxException {
 		boolean first = true;
 		List<ExecutableStatement> parameters;
 		parameters = new ArrayList<ExecutableStatement>();
 		while (!isNextTermStartingWith(termIterator, parametersClosing)) {
 			if (!first) {
 				if (!isNextTermStartingWith(termIterator, ","))
-					throw new IllegalSyntaxException(", expected");
+					throw new IllegalSyntaxException(termIterator, ", expected");
 				consumeCharactersFromTerm(termIterator, 1);
 			}
 
@@ -345,7 +344,7 @@ public class ScriptParser {
 		return parameters;
 	}
 
-	private Operator peekNextOperator(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private Operator peekNextOperator(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		if (!termIterator.hasNext())
 			return null;
 		final Term term = peekNextProgramTermSafely(termIterator);
@@ -416,7 +415,7 @@ public class ScriptParser {
 			return new MathStatement(left, operator, right);
 	}
 
-	private ExecutableStatement parseNextOperationToken(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private ExecutableStatement parseNextOperationToken(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		ExecutableStatement result;
 		TermBlock termBlock = peekNextTermBlockSafely(termIterator);
 		if (termBlock.isTerm()) {
@@ -433,7 +432,7 @@ public class ScriptParser {
 					consumeCharactersFromTerm(termIterator, 1);
 					result = produceExpressionFromIterator(termIterator);
 					if (!isNextTermStartingWith(termIterator, ")"))
-						throw new IllegalSyntaxException(") expected");
+						throw new IllegalSyntaxException(termIterator, ") expected");
 					consumeCharactersFromTerm(termIterator, 1);
 				} else if (Character.isDigit(termValue.charAt(0)) || termValue.charAt(0) == '-') {
 					String numberInStr = getNumber(termValue);
@@ -451,8 +450,11 @@ public class ScriptParser {
 							result = new ConstantStatement(new Variable(false));
 						else if (literal.equals("null"))
 							result = new ConstantStatement(new Variable(null));
-						else
+						else {
+							if (LangDefinition.isReservedWord(literal))
+								throw new IllegalSyntaxException(term, "Invalid variable name");
 							result = new VariableStatement(literal);
+						}
 					} else {
 						// It might be operator
 						result = null;
@@ -470,17 +472,17 @@ public class ScriptParser {
 
 	private ExecutableStatement produceMapDefinitionFromBlock(TermBlock termBlock) throws IllegalSyntaxException {
 		MapDefineStatement mapStatement = new MapDefineStatement();
-		final PeekingIterator<TermBlock> iterator = Iterators.peekingIterator(termBlock.getTermBlocks().iterator());
+		final LastPeekingIterator<TermBlock> iterator = new LastPeekingIterator<TermBlock>(Iterators.peekingIterator(termBlock.getTermBlocks().iterator()));
 		boolean first = true;
 		while (iterator.hasNext()) {
 			if (!first) {
 				if (!isNextTermStartingWith(iterator, ","))
-					throw new IllegalSyntaxException(", expected");
+					throw new IllegalSyntaxException(iterator, ", expected");
 				consumeCharactersFromTerm(iterator, 1);
 			}
 			final TermBlock property = iterator.peek();
 			if (!property.isTerm())
-				throw new IllegalSyntaxException("Property name expected");
+				throw new IllegalSyntaxException(property.getBlockStartLine(), property.getBlockStartColumn(), "Property name expected");
 			String propertyName;
 			int propertyLine;
 			int propertyColumn;
@@ -498,7 +500,7 @@ public class ScriptParser {
 			}
 
 			if (!isNextTermStartingWith(iterator, ":"))
-				throw new IllegalSyntaxException(": expected");
+				throw new IllegalSyntaxException(iterator, ": expected");
 			consumeCharactersFromTerm(iterator, 1);
 
 			mapStatement.addProperty(propertyLine, propertyColumn, propertyName, produceExpressionFromIterator(iterator));
@@ -540,32 +542,32 @@ public class ScriptParser {
 		return sb.toString();
 	}
 
-	private Term peekNextProgramTermSafely(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private Term peekNextProgramTermSafely(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		if (termIterator.hasNext()) {
 			TermBlock termBlock = termIterator.peek();
 			if (!termBlock.isTerm())
-				throw new IllegalSyntaxException("Expression expected");
+				throw new IllegalSyntaxException(termIterator, "Expression expected");
 
 			Term term = termBlock.getTerm();
 			if (term.getType() != Term.Type.PROGRAM)
-				throw new IllegalSyntaxException("Expression expected");
+				throw new IllegalSyntaxException(termIterator, "Expression expected");
 			return term;
 		} else
-			throw new IllegalSyntaxException("Expression expected");
+			throw new IllegalSyntaxException(termIterator, "Expression expected");
 	}
 
-	private TermBlock peekNextTermBlockSafely(PeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private TermBlock peekNextTermBlockSafely(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
 		if (termIterator.hasNext()) {
 			return termIterator.peek();
 		} else
-			throw new IllegalSyntaxException("Expression expected");
+			throw new IllegalSyntaxException(termIterator, "Expression expected");
 	}
 
-	private boolean isNextTermStartingWithSemicolon(PeekingIterator<TermBlock> termIterator) {
+	private boolean isNextTermStartingWithSemicolon(LastPeekingIterator<TermBlock> termIterator) {
 		return isNextTermStartingWith(termIterator, ";");
 	}
 
-	private boolean isNextTermStartingWith(PeekingIterator<TermBlock> termIterator, String text) {
+	private boolean isNextTermStartingWith(LastPeekingIterator<TermBlock> termIterator, String text) {
 		if (termIterator.hasNext()) {
 			final TermBlock termBlock = termIterator.peek();
 			if (termBlock.isTerm()) {
@@ -595,7 +597,7 @@ public class ScriptParser {
 	private TermBlock constructBlocks(List<Term> terms) throws IllegalSyntaxException {
 		LinkedList<TermBlock> termBlocksStack = new LinkedList<TermBlock>();
 
-		TermBlock result = new TermBlock();
+		TermBlock result = new TermBlock(0, 0);
 		TermBlock currentBlock = result;
 
 		for (Term term : terms) {
@@ -615,7 +617,7 @@ public class ScriptParser {
 							appendProgramTerm(currentBlock, beforeTrimmed, term.getLine(), newColumn);
 						}
 						termBlocksStack.add(currentBlock);
-						TermBlock childBlock = new TermBlock();
+						TermBlock childBlock = new TermBlock(term.getLine(), open);
 						currentBlock.addTermBlock(childBlock);
 						currentBlock = childBlock;
 						value = after;
@@ -629,7 +631,8 @@ public class ScriptParser {
 							appendProgramTerm(currentBlock, beforeTrimmed, term.getLine(), newColumn);
 						}
 						if (termBlocksStack.size() == 0)
-							throw new IllegalSyntaxException("Found closing bracket for no block");
+							throw new IllegalSyntaxException(term.getLine(), close, "Found closing bracket for no block");
+						currentBlock.terminateTermBlock(term.getLine(), close);
 						currentBlock = termBlocksStack.removeLast();
 						value = after;
 						columnIncrement += close + 1;
@@ -646,7 +649,7 @@ public class ScriptParser {
 		}
 
 		if (termBlocksStack.size() > 0)
-			throw new IllegalSyntaxException("Unclosed bracket - }");
+			throw new IllegalSyntaxException(0, 0, "Unclosed bracket - }");
 
 		return result;
 	}
@@ -701,9 +704,9 @@ public class ScriptParser {
 						if (lineChars[i] == '\"' || lineChars[i] == '\\')
 							valueSoFar.append(lineChars[i]);
 						else
-							throw new IllegalSyntaxException("Illegal escape sequence in String \\" + lineChars[i]);
+							throw new IllegalSyntaxException(lineNumber, i, "Illegal escape sequence in String \\" + lineChars[i]);
 					} else {
-						throw new IllegalSyntaxException("Unfinished escape sequence in String");
+						throw new IllegalSyntaxException(lineNumber, i, "Unfinished escape sequence in String");
 					}
 				} else {
 					valueSoFar.append(lineChars[i]);
