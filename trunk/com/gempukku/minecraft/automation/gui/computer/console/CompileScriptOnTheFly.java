@@ -20,6 +20,7 @@ public class CompileScriptOnTheFly {
 	public CompileScriptOnTheFly() {
 		_predefinedVariables.add("os");
 		_predefinedVariables.add("console");
+		_predefinedVariables.add("computer");
 	}
 
 	public void startCompiler() {

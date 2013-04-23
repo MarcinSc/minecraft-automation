@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.computer.os;
+package com.gempukku.minecraft.automation.computer.computer;
 
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;

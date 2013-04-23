@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.computer.os;
+package com.gempukku.minecraft.automation.computer.computer;
 
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
