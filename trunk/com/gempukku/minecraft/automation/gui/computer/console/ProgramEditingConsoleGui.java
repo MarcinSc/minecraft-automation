@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ProgramEditingConsoleGui {
@@ -210,10 +211,21 @@ public class ProgramEditingConsoleGui {
 	private void handleEnter(StringBuilder editedLine) {
 		String remainingInLine = editedLine.substring(_editedProgramCursorX);
 		editedLine.delete(_editedProgramCursorX, editedLine.length());
-		_editedProgramLines.add(_editedProgramCursorY + 1, new StringBuilder(remainingInLine));
-		_editedProgramCursorX = 0;
+		int spaceCount = getSpaceCount(editedLine.toString());
+		char[] spacesPrefix = new char[spaceCount];
+		Arrays.fill(spacesPrefix, ' ');
+		_editedProgramLines.add(_editedProgramCursorY + 1, new StringBuilder(new String(spacesPrefix) + remainingInLine));
+		_editedProgramCursorX = spaceCount;
 		_editedProgramCursorY++;
 		programModified();
+	}
+
+	private int getSpaceCount(String s) {
+		final char[] chars = s.toCharArray();
+		for (int i = 0; i < chars.length; i++)
+			if (chars[i] != ' ')
+				return i;
+		return chars.length;
 	}
 
 	private void handleEnd(StringBuilder editedLine) {
