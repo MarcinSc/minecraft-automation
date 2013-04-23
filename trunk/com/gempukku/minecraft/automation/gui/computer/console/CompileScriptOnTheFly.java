@@ -5,6 +5,8 @@ import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CompileScriptOnTheFly {
 	private volatile CompileStatus _compileStatus;
@@ -12,6 +14,12 @@ public class CompileScriptOnTheFly {
 	private volatile boolean _finishedEditing;
 
 	private final Object _lockObject = new Object();
+	private ScriptParser _scriptParser = new ScriptParser();
+	private Set<String> _predefinedVariables = new HashSet<String>();
+
+	public CompileScriptOnTheFly() {
+		_predefinedVariables.add("os");
+	}
 
 	public void startCompiler() {
 		Thread thr = new Thread(
@@ -52,9 +60,8 @@ public class CompileScriptOnTheFly {
 
 			CompileStatus newCompileStatus = null;
 			if (scriptText != null) {
-				ScriptParser parser = new ScriptParser();
 				try {
-					parser.parseScript(new StringReader(scriptText));
+					_scriptParser.parseScript(new StringReader(scriptText), _predefinedVariables);
 					newCompileStatus = new CompileStatus(true, null);
 				} catch (IllegalSyntaxException exp) {
 					newCompileStatus = new CompileStatus(false, exp);

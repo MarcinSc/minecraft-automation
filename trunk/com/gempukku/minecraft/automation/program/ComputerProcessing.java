@@ -32,11 +32,13 @@ public class ComputerProcessing {
 	private ServerAutomationRegistry _registry;
 	private ScriptParser _scriptParser;
 	private Map<Integer, RunningProgram> _runningPrograms = new HashMap<Integer, RunningProgram>();
+	private Set<String> _predefinedVariables = new HashSet<String>();
 
 	public ComputerProcessing(File savesFolder, ServerAutomationRegistry registry) {
 		_savesFolder = savesFolder;
 		_registry = registry;
 		_scriptParser = new ScriptParser();
+		_predefinedVariables.add("os");
 	}
 
 	public boolean isRunningProgram(int computerId) {
@@ -199,7 +201,7 @@ public class ComputerProcessing {
 		try {
 			FileReader reader = new FileReader(computerProgram);
 			try {
-				return _scriptParser.parseScript(reader);
+				return _scriptParser.parseScript(reader, _predefinedVariables);
 			} finally {
 				try {
 					reader.close();
