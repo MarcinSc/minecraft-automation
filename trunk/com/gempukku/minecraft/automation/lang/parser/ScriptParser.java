@@ -491,35 +491,7 @@ public class ScriptParser {
 						else if (literal.equals("null"))
 							result = new ConstantStatement(new Variable(null));
 						else if (literal.equals("function")) {
-							validateNextTermStartingWith(termIterator, "(");
-							consumeCharactersFromTerm(termIterator, 1);
-
-							List<String> parameterNames = new ArrayList<String>();
-							while (!isNextTermStartingWith(termIterator, ")")) {
-								String parameterName = getFirstLiteral(term.getValue());
-								consumeCharactersFromTerm(termIterator, parameterName.length());
-								parameterNames.add(parameterName);
-								if (isNextTermStartingWith(termIterator, ","))
-									consumeCharactersFromTerm(termIterator, 1);
-							}
-							consumeCharactersFromTerm(termIterator, 1);
-
-							if (!termIterator.hasNext())
-								throw new IllegalSyntaxException(termIterator, "{ expected");
-							final TermBlock functionBodyBlock = termIterator.next();
-							if (functionBodyBlock.isTerm())
-								throw new IllegalSyntaxException(termIterator, "{ expected");
-
-							definedVariables.pushNewContext();
-							try {
-								for (String parameterName : parameterNames)
-									definedVariables.addDefinedVariable(parameterName);
-
-								final List<ExecutableStatement> functionBody = seekStatementsInBlock(functionBodyBlock, definedVariables);
-								result = new FunctionStatement(parameterNames, functionBody);
-							} finally {
-								definedVariables.popContext();
-							}
+							result = produceFunctionFromIterator(termIterator, definedVariables, term);
 						} else {
 							if (named) {
 								result = new NamedStatement(literal);
@@ -542,6 +514,40 @@ public class ScriptParser {
 			result = produceMapDefinitionFromBlock(termBlock, definedVariables);
 			// Consume the block
 			termIterator.next();
+		}
+		return result;
+	}
+
+	private ExecutableStatement produceFunctionFromIterator(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, Term term) throws IllegalSyntaxException {
+		ExecutableStatement result;
+		validateNextTermStartingWith(termIterator, "(");
+		consumeCharactersFromTerm(termIterator, 1);
+
+		List<String> parameterNames = new ArrayList<String>();
+		while (!isNextTermStartingWith(termIterator, ")")) {
+			String parameterName = getFirstLiteral(term.getValue());
+			consumeCharactersFromTerm(termIterator, parameterName.length());
+			parameterNames.add(parameterName);
+			if (isNextTermStartingWith(termIterator, ","))
+				consumeCharactersFromTerm(termIterator, 1);
+		}
+		consumeCharactersFromTerm(termIterator, 1);
+
+		if (!termIterator.hasNext())
+			throw new IllegalSyntaxException(termIterator, "{ expected");
+		final TermBlock functionBodyBlock = termIterator.next();
+		if (functionBodyBlock.isTerm())
+			throw new IllegalSyntaxException(termIterator, "{ expected");
+
+		definedVariables.pushNewContext();
+		try {
+			for (String parameterName : parameterNames)
+				definedVariables.addDefinedVariable(parameterName);
+
+			final List<ExecutableStatement> functionBody = seekStatementsInBlock(functionBodyBlock, definedVariables);
+			result = new FunctionStatement(parameterNames, functionBody);
+		} finally {
+			definedVariables.popContext();
 		}
 		return result;
 	}
