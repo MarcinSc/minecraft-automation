@@ -120,81 +120,29 @@ public class ProgramEditingConsoleGui {
 				_editedProgramCursorX++;
 				programModified();
 			} else if (keyboardCharId == Keyboard.KEY_BACK) {
-				if (_editedProgramCursorX > 0) {
-					editedLine.delete(_editedProgramCursorX - 1, _editedProgramCursorX);
-					_editedProgramCursorX--;
-				} else if (_editedProgramCursorY > 0) {
-					StringBuilder previousLine = _editedProgramLines.get(_editedProgramCursorY - 1);
-					_editedProgramCursorX = previousLine.length();
-					previousLine.append(editedLine);
-					_editedProgramLines.remove(_editedProgramCursorY);
-					_editedProgramCursorY--;
-				}
-				programModified();
+				handleBackspace(editedLine);
 			} else if (keyboardCharId == Keyboard.KEY_DELETE) {
-				if (_editedProgramCursorX < editedLine.length()) {
-					editedLine.delete(_editedProgramCursorX, _editedProgramCursorX + 1);
-				} else if (_editedProgramCursorY < _editedProgramLines.size() - 1) {
-					editedLine.append(_editedProgramLines.get(_editedProgramCursorY + 1));
-					_editedProgramLines.remove(_editedProgramCursorY + 1);
-				}
-				programModified();
+				handleDelete(editedLine);
 			} else if (keyboardCharId == Keyboard.KEY_LEFT) {
-				if (_editedProgramCursorX > 0) {
-					_editedProgramCursorX--;
-				} else if (_editedProgramCursorY > 0) {
-					_editedProgramCursorX = _editedProgramLines.get(_editedProgramCursorY - 1).length();
-					_editedProgramCursorY--;
-				}
+				handleLeft();
 			} else if (keyboardCharId == Keyboard.KEY_RIGHT) {
-				if (_editedProgramCursorX < editedLine.length()) {
-					_editedProgramCursorX++;
-				} else if (_editedProgramCursorY < _editedProgramLines.size() - 1) {
-					_editedProgramCursorX = 0;
-					_editedProgramCursorY++;
-				}
+				handleRight(editedLine);
 			} else if (keyboardCharId == Keyboard.KEY_UP && _editedProgramCursorY > 0) {
-				_editedProgramCursorY--;
+				handleUp();
 			} else if (keyboardCharId == Keyboard.KEY_DOWN && _editedProgramCursorY < _editedProgramLines.size() - 1) {
-				_editedProgramCursorY++;
+				handleDown();
 			} else if (keyboardCharId == Keyboard.KEY_HOME) {
-				_editedProgramCursorX = 0;
+				handleHome();
 			} else if (keyboardCharId == Keyboard.KEY_END) {
-				_editedProgramCursorX = editedLine.length();
+				handleEnd(editedLine);
 			} else if (keyboardCharId == Keyboard.KEY_RETURN) {
-				String remainingInLine = editedLine.substring(_editedProgramCursorX);
-				editedLine.delete(_editedProgramCursorX, editedLine.length());
-				_editedProgramLines.add(_editedProgramCursorY + 1, new StringBuilder(remainingInLine));
-				_editedProgramCursorX = 0;
-				_editedProgramCursorY++;
-				programModified();
+				handleEnter(editedLine);
 			} else if (keyboardCharId == Keyboard.KEY_S && _computerConsoleGui.isCtrlKeyDown()) {
-				String program = getProgramText();
-				try {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					DataOutputStream os = new DataOutputStream(baos);
-					os.writeUTF(_editedProgramName);
-					os.writeUTF(program);
-					PacketDispatcher.sendPacketToServer(new Packet250CustomPayload(Automation.SAVE_PROGRAM, baos.toByteArray()));
-					_programSaveDirty = false;
-				} catch (IOException exp) {
-					// TODO
-				}
+				handleSave();
 			} else if (keyboardCharId == Keyboard.KEY_X && _computerConsoleGui.isCtrlKeyDown()) {
-				if (!_programSaveDirty) {
-					_onTheFlyCompiler.finishedEditing();
-					_computerConsoleGui.exitProgramming();
-				} else {
-					_waitingForExitConfirmation = true;
-				}
+				handleExit();
 			} else if (keyboardCharId == Keyboard.KEY_E && _computerConsoleGui.isCtrlKeyDown()) {
-				final CompileScriptOnTheFly.CompileStatus compileStatus = _onTheFlyCompiler.getCompileStatus();
-				if (compileStatus != null && compileStatus.error != null) {
-					final IllegalSyntaxException error = compileStatus.error;
-					_editedProgramCursorY = error.getLine();
-					_editedProgramCursorX = error.getColumn();
-					_displayErrorMessage = true;
-				}
+				handleDisplayError();
 			}
 
 			// Adjust cursor X position to be within the program line
@@ -224,6 +172,106 @@ public class ProgramEditingConsoleGui {
 			_onTheFlyCompiler.submitCompileRequest(getProgramText());
 			_programCompileDirty = false;
 		}
+	}
+
+	private void handleDisplayError() {
+		final CompileScriptOnTheFly.CompileStatus compileStatus = _onTheFlyCompiler.getCompileStatus();
+		if (compileStatus != null && compileStatus.error != null) {
+			final IllegalSyntaxException error = compileStatus.error;
+			_editedProgramCursorY = error.getLine();
+			_editedProgramCursorX = error.getColumn();
+			_displayErrorMessage = true;
+		}
+	}
+
+	private void handleExit() {
+		if (!_programSaveDirty) {
+			_onTheFlyCompiler.finishedEditing();
+			_computerConsoleGui.exitProgramming();
+		} else {
+			_waitingForExitConfirmation = true;
+		}
+	}
+
+	private void handleSave() {
+		String program = getProgramText();
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			DataOutputStream os = new DataOutputStream(baos);
+			os.writeUTF(_editedProgramName);
+			os.writeUTF(program);
+			PacketDispatcher.sendPacketToServer(new Packet250CustomPayload(Automation.SAVE_PROGRAM, baos.toByteArray()));
+			_programSaveDirty = false;
+		} catch (IOException exp) {
+			// TODO
+		}
+	}
+
+	private void handleEnter(StringBuilder editedLine) {
+		String remainingInLine = editedLine.substring(_editedProgramCursorX);
+		editedLine.delete(_editedProgramCursorX, editedLine.length());
+		_editedProgramLines.add(_editedProgramCursorY + 1, new StringBuilder(remainingInLine));
+		_editedProgramCursorX = 0;
+		_editedProgramCursorY++;
+		programModified();
+	}
+
+	private void handleEnd(StringBuilder editedLine) {
+		_editedProgramCursorX = editedLine.length();
+	}
+
+	private void handleHome() {
+		_editedProgramCursorX = 0;
+	}
+
+	private void handleDown() {
+		_editedProgramCursorY++;
+	}
+
+	private void handleUp() {
+		_editedProgramCursorY--;
+	}
+
+	private void handleRight(StringBuilder editedLine) {
+		if (_editedProgramCursorX < editedLine.length()) {
+			_editedProgramCursorX++;
+		} else if (_editedProgramCursorY < _editedProgramLines.size() - 1) {
+			_editedProgramCursorX = 0;
+			_editedProgramCursorY++;
+		}
+	}
+
+	private void handleLeft() {
+		if (_editedProgramCursorX > 0) {
+			_editedProgramCursorX--;
+		} else if (_editedProgramCursorY > 0) {
+			_editedProgramCursorX = _editedProgramLines.get(_editedProgramCursorY - 1).length();
+			_editedProgramCursorY--;
+		}
+	}
+
+	private void handleDelete(StringBuilder editedLine) {
+		if (_editedProgramCursorX < editedLine.length()) {
+			editedLine.delete(_editedProgramCursorX, _editedProgramCursorX + 1);
+		} else if (_editedProgramCursorY < _editedProgramLines.size() - 1) {
+			editedLine.append(_editedProgramLines.get(_editedProgramCursorY + 1));
+			_editedProgramLines.remove(_editedProgramCursorY + 1);
+		}
+		programModified();
+	}
+
+	private void handleBackspace(StringBuilder editedLine) {
+		if (_editedProgramCursorX > 0) {
+			editedLine.delete(_editedProgramCursorX - 1, _editedProgramCursorX);
+			_editedProgramCursorX--;
+		} else if (_editedProgramCursorY > 0) {
+			StringBuilder previousLine = _editedProgramLines.get(_editedProgramCursorY - 1);
+			_editedProgramCursorX = previousLine.length();
+			previousLine.append(editedLine);
+			_editedProgramLines.remove(_editedProgramCursorY);
+			_editedProgramCursorY--;
+		}
+		programModified();
 	}
 
 	private String getProgramText() {
