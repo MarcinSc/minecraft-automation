@@ -2,11 +2,13 @@ package com.gempukku.minecraft.automation.gui.computer.console;
 
 import com.gempukku.minecraft.automation.lang.IllegalSyntaxException;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
+import cpw.mods.fml.common.FMLLog;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class CompileScriptOnTheFly {
 	private volatile CompileStatus _compileStatus;
@@ -67,12 +69,11 @@ public class CompileScriptOnTheFly {
 					newCompileStatus = new CompileStatus(true, null);
 				} catch (IllegalSyntaxException exp) {
 					newCompileStatus = new CompileStatus(false, exp);
-					System.out.println(exp.getMessage());
 				} catch (IOException exp) {
 					// Can't really happen, as we use StringReader, but oh well
 					newCompileStatus = new CompileStatus(false, null);
 				} catch (RuntimeException exp) {
-					exp.printStackTrace();
+					FMLLog.log("Automation", Level.WARNING, exp, "Error while parsing script on client");
 					newCompileStatus = new CompileStatus(false, null);
 				}
 			}

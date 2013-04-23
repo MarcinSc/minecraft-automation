@@ -65,12 +65,19 @@ public class ProgramEditingConsoleGui {
 		if (_waitingForExitConfirmation) {
 			_computerConsoleGui.drawMonospacedText("File was not saved, exit? [Y]es/[N]o", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
 		} else if (_displayErrorMessage && compileStatusObj != null && compileStatusObj.error != null) {
-			_computerConsoleGui.drawMonospacedText(compileStatusObj.error.getMessage(), 0, lastLineY, PROGRAM_ERROR_MESSAGE_COLOR);
+			final IllegalSyntaxException error = compileStatusObj.error;
+			_computerConsoleGui.drawMonospacedText(error.getMessage(), 0, lastLineY, PROGRAM_ERROR_MESSAGE_COLOR);
+			final int errorLine = error.getLine() - _editedDisplayStartY;
+			final int errorColumn = error.getColumn() - _editedDisplayStartX;
+
+			if (errorLine >= 0 && errorLine < ComputerConsole.CONSOLE_HEIGHT - 1
+							&& errorColumn >= 0 && errorColumn < ComputerConsole.CONSOLE_WIDTH)
+				_computerConsoleGui.drawHorizontalLine(errorColumn * ComputerConsoleGui.CHARACTER_WIDTH, (errorColumn + 1) * ComputerConsoleGui.CHARACTER_WIDTH, (errorLine + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_ERROR_UNDERLINE_COLOR);
 		} else {
 			_computerConsoleGui.drawMonospacedText("[S]ave E[x]it", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
 
 			if (_programSaveDirty)
-				_computerConsoleGui.drawMonospacedText("*", 15 * ComputerConsoleGui.CHARACTER_WIDTH, 0, PROGRAM_LAST_LINE_COLOR);
+				_computerConsoleGui.drawMonospacedText("*", 15 * ComputerConsoleGui.CHARACTER_WIDTH, lastLineY, PROGRAM_LAST_LINE_COLOR);
 
 			String compileStatus = "...";
 			int compileColor = COMPILE_PENDING_COLOR;

@@ -67,21 +67,21 @@ public class ScriptParser {
 				final String value = firstTerm.getValue();
 				if (value.length() == 0)
 					throw new IllegalSyntaxException(firstTerm, "Expression expected");
+
+				int line = firstTerm.getLine();
+				int column = firstTerm.getColumn();
+
 				String literal = getFirstLiteral(value);
 				if (literal.equals("return")) {
 					return produceReturnStatement(termIterator, definedVariables);
 				} else if (literal.equals("var")) {
 					final DefiningExecutableStatement definingExecutableStatement = produceVarStatement(termIterator, definedVariables);
 					String variableName = definingExecutableStatement.getDefinedVariableName();
-					if (definedVariables.isVariableDefinedInSameScope(variableName))
-						throw new IllegalSyntaxException("Variable already defined");
 					definedVariables.addDefinedVariable(variableName);
 					return definingExecutableStatement;
 				} else if (literal.equals("function")) {
 					final DefiningExecutableStatement definingExecutableStatement = produceDefineFunctionStatement(termIterator, definedVariables);
 					String variableName = definingExecutableStatement.getDefinedVariableName();
-					if (definedVariables.isVariableDefinedInSameScope(variableName))
-						throw new IllegalSyntaxException("Variable already defined");
 					definedVariables.addDefinedVariable(variableName);
 					return definingExecutableStatement;
 				} else if (literal.equals("if")) {
@@ -233,6 +233,8 @@ public class ScriptParser {
 		String functionName = getFirstLiteral(functionDefTerm.getValue());
 		if (LangDefinition.isReservedWord(functionName))
 			throw new IllegalSyntaxException(functionDefTerm, "Invalid function name");
+		if (definedVariables.isVariableDefinedInSameScope(functionName))
+			throw new IllegalSyntaxException(functionDefTerm, "Variable already defined");
 		consumeCharactersFromTerm(termIterator, functionName.length());
 
 		validateNextTermStartingWith(termIterator, "(");
@@ -272,6 +274,9 @@ public class ScriptParser {
 		String variableName = getFirstLiteral(variableTerm.getValue());
 		if (LangDefinition.isReservedWord(variableName))
 			throw new IllegalSyntaxException(variableTerm, "Invalid variable name");
+		if (definedVariables.isVariableDefinedInSameScope(variableName))
+			throw new IllegalSyntaxException(variableTerm, "Variable already defined");
+
 		consumeCharactersFromTerm(termIterator, variableName.length());
 
 		if (isNextTermStartingWith(termIterator, ";"))
@@ -467,6 +472,8 @@ public class ScriptParser {
 				// Consume the String
 				termIterator.next();
 			} else {
+				int line = term.getLine();
+				int column = term.getColumn();
 				// PROGRAM term
 				String termValue = term.getValue();
 				if (termValue.charAt(0) == '(') {
@@ -497,9 +504,9 @@ public class ScriptParser {
 								result = new NamedStatement(literal);
 							} else {
 								if (LangDefinition.isReservedWord(literal))
-									throw new IllegalSyntaxException(term, "Invalid variable name");
+									throw new IllegalSyntaxException(line, column, "Invalid variable name");
 								if (!definedVariables.isVariableDefined(literal))
-									throw new IllegalSyntaxException("Variable " + literal + " not defined in scope");
+									throw new IllegalSyntaxException(line, column, "Variable " + literal + " not defined in scope");
 								result = new VariableStatement(literal);
 							}
 						}
