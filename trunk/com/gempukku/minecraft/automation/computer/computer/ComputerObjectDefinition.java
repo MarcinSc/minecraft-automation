@@ -6,6 +6,7 @@ import com.gempukku.minecraft.automation.lang.Variable;
 
 public class ComputerObjectDefinition implements ObjectDefinition {
 	private Variable _bindModule = new Variable(new BindModuleFunction());
+	private Variable _bindModuleOfType = new Variable(new BindFirstModuleOfTypeFunction());
 	private Variable _getModuleSlotCount = new Variable(new GetModuleSlotCountFunction());
 	private Variable _getModuleType = new Variable(new GetModuleTypeFunction());
 
@@ -13,6 +14,8 @@ public class ComputerObjectDefinition implements ObjectDefinition {
 	public Variable getMember(ExecutionContext context, String name) {
 		if (name.equals("bindModule"))
 			return _bindModule;
+		else if (name.equals("bindModuleOfType"))
+			return _bindModuleOfType;
 		else if (name.equals("getModuleSlotCount"))
 			return _getModuleSlotCount;
 		else if (name.equals("getModuleType"))

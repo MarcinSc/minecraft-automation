@@ -25,7 +25,7 @@ public class SlotBindingObjectDefinition implements ObjectDefinition {
 		final ServerComputerData computerData = minecraftExecutionContext.getComputerData();
 		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(minecraftExecutionContext.getWorld(), computerData);
 		if (computerTileEntity == null)
-			return null;
+			return new Variable(null);
 		final ComputerModule module = computerTileEntity.getModule(_slotNo);
 		if (module == null)
 			return new Variable(null);
