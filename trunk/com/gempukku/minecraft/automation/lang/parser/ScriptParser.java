@@ -490,7 +490,37 @@ public class ScriptParser {
 							result = new ConstantStatement(new Variable(false));
 						else if (literal.equals("null"))
 							result = new ConstantStatement(new Variable(null));
-						else {
+						else if (literal.equals("function")) {
+							validateNextTermStartingWith(termIterator, "(");
+							consumeCharactersFromTerm(termIterator, 1);
+
+							List<String> parameterNames = new ArrayList<String>();
+							while (!isNextTermStartingWith(termIterator, ")")) {
+								String parameterName = getFirstLiteral(term.getValue());
+								consumeCharactersFromTerm(termIterator, parameterName.length());
+								parameterNames.add(parameterName);
+								if (isNextTermStartingWith(termIterator, ","))
+									consumeCharactersFromTerm(termIterator, 1);
+							}
+							consumeCharactersFromTerm(termIterator, 1);
+
+							if (!termIterator.hasNext())
+								throw new IllegalSyntaxException(termIterator, "{ expected");
+							final TermBlock functionBodyBlock = termIterator.next();
+							if (functionBodyBlock.isTerm())
+								throw new IllegalSyntaxException(termIterator, "{ expected");
+
+							definedVariables.pushNewContext();
+							try {
+								for (String parameterName : parameterNames)
+									definedVariables.addDefinedVariable(parameterName);
+
+								final List<ExecutableStatement> functionBody = seekStatementsInBlock(functionBodyBlock, definedVariables);
+								result = new FunctionStatement(parameterNames, functionBody);
+							} finally {
+								definedVariables.popContext();
+							}
+						} else {
 							if (named) {
 								result = new NamedStatement(literal);
 							} else {
