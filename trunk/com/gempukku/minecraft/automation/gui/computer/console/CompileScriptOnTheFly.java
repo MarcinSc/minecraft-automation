@@ -19,6 +19,7 @@ public class CompileScriptOnTheFly {
 
 	public CompileScriptOnTheFly() {
 		_predefinedVariables.add("os");
+		_predefinedVariables.add("console");
 	}
 
 	public void startCompiler() {

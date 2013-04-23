@@ -8,9 +8,6 @@ public class OSObjectDefinition implements ObjectDefinition {
 	private Variable _bindModule = new Variable(new BindModuleFunction());
 	private Variable _getModuleSlotCount = new Variable(new GetModuleSlotCountFunction());
 	private Variable _getModuleType = new Variable(new GetModuleTypeFunction());
-	private Variable _appendToConsole = new Variable(new AppendToConsoleFunction());
-	private Variable _clearConsole = new Variable(new ClearConsoleFunction());
-	private Variable _writeToConsole = new Variable(new WriteToConsoleFunction());
 	private Variable _parseFloat = new Variable(new ParseFloatFunction());
 
 	@Override
@@ -21,12 +18,6 @@ public class OSObjectDefinition implements ObjectDefinition {
 			return _getModuleSlotCount;
 		else if (name.equals("getModuleType"))
 			return _getModuleType;
-		else if (name.equals("appendToConsole"))
-			return _appendToConsole;
-		else if (name.equals("clearConsole"))
-			return _clearConsole;
-		else if (name.equals("writeToConsole"))
-			return _writeToConsole;
 		else if (name.equals("parseFloat"))
 			return _parseFloat;
 

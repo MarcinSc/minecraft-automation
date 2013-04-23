@@ -8,6 +8,7 @@ import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ComputerConsole;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.console.ConsoleObjectDefinition;
 import com.gempukku.minecraft.automation.computer.os.OSObjectDefinition;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
@@ -39,6 +40,7 @@ public class ComputerProcessing {
 		_registry = registry;
 		_scriptParser = new ScriptParser();
 		_predefinedVariables.add("os");
+		_predefinedVariables.add("console");
 	}
 
 	public boolean isRunningProgram(int computerId) {
@@ -84,6 +86,7 @@ public class ComputerProcessing {
 			CallContext context = new CallContext(null, false, true);
 			try {
 				context.defineVariable("os").setValue(new OSObjectDefinition());
+				context.defineVariable("console").setValue(new ConsoleObjectDefinition());
 			} catch (ExecutionException exp) {
 				// Ignore
 			}
