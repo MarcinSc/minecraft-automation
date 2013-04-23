@@ -19,12 +19,14 @@ public class ProgramEditingConsoleGui {
 	private static final int PROGRAM_CURSOR_COLOR = 0xff0000ff;
 	private static final int PROGRAM_ERROR_UNDERLINE_COLOR = 0xffff0000;
 	private static final int PROGRAM_LAST_LINE_COLOR = 0xffff0000;
+	private static final int PROGRAM_ERROR_MESSAGE_COLOR = 0xffff0000;
 
 	private static final int COMPILE_PENDING_COLOR = 0xffffff00;
 	private static final int COMPILE_ERROR_COLOR = 0xffff0000;
 	private static final int COMPILE_OK_COLOR = 0xff00ff00;
 
 	private boolean _waitingForExitConfirmation = false;
+	private boolean _displayErrorMessage = false;
 
 	private boolean _programSaveDirty;
 	private boolean _programCompileDirty;
@@ -58,14 +60,19 @@ public class ProgramEditingConsoleGui {
 
 		// Draw status line
 		final int lastLineY = ComputerConsoleGui.FONT_HEIGHT * (ComputerConsole.CONSOLE_HEIGHT - 1);
+		final CompileScriptOnTheFly.CompileStatus compileStatusObj = _onTheFlyCompiler.getCompileStatus();
 		if (_waitingForExitConfirmation) {
 			_computerConsoleGui.drawMonospacedText("File was not saved, exit? [Y]es/[N]o", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
+		} else if (_displayErrorMessage && compileStatusObj != null && compileStatusObj.error != null) {
+			_computerConsoleGui.drawMonospacedText(compileStatusObj.error.getMessage(), 0, lastLineY, PROGRAM_ERROR_MESSAGE_COLOR);
 		} else {
 			_computerConsoleGui.drawMonospacedText("[S]ave E[x]it", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
 
+			if (_programSaveDirty)
+				_computerConsoleGui.drawMonospacedText("*", 15 * ComputerConsoleGui.CHARACTER_WIDTH, 0, PROGRAM_LAST_LINE_COLOR);
+
 			String compileStatus = "...";
 			int compileColor = COMPILE_PENDING_COLOR;
-			final CompileScriptOnTheFly.CompileStatus compileStatusObj = _onTheFlyCompiler.getCompileStatus();
 			if (compileStatusObj != null) {
 				if (compileStatusObj.success) {
 					compileStatus = "OK";
@@ -111,7 +118,7 @@ public class ProgramEditingConsoleGui {
 			if (character >= 32 && character < 127) {
 				editedLine.insert(_editedProgramCursorX, character);
 				_editedProgramCursorX++;
-				setAllDirty();
+				programModified();
 			} else if (keyboardCharId == Keyboard.KEY_BACK) {
 				if (_editedProgramCursorX > 0) {
 					editedLine.delete(_editedProgramCursorX - 1, _editedProgramCursorX);
@@ -123,7 +130,7 @@ public class ProgramEditingConsoleGui {
 					_editedProgramLines.remove(_editedProgramCursorY);
 					_editedProgramCursorY--;
 				}
-				setAllDirty();
+				programModified();
 			} else if (keyboardCharId == Keyboard.KEY_DELETE) {
 				if (_editedProgramCursorX < editedLine.length()) {
 					editedLine.delete(_editedProgramCursorX, _editedProgramCursorX + 1);
@@ -131,7 +138,7 @@ public class ProgramEditingConsoleGui {
 					editedLine.append(_editedProgramLines.get(_editedProgramCursorY + 1));
 					_editedProgramLines.remove(_editedProgramCursorY + 1);
 				}
-				setAllDirty();
+				programModified();
 			} else if (keyboardCharId == Keyboard.KEY_LEFT) {
 				if (_editedProgramCursorX > 0) {
 					_editedProgramCursorX--;
@@ -160,7 +167,7 @@ public class ProgramEditingConsoleGui {
 				_editedProgramLines.add(_editedProgramCursorY + 1, new StringBuilder(remainingInLine));
 				_editedProgramCursorX = 0;
 				_editedProgramCursorY++;
-				setAllDirty();
+				programModified();
 			} else if (keyboardCharId == Keyboard.KEY_S && _computerConsoleGui.isCtrlKeyDown()) {
 				String program = getProgramText();
 				try {
@@ -186,6 +193,7 @@ public class ProgramEditingConsoleGui {
 					final IllegalSyntaxException error = compileStatus.error;
 					_editedProgramCursorY = error.getLine();
 					_editedProgramCursorX = error.getColumn();
+					_displayErrorMessage = true;
 				}
 			}
 
@@ -251,8 +259,9 @@ public class ProgramEditingConsoleGui {
 		_onTheFlyCompiler.submitCompileRequest(getProgramText());
 	}
 
-	private void setAllDirty() {
+	private void programModified() {
 		_programSaveDirty = true;
 		_programCompileDirty = true;
+		_displayErrorMessage = false;
 	}
 }
