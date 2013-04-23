@@ -6,13 +6,14 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
 public class MemberAccessTest extends ProgramTest {
 	@Test
 	public void testMemberAccess() throws ExecutionException, IllegalSyntaxException, IOException {
-		ScriptExecutable exec = new ScriptParser().parseScript(new StringReader("return os.parseFloat(\"12.234\");"));
+		ScriptExecutable exec = new ScriptParser().parseScript(new StringReader("return os.parseFloat(\"12.234\");"), Collections.singleton("os"));
 		CallContext context = new CallContext(null, false, true);
 
 		ObjectDefinition os = constructOS();
