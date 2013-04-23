@@ -11,6 +11,7 @@ public class OSObjectDefinition implements ObjectDefinition {
 	private Variable _appendToConsole = new Variable(new AppendToConsoleFunction());
 	private Variable _clearConsole = new Variable(new ClearConsoleFunction());
 	private Variable _writeToConsole = new Variable(new WriteToConsoleFunction());
+	private Variable _parseFloat = new Variable(new ParseFloatFunction());
 
 	@Override
 	public Variable getMember(ExecutionContext context, String name) {
@@ -26,6 +27,8 @@ public class OSObjectDefinition implements ObjectDefinition {
 			return _clearConsole;
 		else if (name.equals("writeToConsole"))
 			return _writeToConsole;
+		else if (name.equals("parseFloat"))
+			return _parseFloat;
 
 		return new Variable(null);
 	}

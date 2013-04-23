@@ -5,7 +5,7 @@ import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
 
 import java.util.List;
 
-public class DefineFunctionStatement implements ExecutableStatement {
+public class DefineFunctionStatement implements DefiningExecutableStatement {
 	private String _name;
 	private List<String> _parameterNames;
 	private List<ExecutableStatement> _statements;
@@ -14,6 +14,11 @@ public class DefineFunctionStatement implements ExecutableStatement {
 		_name = name;
 		_parameterNames = parameterNames;
 		_statements = statements;
+	}
+
+	@Override
+	public String getDefinedVariableName() {
+		return _name;
 	}
 
 	@Override

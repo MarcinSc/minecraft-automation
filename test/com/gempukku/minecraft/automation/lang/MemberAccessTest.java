@@ -2,7 +2,6 @@ package com.gempukku.minecraft.automation.lang;
 
 import com.gempukku.minecraft.automation.computer.os.OSObjectDefinition;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,27 +10,26 @@ import java.io.StringReader;
 import static org.junit.Assert.assertEquals;
 
 public class MemberAccessTest extends ProgramTest {
-    @Ignore
-    @Test
-    public void testMemberAccess() throws ExecutionException, IllegalSyntaxException, IOException {
-        ScriptExecutable exec = new ScriptParser().parseScript(new StringReader("return os.getModuleSlotCount();"));
-        CallContext context = new CallContext(null, false, true);
+	@Test
+	public void testMemberAccess() throws ExecutionException, IllegalSyntaxException, IOException {
+		ScriptExecutable exec = new ScriptParser().parseScript(new StringReader("return os.parseFloat(\"12.234\");"));
+		CallContext context = new CallContext(null, false, true);
 
-        ObjectDefinition os = constructOS();
+		ObjectDefinition os = constructOS();
 
-        Variable var = context.defineVariable("os");
-        var.setValue(os);
+		Variable var = context.defineVariable("os");
+		var.setValue(os);
 
-        ExecutionContext executionContext = initExecutionContext();
-        executionContext.stackExecutionGroup(context, exec.createExecution(context));
+		ExecutionContext executionContext = initExecutionContext();
+		executionContext.stackExecutionGroup(context, exec.createExecution(context));
 
-        while (!executionContext.isFinished())
-            executionContext.executeNext();
+		while (!executionContext.isFinished())
+			executionContext.executeNext();
 
-        assertEquals(0, ((Number) executionContext.getReturnValue().getValue()).intValue());
-    }
+		assertEquals(12.234f, ((Number) executionContext.getReturnValue().getValue()).floatValue(), 0.001f);
+	}
 
-    private ObjectDefinition constructOS() {
-        return new OSObjectDefinition();
-    }
+	private ObjectDefinition constructOS() {
+		return new OSObjectDefinition();
+	}
 }

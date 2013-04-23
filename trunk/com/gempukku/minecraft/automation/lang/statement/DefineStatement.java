@@ -3,11 +3,16 @@ package com.gempukku.minecraft.automation.lang.statement;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
 
-public class DefineStatement implements ExecutableStatement {
+public class DefineStatement implements DefiningExecutableStatement {
 	private String _name;
 
 	public DefineStatement(String name) throws IllegalSyntaxException {
 		_name = name;
+	}
+
+	@Override
+	public String getDefinedVariableName() {
+		return _name;
 	}
 
 	@Override
