@@ -60,12 +60,9 @@ public class AddExecution implements Execution {
 			} else {
 				throw new ExecutionException("Unable to add two values of types " + _leftValue.getType() + " and " + rightValue.getType());
 			}
-			if (_assignToLeft) {
+			if (_assignToLeft)
 				_leftValue.setValue(result);
-				executionContext.setContextValue(_leftValue);
-			} else {
-				executionContext.setContextValue(new Variable(result));
-			}
+			executionContext.setContextValue(new Variable(result));
 			_resolvedAndAssignedSum = true;
 			return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE + ExecutionTimes.SUM_VALUES);
 		}

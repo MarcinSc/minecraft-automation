@@ -77,12 +77,9 @@ public class MathExecution implements Execution {
 				else
 					throw new ExecutionException("Unknown operator " + _operator);
 
-				if (_assignToLeft) {
+				if (_assignToLeft)
 					_leftValue.setValue(result);
-					executionContext.setContextValue(_leftValue);
-				} else {
-					executionContext.setContextValue(new Variable(result));
-				}
+				executionContext.setContextValue(new Variable(result));
 			} else {
 				throw new ExecutionException("Unable to perform mathematical operation on two non-number values " + _leftValue.getType() + " and " + rightValue.getType());
 			}
