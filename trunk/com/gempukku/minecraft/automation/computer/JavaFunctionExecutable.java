@@ -10,22 +10,23 @@ import java.util.Map;
 public abstract class JavaFunctionExecutable implements FunctionExecutable {
 	@Override
 	public final Execution createExecution(ExecutionContext executionContext, CallContext callContext) {
-		return new SimpleExecution() {
-			@Override
-			protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
-				final MinecraftComputerExecutionContext minecraftExecutionContext = (MinecraftComputerExecutionContext) context;
-				ServerComputerData computer = minecraftExecutionContext.getComputerData();
+		return new DelayedExecution(getDuration(),
+						new SimpleExecution() {
+							@Override
+							protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
+								final MinecraftComputerExecutionContext minecraftExecutionContext = (MinecraftComputerExecutionContext) context;
+								ServerComputerData computer = minecraftExecutionContext.getComputerData();
 
-				final String[] parameterNames = getParameterNames();
-				Map<String, Variable> parameters = new HashMap<String, Variable>();
-				final CallContext callContext = context.peekCallContext();
-				for (String parameterName : parameterNames)
-					parameters.put(parameterName, callContext.getVariableValue(parameterName));
+								final String[] parameterNames = getParameterNames();
+								Map<String, Variable> parameters = new HashMap<String, Variable>();
+								final CallContext callContext = context.peekCallContext();
+								for (String parameterName : parameterNames)
+									parameters.put(parameterName, callContext.getVariableValue(parameterName));
 
-				context.setReturnValue(new Variable(executeFunction(minecraftExecutionContext.getWorld(), computer, parameters)));
-				return new ExecutionProgress(ExecutionTimes.SET_RETURN_VALUE + getDuration());
-			}
-		};
+								context.setReturnValue(new Variable(executeFunction(minecraftExecutionContext.getWorld(), computer, parameters)));
+								return new ExecutionProgress(ExecutionTimes.SET_RETURN_VALUE);
+							}
+						});
 	}
 
 	@Override
