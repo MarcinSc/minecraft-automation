@@ -338,6 +338,9 @@ public class ScriptParser {
 		while ((operator = peekNextOperator(termIterator, left != null)) != null &&
 						operator.getPriority() <= maxPriority) {
 			if (operator.isBinary()) {
+				final Term operatorTerm = termIterator.peek().getTerm();
+				int operatorLine = operatorTerm.getLine();
+				int operatorColumn = operatorTerm.getColumn();
 				consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
 
 				List<ExecutableStatement> parameters = null;
@@ -355,13 +358,22 @@ public class ScriptParser {
 						right = parseExpression(termIterator, definedVariables, right, nextOperator.getPriority());
 					else {
 						consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
-						if (operator.isPre())
+						if (operator.isPre()) {
+							if (right == null)
+								throw new IllegalSyntaxException(termIterator, "Expression expected");
 							right = produceOperation(null, nextOperator, right, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
-						else
-							right = produceOperation(left, nextOperator, left, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
+						} else {
+							if (left == null)
+								throw new IllegalSyntaxException(termIterator, "Expression expected");
+							right = produceOperation(left, nextOperator, null, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
+						}
 					}
 				}
 
+				if (left == null)
+					throw new IllegalSyntaxException(operatorLine, operatorColumn, "Expression expected");
+				if (right == null)
+					throw new IllegalSyntaxException(operatorLine, operatorColumn + operator.getConsumeLength(), "Expression expected");
 				left = produceOperation(left, operator, right, parameters);
 			} else {
 				consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
@@ -373,10 +385,15 @@ public class ScriptParser {
 					left = produceOperation(left, operator, null, parameters);
 				else {
 					ExecutableStatement operatorExpression = parseExpression(termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables, operator.isNamedOnRight()), operator.getPriority());
-					if (operator.isPre())
+					if (operator.isPre()) {
+						if (operatorExpression == null)
+							throw new IllegalSyntaxException(termIterator, "Expression expected");
 						left = produceOperation(operatorExpression, operator, null, parameters);
-					else
+					} else {
+						if (left == null)
+							throw new IllegalSyntaxException(termIterator, "Expression expected");
 						left = produceOperation(null, operator, left, parameters);
+					}
 				}
 			}
 		}

@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class OperatorTest extends ProgramTest {
 	@Test
@@ -40,5 +41,29 @@ public class OperatorTest extends ProgramTest {
 		assertEquals("1.02.0", executeScript("var i=0; return \"\"+(++i)+(++i);").getValue());
 		assertEquals("1.01.0", executeScript("var i=0; return \"\"+(++i)+(i++);").getValue());
 		assertEquals("0.02.0", executeScript("var i=0; return \"\"+(i++)+(++i);").getValue());
+	}
+
+	@Test
+	public void operatorErrors() throws IOException, ExecutionException {
+		try {
+			executeScript("return ++;");
+			fail("IllegalSyntaxException expected");
+		} catch (IllegalSyntaxException exp) {
+			// expected
+		}
+
+		try {
+			executeScript("return 2*;");
+			fail("IllegalSyntaxException expected");
+		} catch (IllegalSyntaxException exp) {
+			// expected
+		}
+
+		try {
+			executeScript("return *2;");
+			fail("IllegalSyntaxException expected");
+		} catch (IllegalSyntaxException exp) {
+			// expected
+		}
 	}
 }
