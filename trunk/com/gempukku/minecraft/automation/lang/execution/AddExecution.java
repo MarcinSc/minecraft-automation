@@ -5,6 +5,7 @@ import com.gempukku.minecraft.automation.lang.*;
 public class AddExecution implements Execution {
 	private ExecutableStatement _left;
 	private ExecutableStatement _right;
+	private boolean _assignToLeft;
 
 	private boolean _stackedLeft;
 	private boolean _resolvedLeft;
@@ -13,9 +14,10 @@ public class AddExecution implements Execution {
 
 	private Variable _leftValue;
 
-	public AddExecution(ExecutableStatement left, ExecutableStatement right) {
+	public AddExecution(ExecutableStatement left, ExecutableStatement right, boolean assignToLeft) {
 		_left = left;
 		_right = right;
+		_assignToLeft = assignToLeft;
 	}
 
 	@Override
@@ -50,13 +52,19 @@ public class AddExecution implements Execution {
 		}
 		if (!_resolvedAndAssignedSum) {
 			Variable rightValue = executionContext.getContextValue();
+			Object result;
 			if (_leftValue.getType() == Variable.Type.STRING) {
-				executionContext.setContextValue(new Variable(convertToString(_leftValue) + convertToString(rightValue)));
+				result = convertToString(_leftValue) + convertToString(rightValue);
 			} else if (rightValue.getType() == Variable.Type.NUMBER && _leftValue.getType() == Variable.Type.NUMBER) {
-				executionContext.setContextValue(new Variable(((Number) _leftValue.getValue()).floatValue() +
-								((Number) rightValue.getValue()).floatValue()));
+				result = ((Number) _leftValue.getValue()).floatValue() + ((Number) rightValue.getValue()).floatValue();
 			} else {
 				throw new ExecutionException("Unable to add two values of types " + _leftValue.getType() + " and " + rightValue.getType());
+			}
+			if (_assignToLeft) {
+				_leftValue.setValue(result);
+				executionContext.setContextValue(_leftValue);
+			} else {
+				executionContext.setContextValue(new Variable(result));
 			}
 			_resolvedAndAssignedSum = true;
 			return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE + ExecutionTimes.SUM_VALUES);

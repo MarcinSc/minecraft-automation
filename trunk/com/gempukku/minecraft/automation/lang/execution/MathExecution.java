@@ -6,6 +6,7 @@ public class MathExecution implements Execution {
 	private ExecutableStatement _left;
 	private Operator _operator;
 	private ExecutableStatement _right;
+	private boolean _assignToLeft;
 
 	private boolean _stackedLeft;
 	private boolean _resolvedLeft;
@@ -14,10 +15,11 @@ public class MathExecution implements Execution {
 
 	private Variable _leftValue;
 
-	public MathExecution(ExecutableStatement left, Operator operator, ExecutableStatement right) {
+	public MathExecution(ExecutableStatement left, Operator operator, ExecutableStatement right, boolean assignToLeft) {
 		_left = left;
 		_operator = operator;
 		_right = right;
+		_assignToLeft = assignToLeft;
 	}
 
 	@Override
@@ -56,13 +58,13 @@ public class MathExecution implements Execution {
 				final float valueLeft = ((Number) _leftValue.getValue()).floatValue();
 				final float valueRight = ((Number) rightValue.getValue()).floatValue();
 				Object result;
-				if (_operator == Operator.SUBTRACT)
+				if (_operator == Operator.SUBTRACT || _operator == Operator.SUBTRACT_ASSIGN)
 					result = valueLeft - valueRight;
-				else if (_operator == Operator.DIVIDE)
+				else if (_operator == Operator.DIVIDE || _operator == Operator.DIVIDE_ASSIGN)
 					result = valueLeft / valueRight;
-				else if (_operator == Operator.MULTIPLY)
+				else if (_operator == Operator.MULTIPLY || _operator == Operator.MULTIPLY_ASSIGN)
 					result = valueLeft * valueRight;
-				else if (_operator == Operator.MOD)
+				else if (_operator == Operator.MOD || _operator == Operator.MOD_ASSIGN)
 					result = valueLeft % valueRight;
 				else if (_operator == Operator.GREATER_OR_EQUAL)
 					result = valueLeft >= valueRight;
@@ -75,7 +77,12 @@ public class MathExecution implements Execution {
 				else
 					throw new ExecutionException("Unknown operator " + _operator);
 
-				executionContext.setContextValue(new Variable(result));
+				if (_assignToLeft) {
+					_leftValue.setValue(result);
+					executionContext.setContextValue(_leftValue);
+				} else {
+					executionContext.setContextValue(new Variable(result));
+				}
 			} else {
 				throw new ExecutionException("Unable to perform mathematical operation on two non-number values " + _leftValue.getType() + " and " + rightValue.getType());
 			}

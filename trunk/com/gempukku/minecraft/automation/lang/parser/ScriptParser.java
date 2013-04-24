@@ -446,6 +446,16 @@ public class ScriptParser {
 				operator = Operator.POST_DECREMENT;
 			else
 				operator = Operator.PRE_DECREMENT;
+		else if (termValue.startsWith("+="))
+			operator = Operator.ADD_ASSIGN;
+		else if (termValue.startsWith("-="))
+			operator = Operator.SUBTRACT_ASSIGN;
+		else if (termValue.startsWith("*="))
+			operator = Operator.MULTIPLY_ASSIGN;
+		else if (termValue.startsWith("/="))
+			operator = Operator.DIVIDE_ASSIGN;
+		else if (termValue.startsWith("%="))
+			operator = Operator.MOD_ASSIGN;
 		else if (termValue.startsWith("+"))
 			operator = Operator.ADD;
 		else if (termValue.startsWith("-")) {
@@ -487,7 +497,9 @@ public class ScriptParser {
 		else if (operator == Operator.FUNCTION_CALL)
 			return new FunctionCallStatement(left, parameters);
 		else if (operator == Operator.ADD)
-			return new AddStatement(left, right);
+			return new AddStatement(left, right, false);
+		else if (operator == Operator.ADD_ASSIGN)
+			return new AddStatement(left, right, true);
 		else if (operator == Operator.EQUALS || operator == Operator.NOT_EQUALS)
 			return new ComparisonStatement(left, operator, right);
 		else if (operator == Operator.MEMBER_ACCESS) {
@@ -508,8 +520,12 @@ public class ScriptParser {
 			return new IncrementDecrementStatement(left, operator == Operator.PRE_INCREMENT, true);
 		} else if (operator == Operator.POST_INCREMENT || operator == Operator.POST_DECREMENT) {
 			return new IncrementDecrementStatement(right, operator == Operator.POST_INCREMENT, false);
-		} else
-			return new MathStatement(left, operator, right);
+		} else if (operator == Operator.ADD_ASSIGN || operator == Operator.SUBTRACT_ASSIGN || operator == Operator.MULTIPLY_ASSIGN
+						|| operator == Operator.DIVIDE_ASSIGN || operator == Operator.MOD_ASSIGN) {
+			return new MathStatement(left, operator, right, true);
+		} else {
+			return new MathStatement(left, operator, right, false);
+		}
 	}
 
 	private ExecutableStatement parseNextOperationToken(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, boolean named) throws IllegalSyntaxException {

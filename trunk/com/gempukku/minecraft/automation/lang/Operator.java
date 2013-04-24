@@ -32,6 +32,11 @@ public class Operator {
 	public static final Operator OR = Operator.createBinaryLeftAssociative(2, 12);
 
 	public static final Operator ASSIGNMENT = Operator.createBinaryRightAssociative(1, 14);
+	public static final Operator ADD_ASSIGN = Operator.createBinaryRightAssociative(2, 14);
+	public static final Operator SUBTRACT_ASSIGN = Operator.createBinaryRightAssociative(2, 14);
+	public static final Operator MULTIPLY_ASSIGN = Operator.createBinaryRightAssociative(2, 14);
+	public static final Operator DIVIDE_ASSIGN = Operator.createBinaryRightAssociative(2, 14);
+	public static final Operator MOD_ASSIGN = Operator.createBinaryRightAssociative(2, 14);
 
 	private int _priority;
 	private int _consumeLength;
