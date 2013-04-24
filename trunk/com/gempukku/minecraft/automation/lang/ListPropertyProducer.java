@@ -10,7 +10,7 @@ import java.util.Map;
 public class ListPropertyProducer implements PropertyProducer {
 	@Override
 	public Variable exposePropertyFor(ExecutionContext context, Variable object, String property) throws ExecutionException {
-		List<Variable> list = (List<Variable>) object;
+		List<Variable> list = (List<Variable>) object.getValue();
 		if (property.equals("getSize"))
 			return new Variable(new SizeFunction(list));
 		else if (property.equals("add"))
@@ -47,7 +47,7 @@ public class ListPropertyProducer implements PropertyProducer {
 			if (index < 0 || index >= _list.size())
 				throw new ExecutionException("Index out of bounds");
 
-			return _list.remove(index);
+			return _list.remove(index).getValue();
 		}
 	}
 

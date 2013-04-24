@@ -29,7 +29,7 @@ public class MapDefineExecution implements Execution {
 	@Override
 	public ExecutionProgress executeNextStatement(ExecutionContext executionContext) throws ExecutionException {
 		if (_hasToAssign) {
-			_result.put(_lastKey, executionContext.getContextValue());
+			_result.put(_lastKey, new Variable(executionContext.getContextValue().getValue()));
 			_hasToAssign = false;
 			return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE);
 		}

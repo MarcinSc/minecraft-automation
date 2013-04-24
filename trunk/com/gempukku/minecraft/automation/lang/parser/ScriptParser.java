@@ -317,10 +317,19 @@ public class ScriptParser {
 	}
 
 	private ExecutableStatement produceExpressionFromIterator(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, boolean acceptsVariable) throws IllegalSyntaxException {
+		if (isNextTermStartingWith(termIterator, "[") && acceptsVariable) {
+			consumeCharactersFromTerm(termIterator, 1);
+			return produceListDefinitionFromIterator(termIterator, definedVariables);
+		}
 		final ExecutableStatement executableStatement = parseExpression(termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables, false), Integer.MAX_VALUE);
 		if (!acceptsVariable && executableStatement instanceof VariableStatement)
 			throw new IllegalSyntaxException(termIterator, "Expression expected");
 		return executableStatement;
+	}
+
+	private ExecutableStatement produceListDefinitionFromIterator(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables) throws IllegalSyntaxException {
+		final List<ExecutableStatement> values = parseParameters(termIterator, definedVariables, false, "]");
+		return new ListDefineStatement(values);
 	}
 
 	private ExecutableStatement parseExpression(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, ExecutableStatement left, int maxPriority) throws IllegalSyntaxException {

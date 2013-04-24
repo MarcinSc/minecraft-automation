@@ -28,6 +28,8 @@ public class ProgramTest {
 		ExecutionContext executionContext = new MinecraftComputerExecutionContext(new ServerComputerData(0, 0, 0, 0, 0, 0, "owner", "computerType"));
 		executionContext.addPropertyProducer(Variable.Type.MAP, new MapPropertyProducer());
 		executionContext.addPropertyProducer(Variable.Type.OBJECT, new ObjectPropertyProducer());
+		executionContext.addPropertyProducer(Variable.Type.LIST, new ListPropertyProducer());
+		executionContext.addPropertyProducer(Variable.Type.STRING, new StringPropertyProducer());
 		return executionContext;
 	}
 
