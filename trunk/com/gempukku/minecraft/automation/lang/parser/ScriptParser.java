@@ -335,7 +335,7 @@ public class ScriptParser {
 	private ExecutableStatement parseExpression(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, ExecutableStatement left, int maxPriority) throws IllegalSyntaxException {
 		// Based on algorithm from http://en.wikipedia.org/wiki/Operator-precedence_parser on March 28, 2013
 		Operator operator;
-		while ((operator = peekNextOperator(termIterator)) != null &&
+		while ((operator = peekNextOperator(termIterator, left != null)) != null &&
 						operator.getPriority() <= maxPriority) {
 			if (operator.isBinary()) {
 				consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
@@ -348,14 +348,17 @@ public class ScriptParser {
 				if (right == null)
 					throw new IllegalSyntaxException(termIterator, "Expression expected");
 				Operator nextOperator;
-				while ((nextOperator = peekNextOperator(termIterator)) != null &&
+				while ((nextOperator = peekNextOperator(termIterator, left != null)) != null &&
 								(nextOperator.getPriority() < operator.getPriority() ||
 												(nextOperator.getPriority() == operator.getPriority() && !nextOperator.isLeftAssociative()))) {
 					if (operator.isBinary())
 						right = parseExpression(termIterator, definedVariables, right, nextOperator.getPriority());
 					else {
 						consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
-						right = produceOperation(right, nextOperator, null, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
+						if (operator.isPre())
+							right = produceOperation(null, nextOperator, right, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
+						else
+							right = produceOperation(left, nextOperator, left, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
 					}
 				}
 
@@ -370,7 +373,10 @@ public class ScriptParser {
 					left = produceOperation(left, operator, null, parameters);
 				else {
 					ExecutableStatement operatorExpression = parseExpression(termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables, operator.isNamedOnRight()), operator.getPriority());
-					left = produceOperation(operatorExpression, operator, null, parameters);
+					if (operator.isPre())
+						left = produceOperation(operatorExpression, operator, null, parameters);
+					else
+						left = produceOperation(null, operator, left, parameters);
 				}
 			}
 		}
@@ -399,7 +405,7 @@ public class ScriptParser {
 		return parameters;
 	}
 
-	private Operator peekNextOperator(LastPeekingIterator<TermBlock> termIterator) throws IllegalSyntaxException {
+	private Operator peekNextOperator(LastPeekingIterator<TermBlock> termIterator, boolean hasLeft) throws IllegalSyntaxException {
 		if (!termIterator.hasNext())
 			return null;
 		final Term term = peekNextProgramTermSafely(termIterator);
@@ -413,11 +419,24 @@ public class ScriptParser {
 			operator = Operator.ASSIGNMENT;
 		else if (termValue.startsWith("("))
 			operator = Operator.FUNCTION_CALL;
+		else if (termValue.startsWith("++"))
+			if (hasLeft)
+				operator = Operator.POST_INCREMENT;
+			else
+				operator = Operator.PRE_INCREMENT;
+		else if (termValue.startsWith("--"))
+			if (hasLeft)
+				operator = Operator.POST_DECREMENT;
+			else
+				operator = Operator.PRE_DECREMENT;
 		else if (termValue.startsWith("+"))
 			operator = Operator.ADD;
-		else if (termValue.startsWith("-"))
-			operator = Operator.SUBTRACT;
-		else if (termValue.startsWith("*"))
+		else if (termValue.startsWith("-")) {
+			if (hasLeft)
+				operator = Operator.SUBTRACT;
+			else
+				operator = Operator.NEGATIVE;
+		} else if (termValue.startsWith("*"))
 			operator = Operator.MULTIPLY;
 		else if (termValue.startsWith("/"))
 			operator = Operator.DIVIDE;
@@ -462,10 +481,16 @@ public class ScriptParser {
 			return new LogicalOperatorStatement(left, operator, right);
 		else if (operator == Operator.NOT)
 			return new NegateStatement(left);
+		else if (operator == Operator.NEGATIVE)
+			return new NegativeStatement(left);
 		else if (operator == Operator.MAPPED_ACCESS) {
 			if (parameters.size() != 1)
 				throw new IllegalSyntaxException("Expected one expression");
 			return new MapAccessStatement(left, parameters.get(0));
+		} else if (operator == Operator.PRE_INCREMENT || operator == Operator.PRE_DECREMENT) {
+			return new IncrementDecrementStatement(left, operator == Operator.PRE_INCREMENT, true);
+		} else if (operator == Operator.POST_INCREMENT || operator == Operator.POST_DECREMENT) {
+			return new IncrementDecrementStatement(right, operator == Operator.POST_INCREMENT, false);
 		} else
 			return new MathStatement(left, operator, right);
 	}
@@ -490,7 +515,7 @@ public class ScriptParser {
 					result = produceExpressionFromIterator(termIterator, definedVariables, true);
 					validateNextTermStartingWith(termIterator, ")");
 					consumeCharactersFromTerm(termIterator, 1);
-				} else if (Character.isDigit(termValue.charAt(0)) || termValue.charAt(0) == '-') {
+				} else if (Character.isDigit(termValue.charAt(0))) {
 					String numberInStr = getNumber(termValue);
 					consumeCharactersFromTerm(termIterator, numberInStr.length());
 					result = new ConstantStatement(new Variable(Float.parseFloat(numberInStr)));

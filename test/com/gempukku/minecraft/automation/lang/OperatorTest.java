@@ -29,4 +29,16 @@ public class OperatorTest extends ProgramTest {
 		assertEquals("Test", executeScript("if (!true) return \"Failed\"; else return \"Test\";").getValue());
 		assertEquals("Test", executeScript("function func() { return false; } if (!func()) return \"Test\";").getValue());
 	}
+
+	@Test
+	public void minusUnaryOperator() throws IllegalSyntaxException, IOException, ExecutionException {
+		assertEquals(-16f, ((Number) executeScript("return -2-14;").getValue()).floatValue(), 0f);
+	}
+
+	@Test
+	public void preAndPostIncrementOperator() throws IllegalSyntaxException, IOException, ExecutionException {
+		assertEquals("1.02.0", executeScript("var i=0; return \"\"+(++i)+(++i);").getValue());
+		assertEquals("1.01.0", executeScript("var i=0; return \"\"+(++i)+(i++);").getValue());
+		assertEquals("0.02.0", executeScript("var i=0; return \"\"+(i++)+(++i);").getValue());
+	}
 }
