@@ -181,6 +181,7 @@ public class ComputerProcessing {
 		MinecraftComputerExecutionContext executionContext = new MinecraftComputerExecutionContext(computerData);
 		executionContext.addPropertyProducer(Variable.Type.MAP, new MapPropertyProducer());
 		executionContext.addPropertyProducer(Variable.Type.OBJECT, new ObjectPropertyProducer());
+		executionContext.addPropertyProducer(Variable.Type.STRING, new StringPropertyProducer());
 		return executionContext;
 	}
 

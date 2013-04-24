@@ -1,44 +1,45 @@
 package com.gempukku.minecraft.automation.lang;
 
+import java.util.List;
 import java.util.Map;
 
 public class Variable {
-    public enum Type {NULL, STRING, NUMBER, BOOLEAN, FUNCTION, ARRAY, MAP, OBJECT}
+	public enum Type {NULL, STRING, NUMBER, BOOLEAN, FUNCTION, LIST, MAP, OBJECT}
 
-    private Object _value;
-    private Type _type;
+	private Object _value;
+	private Type _type;
 
-    public Variable(Object value) {
-        setValue(value);
-    }
+	public Variable(Object value) {
+		setValue(value);
+	}
 
-    public void setValue(Object value) {
-        _value = value;
-        if (value == null) {
-            _type = Type.NULL;
-        } else if (value instanceof String) {
-            _type = Type.STRING;
-        } else if (value instanceof Number) {
-            _type = Type.NUMBER;
-        } else if (value instanceof Map) {
-            _type = Type.MAP;
-        } else if (value instanceof Boolean) {
-            _type = Type.BOOLEAN;
-        } else if (value instanceof FunctionExecutable) {
-            _type = Type.FUNCTION;
-        } else if (value instanceof ObjectDefinition) {
-            _type = Type.OBJECT;
-        } else if (value.getClass().isArray()) {
-            _type = Type.ARRAY;
-        } else
-            throw new UnsupportedOperationException("Unknown type of variable value: " + value.getClass().getSimpleName());
-    }
+	public void setValue(Object value) {
+		_value = value;
+		if (value == null) {
+			_type = Type.NULL;
+		} else if (value instanceof String) {
+			_type = Type.STRING;
+		} else if (value instanceof Number) {
+			_type = Type.NUMBER;
+		} else if (value instanceof Map) {
+			_type = Type.MAP;
+		} else if (value instanceof Boolean) {
+			_type = Type.BOOLEAN;
+		} else if (value instanceof FunctionExecutable) {
+			_type = Type.FUNCTION;
+		} else if (value instanceof ObjectDefinition) {
+			_type = Type.OBJECT;
+		} else if (value instanceof List) {
+			_type = Type.LIST;
+		} else
+			throw new UnsupportedOperationException("Unknown type of variable value: " + value.getClass().getSimpleName());
+	}
 
-    public Type getType() {
-        return _type;
-    }
+	public Type getType() {
+		return _type;
+	}
 
-    public Object getValue() {
-        return _value;
-    }
+	public Object getValue() {
+		return _value;
+	}
 }

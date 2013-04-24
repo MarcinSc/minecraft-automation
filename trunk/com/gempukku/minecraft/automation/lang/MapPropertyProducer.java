@@ -12,10 +12,10 @@ public class MapPropertyProducer implements PropertyProducer {
 		Map<String, Variable> map = (Map<String, Variable>) object.getValue();
 		if (property.equals("size"))
 			return new Variable(new MapSizeFunction(map));
-		return null;
+		return new Variable(null);
 	}
 
-	private class MapSizeFunction extends JavaFunctionExecutable {
+	private static class MapSizeFunction extends JavaFunctionExecutable {
 		private Map<String, Variable> _map;
 
 		private MapSizeFunction(Map<String, Variable> map) {

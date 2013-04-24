@@ -44,8 +44,8 @@ public class MapAccessExecution implements Execution {
 		if (!_resolvedMapStatement) {
 			_resolvedMapStatement = true;
 			_mapVariable = executionContext.getContextValue();
-			if (_mapVariable.getType() != Variable.Type.MAP && _mapVariable.getType() != Variable.Type.ARRAY)
-				throw new ExecutionException("Map or array expected");
+			if (_mapVariable.getType() != Variable.Type.MAP && _mapVariable.getType() != Variable.Type.LIST)
+				throw new ExecutionException("Map or list expected");
 			return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE);
 		}
 		if (!_stackedPropertyStatement) {
@@ -67,11 +67,11 @@ public class MapAccessExecution implements Execution {
 				return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE + ExecutionTimes.SET_CONTEXT_VALUE);
 			} else {
 				if (value.getType() != Variable.Type.NUMBER)
-					throw new ExecutionException("Array index expected");
+					throw new ExecutionException("List index expected");
 				List<Variable> values = (List<Variable>) _mapVariable.getValue();
 				int index = ((Number) value.getValue()).intValue();
 				if (index < 0 || index >= values.size())
-					throw new ExecutionException("Array index out of bounds");
+					throw new ExecutionException("List index out of bounds");
 				executionContext.setContextValue(values.get(index));
 				return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE + ExecutionTimes.SET_CONTEXT_VALUE);
 			}
