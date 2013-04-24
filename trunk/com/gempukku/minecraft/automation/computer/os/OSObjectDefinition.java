@@ -11,6 +11,7 @@ public class OSObjectDefinition implements ObjectDefinition {
 	private Variable _waitFor = new Variable(new WaitForFunction());
 
 	private Variable _createSleepMs = new Variable(new CreateSleepMsFunction());
+	private Variable _createSleepTick = new Variable(new CreateSleepTickFunction());
 	private Variable _any = new Variable(new AnyFunction());
 	private Variable _all = new Variable(new AllFunction());
 
@@ -26,6 +27,8 @@ public class OSObjectDefinition implements ObjectDefinition {
 			return _waitFor;
 		else if (name.equals("createSleepMs"))
 			return _createSleepMs;
+		else if (name.equals("createSleepTick"))
+			return _createSleepTick;
 		else if (name.equals("any"))
 			return _any;
 		else if (name.equals("all"))
