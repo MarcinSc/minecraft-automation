@@ -12,14 +12,14 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
-import java.util.ArrayList;
 
 public abstract class ComputerBlock extends BlockContainer {
 	private Icon _frontWorkingIcon;
@@ -44,18 +44,28 @@ public abstract class ComputerBlock extends BlockContainer {
 
 	protected abstract String getComputerSideIcon();
 
-	@Override
 	public void breakBlock(World world, int x, int y, int z, int par5, int par6) {
-		ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, x, y, z);
-		if (computerTileEntity != null) {
-			dropBlockAsItem_do(world, x, y, z, new ItemStack(this, 1, computerTileEntity.getComputerId()));
-			if (MinecraftUtils.isServer(world))
-				Automation.getServerProxy().getRegistry().unloadComputer(computerTileEntity);
-		}
+		final ComputerTileEntity computerEntity = AutomationUtils.getComputerEntitySafely(world, x, y, z);
 
+		if (computerEntity != null) {
+			// Eject all items in computer's inventory.
+			// The modules are not ejected - by design.
+			for (int inventoryIndex = 0; inventoryIndex < computerEntity.getSizeInventory(); inventoryIndex++) {
+				ItemStack itemstack = computerEntity.getStackInSlot(inventoryIndex);
+
+				if (itemstack != null) {
+					EntityItem entityItem = new EntityItem(world, x, y, z, new ItemStack(itemstack.itemID, itemstack.stackSize, itemstack.getItemDamage()));
+					world.spawnEntityInWorld(entityItem);
+					if (itemstack.hasTagCompound())
+						entityItem.getEntityItem().setTagCompound((NBTTagCompound) itemstack.getTagCompound().copy());
+				}
+			}
+
+			if (MinecraftUtils.isServer(world))
+				Automation.getServerProxy().getRegistry().unloadComputer(computerEntity);
+		}
 		super.breakBlock(world, x, y, z, par5, par6);
 	}
-
 
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -80,9 +90,8 @@ public abstract class ComputerBlock extends BlockContainer {
 	}
 
 	@Override
-	public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune) {
-		// We already dropped the items in breakBlock method, therefore not dropping here anything
-		return new ArrayList<ItemStack>();
+	public int damageDropped(int par1) {
+		return par1;
 	}
 
 	@Override
