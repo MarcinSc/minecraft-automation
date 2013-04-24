@@ -321,7 +321,7 @@ public class ScriptParser {
 			consumeCharactersFromTerm(termIterator, 1);
 			return produceListDefinitionFromIterator(termIterator, definedVariables);
 		}
-		final ExecutableStatement executableStatement = parseExpression(termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables, false), Integer.MAX_VALUE);
+		final ExecutableStatement executableStatement = parseExpression(termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables), Integer.MAX_VALUE);
 		if (!acceptsVariable && executableStatement instanceof VariableStatement)
 			throw new IllegalSyntaxException(termIterator, "Expression expected");
 		return executableStatement;
@@ -347,7 +347,14 @@ public class ScriptParser {
 				if (operator.isHasParameters())
 					parameters = parseParameters(termIterator, definedVariables, operator.exactlyOneParameter(), operator.getParametersClosing());
 
-				ExecutableStatement right = parseNextOperationToken(termIterator, definedVariables, operator.isNamedOnRight());
+				ExecutableStatement right;
+				if (operator.isNamedOnRight()) {
+					final Term term = peekNextProgramTermSafely(termIterator);
+					String literal = getFirstLiteral(term.getValue());
+					consumeCharactersFromTerm(termIterator, literal.length());
+					right = new NamedStatement(literal);
+				} else
+					right = parseNextOperationToken(termIterator, definedVariables);
 				if (right == null)
 					throw new IllegalSyntaxException(termIterator, "Expression expected");
 				Operator nextOperator;
@@ -384,7 +391,14 @@ public class ScriptParser {
 				if (operator.isLeftAssociative())
 					left = produceOperation(left, operator, null, parameters);
 				else {
-					ExecutableStatement operatorExpression = parseExpression(termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables, operator.isNamedOnRight()), operator.getPriority());
+					ExecutableStatement operatorExpression;
+					if (operator.isNamedOnRight()) {
+						final Term term = peekNextProgramTermSafely(termIterator);
+						String literal = getFirstLiteral(term.getValue());
+						consumeCharactersFromTerm(termIterator, literal.length());
+						operatorExpression = new NamedStatement(literal);
+					} else
+						operatorExpression = parseExpression(termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables), operator.getPriority());
 					if (operator.isPre()) {
 						if (operatorExpression == null)
 							throw new IllegalSyntaxException(termIterator, "Expression expected");
@@ -528,7 +542,7 @@ public class ScriptParser {
 		}
 	}
 
-	private ExecutableStatement parseNextOperationToken(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, boolean named) throws IllegalSyntaxException {
+	private ExecutableStatement parseNextOperationToken(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables) throws IllegalSyntaxException {
 		ExecutableStatement result;
 		TermBlock termBlock = peekNextTermBlockSafely(termIterator);
 		if (termBlock.isTerm()) {
@@ -567,15 +581,11 @@ public class ScriptParser {
 						else if (literal.equals("function")) {
 							result = produceFunctionFromIterator(termIterator, definedVariables, term);
 						} else {
-							if (named) {
-								result = new NamedStatement(literal);
-							} else {
-								if (LangDefinition.isReservedWord(literal))
-									throw new IllegalSyntaxException(line, column, "Invalid variable name");
-								if (!definedVariables.isVariableDefined(literal))
-									throw new IllegalSyntaxException(line, column, "Variable " + literal + " not defined in scope");
-								result = new VariableStatement(literal);
-							}
+							if (LangDefinition.isReservedWord(literal))
+								throw new IllegalSyntaxException(line, column, "Invalid variable name");
+							if (!definedVariables.isVariableDefined(literal))
+								throw new IllegalSyntaxException(line, column, "Variable " + literal + " not defined in scope");
+							result = new VariableStatement(literal);
 						}
 					} else {
 						// It might be operator
