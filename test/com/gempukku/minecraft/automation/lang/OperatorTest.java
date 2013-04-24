@@ -44,6 +44,11 @@ public class OperatorTest extends ProgramTest {
 	}
 
 	@Test
+	public void addAndAssignOperator() throws IllegalSyntaxException, IOException, ExecutionException {
+		assertEquals("Test", executeScript("var result = \"Te\"; result+=\"st\"; return result;").getValue());
+	}
+
+	@Test
 	public void operatorErrors() throws IOException, ExecutionException {
 		try {
 			executeScript("return ++;");
