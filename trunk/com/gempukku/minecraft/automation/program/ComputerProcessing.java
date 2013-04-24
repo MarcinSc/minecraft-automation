@@ -34,6 +34,7 @@ public class ComputerProcessing {
 	private ServerAutomationRegistry _registry;
 	private ScriptParser _scriptParser;
 	private Map<Integer, RunningProgram> _runningPrograms = new HashMap<Integer, RunningProgram>();
+	private Map<Integer, SuspendedProgram> _suspendedPrograms = new HashMap<Integer, SuspendedProgram>();
 	private Set<String> _predefinedVariables = new HashSet<String>();
 
 	public ComputerProcessing(File savesFolder, ServerAutomationRegistry registry) {
@@ -46,7 +47,7 @@ public class ComputerProcessing {
 	}
 
 	public boolean isRunningProgram(int computerId) {
-		return _runningPrograms.containsKey(computerId);
+		return _runningPrograms.containsKey(computerId) || _suspendedPrograms.containsKey(computerId);
 	}
 
 	@ForgeSubscribe
@@ -56,7 +57,7 @@ public class ComputerProcessing {
 		computerConsole.appendString("Staring startup program");
 		final World world = AutomationUtils.getWorldComputerIsIn(computerData);
 		if (world != null) {
-			updateProgramRunning(world, computerData, false);
+			updateProgramState(world, computerData, ComputerTileEntity.STATE_IDLE);
 			String startupProgramResult = startProgram(world, computerData.getId(), STARTUP_PROGRAM);
 			if (startupProgramResult != null)
 				computerConsole.appendString(startupProgramResult);
@@ -68,10 +69,11 @@ public class ComputerProcessing {
 	@ForgeSubscribe
 	public void shutdownComputer(ComputerEvent.ComputerRemovedFromWorldEvent evt) {
 		_runningPrograms.remove(evt.computerId);
+		_suspendedPrograms.remove(evt.computerId);
 	}
 
 	public String startProgram(World world, int computerId, String name) {
-		if (_runningPrograms.containsKey(computerId))
+		if (isRunningProgram(computerId))
 			return "Computer already runs a program.";
 
 		final File computerProgram = getComputerProgram(computerId, name);
@@ -96,7 +98,7 @@ public class ComputerProcessing {
 			exec.stackExecutionGroup(context, parsedScript.createExecution(context));
 			_runningPrograms.put(computerId, new RunningProgram(computerData, exec));
 
-			updateProgramRunning(world, computerData, true);
+			updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
 
 			return null;
 		} catch (IllegalSyntaxException exp) {
@@ -104,14 +106,25 @@ public class ComputerProcessing {
 		}
 	}
 
+	public void suspendProgramWithCondition(World world, int computerId, AwaitingCondition condition) {
+		final RunningProgram runningProgram = _runningPrograms.remove(computerId);
+		_suspendedPrograms.put(computerId, new SuspendedProgram(runningProgram, condition));
+		updateProgramState(world, runningProgram.getComputerData(), ComputerTileEntity.STATE_SUSPENDED);
+	}
+
 	public String stopProgram(World world, int computerId) {
-		if (!_runningPrograms.containsKey(computerId))
+		if (!isRunningProgram(computerId))
 			return "Computer is not running any programs.";
 
-		final RunningProgram stoppedProgram = _runningPrograms.remove(computerId);
+		RunningProgram stoppedProgram = _runningPrograms.remove(computerId);
+		if (stoppedProgram == null) {
+			final SuspendedProgram suspendedProgram = _suspendedPrograms.remove(computerId);
+			if (suspendedProgram != null)
+				stoppedProgram = suspendedProgram.getRunningProgram();
+		}
 		if (stoppedProgram != null) {
 			final ServerComputerData computerData = stoppedProgram.getComputerData();
-			updateProgramRunning(world, computerData, false);
+			updateProgramState(world, computerData, ComputerTileEntity.STATE_IDLE);
 		}
 		return null;
 	}
@@ -154,25 +167,37 @@ public class ComputerProcessing {
 
 	public void tickComputersInWorld(World world) {
 		int dimension = world.provider.dimensionId;
-		final Iterator<RunningProgram> iterator = _runningPrograms.values().iterator();
-		while (iterator.hasNext()) {
-			final RunningProgram program = iterator.next();
-			final ServerComputerData computerData = program.getComputerData();
+		final Iterator<RunningProgram> runningIterator = _runningPrograms.values().iterator();
+		while (runningIterator.hasNext()) {
+			final RunningProgram running = runningIterator.next();
+			final ServerComputerData computerData = running.getComputerData();
 			if (computerData.getDimension() == dimension) {
-				program.progressProgram(world);
-				if (!program.isRunning()) {
-					iterator.remove();
-					if (computerData.getDimension() == dimension)
-						updateProgramRunning(world, computerData, false);
+				running.progressProgram(world);
+				if (!running.isRunning()) {
+					runningIterator.remove();
+					updateProgramState(world, computerData, ComputerTileEntity.STATE_IDLE);
+				}
+			}
+		}
+
+		Iterator<SuspendedProgram> suspendedIterator = _suspendedPrograms.values().iterator();
+		while (suspendedIterator.hasNext()) {
+			final SuspendedProgram suspended = suspendedIterator.next();
+			final ServerComputerData computerData = suspended.getRunningProgram().getComputerData();
+			if (computerData.getDimension() == dimension) {
+				if (suspended.getAwaitingCondition().isMet()) {
+					suspendedIterator.remove();
+					_runningPrograms.put(computerData.getId(), suspended.getRunningProgram());
+					updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
 				}
 			}
 		}
 	}
 
-	private void updateProgramRunning(World world, ServerComputerData computerData, boolean running) {
+	private void updateProgramState(World world, ServerComputerData computerData, short state) {
 		ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
 		if (computerTileEntity != null) {
-			computerTileEntity.setRunningProgram(running);
+			computerTileEntity.setState(state);
 			MinecraftUtils.sendTileEntityUpdateToPlayers(world, computerTileEntity);
 		}
 	}

@@ -69,7 +69,8 @@ public abstract class ComputerBlock extends BlockContainer {
 	public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
 		final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(blockAccess, x, y, z);
 		if (tileEntity != null && side == tileEntity.getFacing()) {
-			if (tileEntity.isRunningProgram())
+			final short state = tileEntity.getState();
+			if (state == ComputerTileEntity.STATE_RUNNING || state == ComputerTileEntity.STATE_SUSPENDED)
 				return _frontWorkingIcon;
 			else
 				return _frontReadyIcon;

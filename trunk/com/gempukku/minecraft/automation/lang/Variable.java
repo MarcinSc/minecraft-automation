@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Variable {
-	public enum Type {NULL, STRING, NUMBER, BOOLEAN, FUNCTION, LIST, MAP, OBJECT}
+	public enum Type {NULL, STRING, NUMBER, BOOLEAN, FUNCTION, LIST, MAP, OBJECT, CUSTOM_OBJECT}
 
 	private Object _value;
 	private Type _type;
@@ -31,6 +31,8 @@ public class Variable {
 			_type = Type.OBJECT;
 		} else if (value instanceof List) {
 			_type = Type.LIST;
+		} else if (value instanceof CustomObject) {
+			_type = Type.CUSTOM_OBJECT;
 		} else
 			throw new UnsupportedOperationException("Unknown type of variable value: " + value.getClass().getSimpleName());
 	}

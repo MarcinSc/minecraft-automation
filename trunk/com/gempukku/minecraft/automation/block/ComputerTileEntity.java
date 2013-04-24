@@ -18,10 +18,13 @@ import java.util.List;
 public class ComputerTileEntity extends TileEntity implements IInventory {
 	private static final String ID_NAME = "computerId";
 	private static final String FACING = "facing";
-	private static final String RUNNING = "running";
+	private static final String STATE = "state";
+	public static final short STATE_IDLE = 0;
+	public static final short STATE_RUNNING = 1;
+	public static final short STATE_SUSPENDED = 2;
 	private static final String MODULE_SLOTS_COUNT = "moduleSlots";
 	private int _computerId;
-	private boolean _runningProgram;
+	private short _state;
 
 	private ComputerModule[] _modules;
 	private ItemStack[] _inventory = new ItemStack[0];
@@ -124,12 +127,12 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 		_facing = facing;
 	}
 
-	public void setRunningProgram(boolean runningProgram) {
-		_runningProgram = runningProgram;
+	public short getState() {
+		return _state;
 	}
 
-	public boolean isRunningProgram() {
-		return _runningProgram;
+	public void setState(short state) {
+		_state = state;
 	}
 
 	public int getModuleSlotsCount() {
@@ -267,7 +270,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 		super.readFromNBT(tagCompound);
 		_computerId = tagCompound.getInteger(ID_NAME);
 		_facing = tagCompound.getInteger(FACING);
-		_runningProgram = tagCompound.getBoolean(RUNNING);
+		_state = tagCompound.getShort(STATE);
 		_moduleSlotsCount = tagCompound.getInteger(MODULE_SLOTS_COUNT);
 		_modules = new ComputerModule[_moduleSlotsCount];
 
@@ -297,7 +300,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 		super.writeToNBT(tagCompound);
 		tagCompound.setInteger(ID_NAME, _computerId);
 		tagCompound.setInteger(FACING, _facing);
-		tagCompound.setBoolean(RUNNING, _runningProgram);
+		tagCompound.setShort(STATE, _state);
 		tagCompound.setInteger(MODULE_SLOTS_COUNT, _moduleSlotsCount);
 
 		NBTTagList moduleList = new NBTTagList();
