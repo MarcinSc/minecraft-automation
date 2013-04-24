@@ -12,26 +12,26 @@ public class Operator {
 	public static final Operator PRE_DECREMENT = Operator.createUnary(2, 2, false, true);
 	public static final Operator POST_DECREMENT = Operator.createUnary(2, 2, false, false);
 
-	public static final Operator MULTIPLY = Operator.createSimple(1, 3);
-	public static final Operator DIVIDE = Operator.createSimple(1, 3);
-	public static final Operator MOD = Operator.createSimple(1, 3);
+	public static final Operator MULTIPLY = Operator.createBinaryLeftAssociative(1, 3);
+	public static final Operator DIVIDE = Operator.createBinaryLeftAssociative(1, 3);
+	public static final Operator MOD = Operator.createBinaryLeftAssociative(1, 3);
 
-	public static final Operator ADD = Operator.createSimple(1, 4);
-	public static final Operator SUBTRACT = Operator.createSimple(1, 4);
+	public static final Operator ADD = Operator.createBinaryLeftAssociative(1, 4);
+	public static final Operator SUBTRACT = Operator.createBinaryLeftAssociative(1, 4);
 
-	public static final Operator GREATER_OR_EQUAL = Operator.createSimple(2, 6);
-	public static final Operator GREATER = Operator.createSimple(1, 6);
-	public static final Operator LESS_OR_EQUAL = Operator.createSimple(2, 6);
-	public static final Operator LESS = Operator.createSimple(1, 6);
+	public static final Operator GREATER_OR_EQUAL = Operator.createBinaryLeftAssociative(2, 6);
+	public static final Operator GREATER = Operator.createBinaryLeftAssociative(1, 6);
+	public static final Operator LESS_OR_EQUAL = Operator.createBinaryLeftAssociative(2, 6);
+	public static final Operator LESS = Operator.createBinaryLeftAssociative(1, 6);
 
-	public static final Operator EQUALS = Operator.createSimple(2, 7);
-	public static final Operator NOT_EQUALS = Operator.createSimple(2, 7);
+	public static final Operator EQUALS = Operator.createBinaryLeftAssociative(2, 7);
+	public static final Operator NOT_EQUALS = Operator.createBinaryLeftAssociative(2, 7);
 
-	public static final Operator AND = Operator.createSimple(2, 11);
+	public static final Operator AND = Operator.createBinaryLeftAssociative(2, 11);
 
-	public static final Operator OR = Operator.createSimple(2, 12);
+	public static final Operator OR = Operator.createBinaryLeftAssociative(2, 12);
 
-	public static final Operator ASSIGNMENT = Operator.createSimple(1, 14);
+	public static final Operator ASSIGNMENT = Operator.createBinaryRightAssociative(1, 14);
 
 	private int _priority;
 	private int _consumeLength;
@@ -63,11 +63,20 @@ public class Operator {
 		return operator;
 	}
 
-	private static Operator createSimple(int consumeLength, int priority) {
+	private static Operator createBinaryLeftAssociative(int consumeLength, int priority) {
 		Operator operator = new Operator();
 		operator._consumeLength = consumeLength;
 		operator._priority = priority;
 		operator._leftAssociative = true;
+		operator._binary = true;
+		return operator;
+	}
+
+	private static Operator createBinaryRightAssociative(int consumeLength, int priority) {
+		Operator operator = new Operator();
+		operator._consumeLength = consumeLength;
+		operator._priority = priority;
+		operator._leftAssociative = false;
 		operator._binary = true;
 		return operator;
 	}
