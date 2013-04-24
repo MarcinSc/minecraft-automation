@@ -299,7 +299,10 @@ public class ComputerConsoleGui extends GuiScreen {
 	}
 
 	private void printHelp() {
-		_playerCommandConsoleGui.appendToConsole("[put help text here]");
+		_playerCommandConsoleGui.appendToConsole("help - prints this text");
+		_playerCommandConsoleGui.appendToConsole("edit [programName] - edits a program in an editor");
+		_playerCommandConsoleGui.appendToConsole("execute [programName] - executes a program");
+		_playerCommandConsoleGui.appendToConsole("exit - exits this console");
 	}
 
 	private int getButBgColor(boolean hover, boolean inMode) {
