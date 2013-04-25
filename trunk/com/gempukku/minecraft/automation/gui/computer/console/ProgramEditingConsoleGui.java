@@ -62,6 +62,14 @@ public class ProgramEditingConsoleGui {
 		}
 
 		// Draw status line
+		drawStatusLine();
+
+		_blinkDrawTick = ((++_blinkDrawTick) % BLINK_LENGTH);
+		if (_blinkDrawTick * 2 > BLINK_LENGTH)
+			_computerConsoleGui.drawVerticalLine((_editedProgramCursorX - _editedDisplayStartX) * ComputerConsoleGui.CHARACTER_WIDTH - 1, (_editedProgramCursorY - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, 1 + (_editedProgramCursorY - _editedDisplayStartY + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_CURSOR_COLOR);
+	}
+
+	private void drawStatusLine() {
 		final int lastLineY = ComputerConsoleGui.FONT_HEIGHT * (ComputerConsole.CONSOLE_HEIGHT - 1);
 		final CompileScriptOnTheFly.CompileStatus compileStatusObj = _onTheFlyCompiler.getCompileStatus();
 		if (_waitingForExitConfirmation) {
@@ -69,52 +77,56 @@ public class ProgramEditingConsoleGui {
 		} else if (_waitingForGotoLineEntered) {
 			_computerConsoleGui.drawMonospacedText("Go to line: " + _gotoLineNumber.toString(), 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
 		} else if (_displayErrorMessage && compileStatusObj != null && compileStatusObj.error != null) {
+			displayErrorInformation(lastLineY, compileStatusObj);
+		} else {
+			displayNormalEditingInformation(lastLineY, compileStatusObj);
+		}
+	}
+
+	private void displayNormalEditingInformation(int lastLineY, CompileScriptOnTheFly.CompileStatus compileStatusObj) {
+		_computerConsoleGui.drawMonospacedText("[S]ave E[x]it", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
+
+		if (_programSaveDirty)
+			_computerConsoleGui.drawMonospacedText("*", 15 * ComputerConsoleGui.CHARACTER_WIDTH, lastLineY, PROGRAM_LAST_LINE_COLOR);
+
+		String compileStatus = "...";
+		int compileColor = COMPILE_PENDING_COLOR;
+		if (compileStatusObj != null) {
+			if (compileStatusObj.success) {
+				compileStatus = "OK";
+				compileColor = COMPILE_OK_COLOR;
+			} else if (compileStatusObj.error != null) {
+				compileStatus = "[E]rror";
+				compileColor = COMPILE_ERROR_COLOR;
+			} else {
+				compileStatus = "Unknown error";
+				compileColor = COMPILE_ERROR_COLOR;
+			}
+		}
+
+		int index = ComputerConsole.CONSOLE_WIDTH - compileStatus.length();
+		_computerConsoleGui.drawMonospacedText(compileStatus, index * ComputerConsoleGui.CHARACTER_WIDTH, lastLineY, compileColor);
+
+		if (compileStatusObj != null && compileStatusObj.error != null) {
 			final IllegalSyntaxException error = compileStatusObj.error;
-			_computerConsoleGui.drawMonospacedText(error.getMessage(), 0, lastLineY, PROGRAM_ERROR_MESSAGE_COLOR);
 			final int errorLine = error.getLine() - _editedDisplayStartY;
 			final int errorColumn = error.getColumn() - _editedDisplayStartX;
 
 			if (errorLine >= 0 && errorLine < ComputerConsole.CONSOLE_HEIGHT - 1
 							&& errorColumn >= 0 && errorColumn < ComputerConsole.CONSOLE_WIDTH)
 				_computerConsoleGui.drawHorizontalLine(errorColumn * ComputerConsoleGui.CHARACTER_WIDTH, (errorColumn + 1) * ComputerConsoleGui.CHARACTER_WIDTH, (errorLine + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_ERROR_UNDERLINE_COLOR);
-		} else {
-			_computerConsoleGui.drawMonospacedText("[S]ave E[x]it", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
-
-			if (_programSaveDirty)
-				_computerConsoleGui.drawMonospacedText("*", 15 * ComputerConsoleGui.CHARACTER_WIDTH, lastLineY, PROGRAM_LAST_LINE_COLOR);
-
-			String compileStatus = "...";
-			int compileColor = COMPILE_PENDING_COLOR;
-			if (compileStatusObj != null) {
-				if (compileStatusObj.success) {
-					compileStatus = "OK";
-					compileColor = COMPILE_OK_COLOR;
-				} else if (compileStatusObj.error != null) {
-					compileStatus = "[E]rror";
-					compileColor = COMPILE_ERROR_COLOR;
-				} else {
-					compileStatus = "Unknown error";
-					compileColor = COMPILE_ERROR_COLOR;
-				}
-			}
-
-			int index = ComputerConsole.CONSOLE_WIDTH - compileStatus.length();
-			_computerConsoleGui.drawMonospacedText(compileStatus, index * ComputerConsoleGui.CHARACTER_WIDTH, lastLineY, compileColor);
-
-			if (compileStatusObj != null && compileStatusObj.error != null) {
-				final IllegalSyntaxException error = compileStatusObj.error;
-				final int errorLine = error.getLine() - _editedDisplayStartY;
-				final int errorColumn = error.getColumn() - _editedDisplayStartX;
-
-				if (errorLine >= 0 && errorLine < ComputerConsole.CONSOLE_HEIGHT - 1
-								&& errorColumn >= 0 && errorColumn < ComputerConsole.CONSOLE_WIDTH)
-					_computerConsoleGui.drawHorizontalLine(errorColumn * ComputerConsoleGui.CHARACTER_WIDTH, (errorColumn + 1) * ComputerConsoleGui.CHARACTER_WIDTH, (errorLine + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_ERROR_UNDERLINE_COLOR);
-			}
 		}
+	}
 
-		_blinkDrawTick = ((++_blinkDrawTick) % BLINK_LENGTH);
-		if (_blinkDrawTick * 2 > BLINK_LENGTH)
-			_computerConsoleGui.drawVerticalLine((_editedProgramCursorX - _editedDisplayStartX) * ComputerConsoleGui.CHARACTER_WIDTH - 1, (_editedProgramCursorY - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, 1 + (_editedProgramCursorY - _editedDisplayStartY + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_CURSOR_COLOR);
+	private void displayErrorInformation(int lastLineY, CompileScriptOnTheFly.CompileStatus compileStatusObj) {
+		final IllegalSyntaxException error = compileStatusObj.error;
+		_computerConsoleGui.drawMonospacedText(error.getMessage(), 0, lastLineY, PROGRAM_ERROR_MESSAGE_COLOR);
+		final int errorLine = error.getLine() - _editedDisplayStartY;
+		final int errorColumn = error.getColumn() - _editedDisplayStartX;
+
+		if (errorLine >= 0 && errorLine < ComputerConsole.CONSOLE_HEIGHT - 1
+						&& errorColumn >= 0 && errorColumn < ComputerConsole.CONSOLE_WIDTH)
+			_computerConsoleGui.drawHorizontalLine(errorColumn * ComputerConsoleGui.CHARACTER_WIDTH, (errorColumn + 1) * ComputerConsoleGui.CHARACTER_WIDTH, (errorLine + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_ERROR_UNDERLINE_COLOR);
 	}
 
 	public void keyTypedInEditingProgram(char character, int keyboardCharId) {
