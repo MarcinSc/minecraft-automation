@@ -111,7 +111,7 @@ public class ComputerConsole {
 		return result.toString();
 	}
 
-	private String stripInvalidCharacters(String text) {
+	public static String stripInvalidCharacters(String text) {
 		StringBuilder result = new StringBuilder();
 		final char[] chars = text.toCharArray();
 		for (char aChar : chars)
