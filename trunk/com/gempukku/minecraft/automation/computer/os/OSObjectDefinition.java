@@ -7,7 +7,10 @@ import com.gempukku.minecraft.automation.lang.Variable;
 public class OSObjectDefinition implements ObjectDefinition {
 	private Variable _parseFloat = new Variable(new ParseFloatFunction());
 	private Variable _parseInt = new Variable(new ParseIntFunction());
+	private Variable _format = new Variable(new FormatFunction());
+
 	private Variable _typeOf = new Variable(new TypeOfFunction());
+
 	private Variable _waitFor = new Variable(new WaitForFunction());
 
 	private Variable _createSleepMs = new Variable(new CreateSleepMsFunction());
@@ -33,6 +36,8 @@ public class OSObjectDefinition implements ObjectDefinition {
 			return _any;
 		else if (name.equals("all"))
 			return _all;
+		else if (name.equals("format"))
+			return _format;
 
 		return new Variable(null);
 	}
