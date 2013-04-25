@@ -10,6 +10,7 @@ import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 import java.util.Map;
@@ -67,7 +68,10 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 			int availableSpace = (stackInInventory != null) ? stackInInventory.getMaxStackSize() - stackInInventory.stackSize : 64;
 			int transferCount = Math.min(toTransfer - transferred, availableSpace);
 			final ItemStack itemStack = computerTileEntity.decrStackSize(computerSlotIndex, transferCount);
-			inventory.setInventorySlotContents(inventorySlotIndex, new ItemStack(itemStack.itemID, itemStack.stackSize + inventoryStackSize, itemStack.getItemDamage()));
+			final ItemStack newStackInInventory = new ItemStack(itemStack.itemID, itemStack.stackSize + inventoryStackSize, itemStack.getItemDamage());
+			if (itemStack.hasTagCompound())
+				newStackInInventory.setTagCompound((NBTTagCompound) itemStack.getTagCompound().copy());
+			inventory.setInventorySlotContents(inventorySlotIndex, newStackInInventory);
 			transferred += transferCount;
 			startFrom = inventorySlotIndex + 1;
 		}

@@ -57,20 +57,8 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 		if (stackInSlot == null)
 			return false;
 		int toTransfer = Math.min(stackInSlot.stackSize, count);
-		int transferred = 0;
-		int startFrom = 0;
-		int computerSlotIndex;
-		// Try to merge the stack items into computer available slots
-		while (transferred < toTransfer && (computerSlotIndex = getFirstSlotOfSameTypeOrEmptyIndex(computerTileEntity, stackInSlot, startFrom)) != -1) {
-			final ItemStack stackInComputer = computerTileEntity.getStackInSlot(computerSlotIndex);
-			int computerStackSize = (stackInComputer != null) ? stackInComputer.stackSize : 0;
-			int availableSpace = (stackInComputer != null) ? stackInComputer.getMaxStackSize() - stackInComputer.stackSize : 64;
-			int transferCount = Math.min(toTransfer - transferred, availableSpace);
-			final ItemStack itemStack = inventory.decrStackSize(inventoryIndex, transferCount);
-			computerTileEntity.setInventorySlotContents(computerSlotIndex, new ItemStack(itemStack.itemID, itemStack.stackSize + computerStackSize, itemStack.getItemDamage()));
-			transferred += transferCount;
-			startFrom = computerSlotIndex + 1;
-		}
+		int transferred = StorageModuleUtils.mergeItemStackIntoComputerInventory(computerTileEntity, stackInSlot, toTransfer);
+		inventory.decrStackSize(inventoryIndex, transferred);
 
 		if (transferred > 0) {
 			inventory.onInventoryChanged();
@@ -78,16 +66,6 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 		}
 
 		return transferred == toTransfer;
-	}
-
-	private int getFirstSlotOfSameTypeOrEmptyIndex(IInventory inventory, ItemStack stack, int fromIndex) {
-		final int inventorySize = inventory.getSizeInventory();
-		for (int i = fromIndex; i < inventorySize; i++) {
-			final ItemStack stackInSlot = inventory.getStackInSlot(i);
-			if (stackInSlot == null || (stackInSlot.itemID == stack.itemID && stackInSlot.getItemDamage() == stack.getItemDamage()))
-				return i;
-		}
-		return -1;
 	}
 
 	private int getSpecifiedSlotIndex(int line, ServerComputerData computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {

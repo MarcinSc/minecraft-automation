@@ -18,7 +18,7 @@ import java.util.Map;
 public class MoveFunction extends JavaFunctionExecutable {
 	@Override
 	protected int getDuration() {
-		return 100;
+		return 10000;
 	}
 
 	@Override

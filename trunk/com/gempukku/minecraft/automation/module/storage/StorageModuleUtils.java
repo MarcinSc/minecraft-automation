@@ -1,12 +1,14 @@
 package com.gempukku.minecraft.automation.module.storage;
 
 import com.gempukku.minecraft.BoxSide;
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Facing;
 import net.minecraft.world.World;
@@ -73,5 +75,35 @@ public class StorageModuleUtils {
 		else if (side.equals("bottom"))
 			lookAt = BoxSide.TOP;
 		return lookAt;
+	}
+
+	public static int mergeItemStackIntoComputerInventory(ComputerTileEntity computerTileEntity, ItemStack itemStack, int toTransfer) {
+		int transferred = 0;
+		int startFrom = 0;
+		int computerSlotIndex;
+		// Try to merge the stack items into computer available slots
+		while (transferred < toTransfer && (computerSlotIndex = getFirstSlotOfSameTypeOrEmptyIndex(computerTileEntity, itemStack, startFrom)) != -1) {
+			final ItemStack stackInComputer = computerTileEntity.getStackInSlot(computerSlotIndex);
+			int computerStackSize = (stackInComputer != null) ? stackInComputer.stackSize : 0;
+			int availableSpace = (stackInComputer != null) ? stackInComputer.getMaxStackSize() - stackInComputer.stackSize : 64;
+			int transferCount = Math.min(toTransfer - transferred, availableSpace);
+			final ItemStack newStackInComputer = new ItemStack(itemStack.itemID, transferCount + computerStackSize, itemStack.getItemDamage());
+			if (itemStack.hasTagCompound())
+				newStackInComputer.setTagCompound((NBTTagCompound) itemStack.getTagCompound().copy());
+			computerTileEntity.setInventorySlotContents(computerSlotIndex, newStackInComputer);
+			transferred += transferCount;
+			startFrom = computerSlotIndex + 1;
+		}
+		return transferred;
+	}
+
+	private static int getFirstSlotOfSameTypeOrEmptyIndex(IInventory inventory, ItemStack stack, int fromIndex) {
+		final int inventorySize = inventory.getSizeInventory();
+		for (int i = fromIndex; i < inventorySize; i++) {
+			final ItemStack stackInSlot = inventory.getStackInSlot(i);
+			if (stackInSlot == null || (stackInSlot.itemID == stack.itemID && stackInSlot.getItemDamage() == stack.getItemDamage()))
+				return i;
+		}
+		return -1;
 	}
 }

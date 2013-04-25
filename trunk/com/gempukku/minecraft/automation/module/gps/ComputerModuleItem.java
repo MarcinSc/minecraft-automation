@@ -26,6 +26,7 @@ public class ComputerModuleItem extends Item {
 		_modulesIcon.put(Automation.POSITIONING_MODULE_METADATA, iconRegister.registerIcon("automation:gps"));
 		_modulesIcon.put(Automation.STORAGE_MODULE_METADATA, iconRegister.registerIcon("automation:storage"));
 		_modulesIcon.put(Automation.MOBILITY_MODULE_METADATA, iconRegister.registerIcon("automation:mobility"));
+		_modulesIcon.put(Automation.HARVEST_MODULE_METADATA, iconRegister.registerIcon("automation:harvest"));
 	}
 
 	@Override

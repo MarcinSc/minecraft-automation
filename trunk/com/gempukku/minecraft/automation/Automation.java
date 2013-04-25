@@ -11,6 +11,7 @@ import com.gempukku.minecraft.automation.item.ComputerItemBlock;
 import com.gempukku.minecraft.automation.item.ItemTerminal;
 import com.gempukku.minecraft.automation.module.gps.ComputerModuleItem;
 import com.gempukku.minecraft.automation.module.gps.PositioningModule;
+import com.gempukku.minecraft.automation.module.harvest.HarvestModule;
 import com.gempukku.minecraft.automation.module.mobility.MobilityModule;
 import com.gempukku.minecraft.automation.module.storage.StorageModule;
 import com.gempukku.minecraft.automation.program.TickComputers;
@@ -79,6 +80,7 @@ public class Automation {
 	public static final int POSITIONING_MODULE_METADATA = 0;
 	public static final int STORAGE_MODULE_METADATA = 1;
 	public static final int MOBILITY_MODULE_METADATA = 2;
+	public static final int HARVEST_MODULE_METADATA = 3;
 
 	@SidedProxy(clientSide = "com.gempukku.minecraft.automation.client.ClientAutomationProxy",
 					serverSide = "com.gempukku.minecraft.automation.server.ServerAutomationProxy")
@@ -118,11 +120,16 @@ public class Automation {
 		final ItemStack goldIngot = new ItemStack(Item.ingotGold);
 		final ItemStack compass = new ItemStack(Item.compass);
 
+		final ItemStack diamondPickaxe = new ItemStack(Item.pickaxeDiamond);
+		final ItemStack diamondAxe = new ItemStack(Item.axeDiamond);
+		final ItemStack diamondShovel = new ItemStack(Item.shovelDiamond);
+
 		GameRegistry.addShapedRecipe(new ItemStack(personalComputerBlock), "xyx", "xxx", 'x', ironIngot, 'y', redstone);
 		GameRegistry.addShapedRecipe(new ItemStack(terminalItem), "xyx", "zzz", 'x', redstone, 'y', glassPane, 'z', woodenButton);
 		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, POSITIONING_MODULE_METADATA), " x ", " x ", "yzy", 'x', coal, 'y', ironIngot, 'z', compass);
 		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, STORAGE_MODULE_METADATA), "xyx", "xzx", 'x', ironIngot, 'y', chest, 'z', redstone);
 		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, MOBILITY_MODULE_METADATA), "xxx", "yzy", "xxx", 'x', ironIngot, 'y', redstone, 'z', goldIngot);
+		GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, HARVEST_MODULE_METADATA), "xyz", "iri", "iri", 'x', diamondShovel, 'y', diamondPickaxe, 'z', diamondAxe, 'i', ironIngot, 'r', redstone);
 
 		LanguageRegistry.addName(personalComputerBlock, "Personal Computer");
 		LanguageRegistry.addName(terminalItem, "Terminal");
@@ -143,6 +150,7 @@ public class Automation {
 		proxy.getRegistry().registerComputerModule(moduleItem, POSITIONING_MODULE_METADATA, new PositioningModule());
 		proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
 		proxy.getRegistry().registerComputerModule(moduleItem, MOBILITY_MODULE_METADATA, new MobilityModule());
+		proxy.getRegistry().registerComputerModule(moduleItem, HARVEST_MODULE_METADATA, new HarvestModule());
 	}
 
 	@Mod.ServerAboutToStart
