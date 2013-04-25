@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.computer.module.gps;
+package com.gempukku.minecraft.automation.computer.module.positioning;
 
 import com.gempukku.minecraft.automation.computer.module.AbstractComputerModule;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
