@@ -5,19 +5,21 @@ import com.gempukku.minecraft.automation.lang.Execution;
 import com.gempukku.minecraft.automation.lang.execution.NegateExecution;
 
 public class NegateStatement implements ExecutableStatement {
-    private ExecutableStatement _expression;
+	private int _line;
+	private ExecutableStatement _expression;
 
-    public NegateStatement(ExecutableStatement expression) {
-        _expression = expression;
-    }
+	public NegateStatement(int line, ExecutableStatement expression) {
+		_line = line;
+		_expression = expression;
+	}
 
-    @Override
-    public Execution createExecution() {
-        return new NegateExecution(_expression);
-    }
+	@Override
+	public Execution createExecution() {
+		return new NegateExecution(_line, _expression);
+	}
 
-    @Override
-    public boolean requiresSemicolon() {
-        return false;
-    }
+	@Override
+	public boolean requiresSemicolon() {
+		return false;
+	}
 }

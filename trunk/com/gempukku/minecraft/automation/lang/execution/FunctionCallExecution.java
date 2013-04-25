@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionCallExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _function;
 	private List<ExecutableStatement> _parameters;
 
@@ -19,7 +20,8 @@ public class FunctionCallExecution implements Execution {
 	private Variable _functionVar;
 	private List<Variable> _parameterValues = new ArrayList<Variable>();
 
-	public FunctionCallExecution(ExecutableStatement function, List<ExecutableStatement> parameters) {
+	public FunctionCallExecution(int line, ExecutableStatement function, List<ExecutableStatement> parameters) {
+		_line = line;
 		_function = function;
 		_parameters = parameters;
 	}
@@ -65,12 +67,12 @@ public class FunctionCallExecution implements Execution {
 		}
 		if (!_functionCalled) {
 			if (_functionVar.getType() != Variable.Type.FUNCTION)
-				throw new ExecutionException("Expected function");
+				throw new ExecutionException(_line, "Expected function");
 			FunctionExecutable function = (FunctionExecutable) _functionVar.getValue();
 			final CallContext functionContextParent = function.getCallContext();
 			final String[] parameterNames = function.getParameterNames();
 			if (_parameterValues.size() > parameterNames.length)
-				throw new ExecutionException("Function does not accept as many parameters");
+				throw new ExecutionException(_line, "Function does not accept as many parameters");
 
 			CallContext functionContext = new CallContext(functionContextParent, false, true);
 			for (int i = 0; i < parameterNames.length; i++) {

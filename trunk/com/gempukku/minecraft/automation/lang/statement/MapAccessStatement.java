@@ -5,21 +5,23 @@ import com.gempukku.minecraft.automation.lang.Execution;
 import com.gempukku.minecraft.automation.lang.execution.MapAccessExecution;
 
 public class MapAccessStatement implements ExecutableStatement {
-    private ExecutableStatement _mapStatement;
-    private ExecutableStatement _propertyStatement;
+	private int _line;
+	private ExecutableStatement _mapStatement;
+	private ExecutableStatement _propertyStatement;
 
-    public MapAccessStatement(ExecutableStatement mapStatement, ExecutableStatement propertyStatement) {
-        _mapStatement = mapStatement;
-        _propertyStatement = propertyStatement;
-    }
+	public MapAccessStatement(int line, ExecutableStatement mapStatement, ExecutableStatement propertyStatement) {
+		_line = line;
+		_mapStatement = mapStatement;
+		_propertyStatement = propertyStatement;
+	}
 
-    @Override
-    public Execution createExecution() {
-        return new MapAccessExecution(_mapStatement, _propertyStatement);
-    }
+	@Override
+	public Execution createExecution() {
+		return new MapAccessExecution(_line, _mapStatement, _propertyStatement);
+	}
 
-    @Override
-    public boolean requiresSemicolon() {
-        return false;
-    }
+	@Override
+	public boolean requiresSemicolon() {
+		return false;
+	}
 }

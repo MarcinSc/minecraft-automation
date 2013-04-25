@@ -5,15 +5,17 @@ import com.gempukku.minecraft.automation.lang.Execution;
 import com.gempukku.minecraft.automation.lang.execution.NegativeExecution;
 
 public class NegativeStatement implements ExecutableStatement {
+	private int _line;
 	private ExecutableStatement _expression;
 
-	public NegativeStatement(ExecutableStatement expression) {
+	public NegativeStatement(int line, ExecutableStatement expression) {
+		_line = line;
 		_expression = expression;
 	}
 
 	@Override
 	public Execution createExecution() {
-		return new NegativeExecution(_expression);
+		return new NegativeExecution(_line, _expression);
 	}
 
 	@Override

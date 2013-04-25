@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class LogicalOperatorExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _left;
 	private Operator _operator;
 	private ExecutableStatement _right;
@@ -15,7 +16,8 @@ public class LogicalOperatorExecution implements Execution {
 	private boolean _stackedRight;
 	private boolean _resolvedRight;
 
-	public LogicalOperatorExecution(ExecutableStatement left, Operator operator, ExecutableStatement right) {
+	public LogicalOperatorExecution(int line, ExecutableStatement left, Operator operator, ExecutableStatement right) {
+		_line = line;
 		_left = left;
 		_operator = operator;
 		_right = right;
@@ -39,7 +41,7 @@ public class LogicalOperatorExecution implements Execution {
 			_resolvedLeft = true;
 			final Variable contextValue = executionContext.getContextValue();
 			if (contextValue.getType() != Variable.Type.BOOLEAN)
-				throw new ExecutionException("Expected BOOLEAN");
+				throw new ExecutionException(_line, "Expected BOOLEAN");
 			boolean result = (Boolean) contextValue.getValue();
 			if (_operator == Operator.AND && !result) {
 				_terminated = true;
@@ -62,7 +64,7 @@ public class LogicalOperatorExecution implements Execution {
 			_resolvedRight = true;
 			final Variable contextValue = executionContext.getContextValue();
 			if (contextValue.getType() != Variable.Type.BOOLEAN)
-				throw new ExecutionException("Expected BOOLEAN");
+				throw new ExecutionException(_line, "Expected BOOLEAN");
 			_terminated = true;
 			boolean result = (Boolean) contextValue.getValue();
 			executionContext.setContextValue(new Variable(result));

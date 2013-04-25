@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class ForExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _initializationStatement;
 	private ExecutableStatement _terminationCondition;
 	private ExecutableStatement _executedAfterEachLoop;
@@ -16,7 +17,8 @@ public class ForExecution implements Execution {
 
 	private boolean _statementStacked;
 
-	public ForExecution(ExecutableStatement initializationStatement, ExecutableStatement terminationCondition, ExecutableStatement executedAfterEachLoop, ExecutableStatement statementInLoop) {
+	public ForExecution(int line, ExecutableStatement initializationStatement, ExecutableStatement terminationCondition, ExecutableStatement executedAfterEachLoop, ExecutableStatement statementInLoop) {
+		_line = line;
 		_initializationStatement = initializationStatement;
 		_terminationCondition = terminationCondition;
 		_executedAfterEachLoop = executedAfterEachLoop;
@@ -48,7 +50,7 @@ public class ForExecution implements Execution {
 		if (!_conditionChecked) {
 			final Variable value = executionContext.getContextValue();
 			if (value.getType() != Variable.Type.BOOLEAN)
-				throw new ExecutionException("Condition not of type BOOLEAN");
+				throw new ExecutionException(_line, "Condition not of type BOOLEAN");
 			if (!(Boolean) value.getValue())
 				_terminated = true;
 			_conditionChecked = true;

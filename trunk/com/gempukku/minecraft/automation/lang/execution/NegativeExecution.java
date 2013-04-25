@@ -3,12 +3,14 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class NegativeExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _expression;
 
 	private boolean _stackedExpression;
 	private boolean _assignedValue;
 
-	public NegativeExecution(ExecutableStatement expression) {
+	public NegativeExecution(int line, ExecutableStatement expression) {
+		_line = line;
 		_expression = expression;
 	}
 
@@ -32,7 +34,7 @@ public class NegativeExecution implements Execution {
 			_assignedValue = true;
 			final Variable contextValue = executionContext.getContextValue();
 			if (contextValue.getType() != Variable.Type.NUMBER)
-				throw new ExecutionException("Expected NUMBER");
+				throw new ExecutionException(_line, "Expected NUMBER");
 			executionContext.setContextValue(new Variable(-((Number) contextValue.getValue()).floatValue()));
 			return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE + ExecutionTimes.SET_CONTEXT_VALUE);
 		}

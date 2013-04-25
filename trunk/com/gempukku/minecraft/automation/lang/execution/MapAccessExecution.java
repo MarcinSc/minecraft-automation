@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MapAccessExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _mapStatement;
 	private ExecutableStatement _propertyStatement;
 
@@ -16,7 +17,8 @@ public class MapAccessExecution implements Execution {
 
 	private Variable _mapVariable;
 
-	public MapAccessExecution(ExecutableStatement mapStatement, ExecutableStatement propertyStatement) {
+	public MapAccessExecution(int line, ExecutableStatement mapStatement, ExecutableStatement propertyStatement) {
+		_line = line;
 		_mapStatement = mapStatement;
 		_propertyStatement = propertyStatement;
 	}
@@ -45,7 +47,7 @@ public class MapAccessExecution implements Execution {
 			_resolvedMapStatement = true;
 			_mapVariable = executionContext.getContextValue();
 			if (_mapVariable.getType() != Variable.Type.MAP && _mapVariable.getType() != Variable.Type.LIST)
-				throw new ExecutionException("Map or list expected");
+				throw new ExecutionException(_line, "Map or list expected");
 			return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE);
 		}
 		if (!_stackedPropertyStatement) {
@@ -58,7 +60,7 @@ public class MapAccessExecution implements Execution {
 			final Variable value = executionContext.getContextValue();
 			if (_mapVariable.getType() == Variable.Type.MAP) {
 				if (value.getType() != Variable.Type.STRING)
-					throw new ExecutionException("Property name expected");
+					throw new ExecutionException(_line, "Property name expected");
 				Map<String, Variable> properties = (Map<String, Variable>) _mapVariable.getValue();
 				final String propertyName = (String) value.getValue();
 				if (!properties.containsKey(propertyName))
@@ -67,11 +69,11 @@ public class MapAccessExecution implements Execution {
 				return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE + ExecutionTimes.SET_CONTEXT_VALUE);
 			} else {
 				if (value.getType() != Variable.Type.NUMBER)
-					throw new ExecutionException("List index expected");
+					throw new ExecutionException(_line, "List index expected");
 				List<Variable> values = (List<Variable>) _mapVariable.getValue();
 				int index = ((Number) value.getValue()).intValue();
 				if (index < 0 || index >= values.size())
-					throw new ExecutionException("List index out of bounds");
+					throw new ExecutionException(_line, "List index out of bounds");
 				executionContext.setContextValue(values.get(index));
 				return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE + ExecutionTimes.SET_CONTEXT_VALUE);
 			}

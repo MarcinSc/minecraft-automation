@@ -5,10 +5,12 @@ import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
 import com.gempukku.minecraft.automation.lang.execution.WhileExecution;
 
 public class WhileStatement implements ExecutableStatement {
+	private int _line;
 	private ExecutableStatement _condition;
 	private ExecutableStatement _statement;
 
-	public WhileStatement(ExecutableStatement condition, ExecutableStatement statement) {
+	public WhileStatement(int line, ExecutableStatement condition, ExecutableStatement statement) {
+		_line = line;
 		_condition = condition;
 		_statement = statement;
 	}
@@ -20,7 +22,7 @@ public class WhileStatement implements ExecutableStatement {
 			protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
 				CallContext whileContext = new CallContext(context.peekCallContext(), true, false);
 				context.stackExecutionGroup(whileContext,
-								new WhileExecution(_condition, _statement));
+								new WhileExecution(_line, _condition, _statement));
 				return new ExecutionProgress(ExecutionTimes.STACK_GROUP_EXECUTION);
 			}
 		};

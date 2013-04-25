@@ -5,11 +5,13 @@ import com.gempukku.minecraft.automation.lang.Execution;
 import com.gempukku.minecraft.automation.lang.execution.IncrementDecrementExecution;
 
 public class IncrementDecrementStatement implements ExecutableStatement {
+	private int _line;
 	private ExecutableStatement _expression;
 	private boolean _increment;
 	private boolean _pre;
 
-	public IncrementDecrementStatement(ExecutableStatement expression, boolean increment, boolean pre) {
+	public IncrementDecrementStatement(int line, ExecutableStatement expression, boolean increment, boolean pre) {
+		_line = line;
 		_expression = expression;
 		_increment = increment;
 		_pre = pre;
@@ -22,6 +24,6 @@ public class IncrementDecrementStatement implements ExecutableStatement {
 
 	@Override
 	public Execution createExecution() {
-		return new IncrementDecrementExecution(_expression, _increment, _pre);
+		return new IncrementDecrementExecution(_line, _expression, _increment, _pre);
 	}
 }

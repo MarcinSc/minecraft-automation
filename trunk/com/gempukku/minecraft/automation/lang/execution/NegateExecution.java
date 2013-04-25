@@ -3,12 +3,14 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class NegateExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _expression;
 
 	private boolean _stackedExpression;
 	private boolean _assignedValue;
 
-	public NegateExecution(ExecutableStatement expression) {
+	public NegateExecution(int line, ExecutableStatement expression) {
+		_line = line;
 		_expression = expression;
 	}
 
@@ -32,7 +34,7 @@ public class NegateExecution implements Execution {
 			_assignedValue = true;
 			final Variable contextValue = executionContext.getContextValue();
 			if (contextValue.getType() != Variable.Type.BOOLEAN)
-				throw new ExecutionException("Expected BOOLEAN");
+				throw new ExecutionException(_line, "Expected BOOLEAN");
 			executionContext.setContextValue(new Variable(!(Boolean) contextValue.getValue()));
 			return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE + ExecutionTimes.SET_CONTEXT_VALUE);
 		}

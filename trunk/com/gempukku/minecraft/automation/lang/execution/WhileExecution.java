@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class WhileExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _condition;
 	private ExecutableStatement _statement;
 
@@ -10,7 +11,8 @@ public class WhileExecution implements Execution {
 
 	private boolean _conditionStacked;
 
-	public WhileExecution(ExecutableStatement condition, ExecutableStatement statement) {
+	public WhileExecution(int line, ExecutableStatement condition, ExecutableStatement statement) {
+		_line = line;
 		_condition = condition;
 		_statement = statement;
 	}
@@ -32,7 +34,7 @@ public class WhileExecution implements Execution {
 		}
 		final Variable value = executionContext.getContextValue();
 		if (value.getType() != Variable.Type.BOOLEAN)
-			throw new ExecutionException("Condition not of type BOOLEAN");
+			throw new ExecutionException(_line, "Condition not of type BOOLEAN");
 		final Boolean result = (Boolean) value.getValue();
 		if (!result)
 			_terminated = true;

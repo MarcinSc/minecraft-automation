@@ -113,6 +113,8 @@ public class ScriptParser {
 	}
 
 	private ExecutableStatement produceWhileStatement(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables) throws IllegalSyntaxException {
+		int line = termIterator.getLast().getTerm().getLine();
+
 		consumeCharactersFromTerm(termIterator, 5);
 
 		validateNextTermStartingWith(termIterator, "(");
@@ -125,10 +127,12 @@ public class ScriptParser {
 
 		ExecutableStatement statementInLoop = produceStatementFromGroupOrTerm(termIterator, definedVariables);
 
-		return new WhileStatement(condition, statementInLoop);
+		return new WhileStatement(line, condition, statementInLoop);
 	}
 
 	private ExecutableStatement produceForStatement(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables) throws IllegalSyntaxException {
+		int line = termIterator.getLast().getTerm().getLine();
+
 		consumeCharactersFromTerm(termIterator, 3);
 
 		validateNextTermStartingWith(termIterator, "(");
@@ -153,7 +157,7 @@ public class ScriptParser {
 
 			final ExecutableStatement statementInLoop = produceStatementFromGroupOrTerm(termIterator, definedVariables);
 
-			return new ForStatement(firstStatement, terminationCondition, statementExecutedAfterEachLoop, statementInLoop);
+			return new ForStatement(line, firstStatement, terminationCondition, statementExecutedAfterEachLoop, statementInLoop);
 		} finally {
 			definedVariables.popContext();
 		}
@@ -322,10 +326,33 @@ public class ScriptParser {
 			consumeCharactersFromTerm(termIterator, 1);
 			return produceListDefinitionFromIterator(termIterator, definedVariables);
 		}
-		final ExecutableStatement executableStatement = parseExpression(termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables), Integer.MAX_VALUE);
+
+		int line = getLine(termIterator);
+
+		final ExecutableStatement executableStatement = parseExpression(line, termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables), Integer.MAX_VALUE);
 		if (!acceptsVariable && executableStatement instanceof VariableStatement)
 			throw new IllegalSyntaxException(termIterator, "Expression expected");
 		return executableStatement;
+	}
+
+	private int getLine(LastPeekingIterator<TermBlock> termIterator) {
+		if (termIterator.hasNext()) {
+			final TermBlock termBlock = termIterator.peek();
+			if (termBlock.isTerm()) {
+				final Term term = termBlock.getTerm();
+				return term.getLine();
+			} else {
+				return termBlock.getBlockStartLine();
+			}
+		} else {
+			final TermBlock lastTermBlock = termIterator.getLast();
+			if (lastTermBlock.isTerm()) {
+				final Term lastTerm = lastTermBlock.getTerm();
+				return lastTerm.getLine();
+			} else {
+				return lastTermBlock.getBlockEndLine();
+			}
+		}
 	}
 
 	private ExecutableStatement produceListDefinitionFromIterator(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables) throws IllegalSyntaxException {
@@ -333,7 +360,7 @@ public class ScriptParser {
 		return new ListDefineStatement(values);
 	}
 
-	private ExecutableStatement parseExpression(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, ExecutableStatement left, int maxPriority) throws IllegalSyntaxException {
+	private ExecutableStatement parseExpression(int line, LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, ExecutableStatement left, int maxPriority) throws IllegalSyntaxException {
 		// Based on algorithm from http://en.wikipedia.org/wiki/Operator-precedence_parser on March 28, 2013
 		Operator operator;
 		while ((operator = peekNextOperator(termIterator, left != null)) != null &&
@@ -363,17 +390,17 @@ public class ScriptParser {
 								(nextOperator.getPriority() < operator.getPriority() ||
 												(nextOperator.getPriority() == operator.getPriority() && !nextOperator.isLeftAssociative()))) {
 					if (operator.isBinary())
-						right = parseExpression(termIterator, definedVariables, right, nextOperator.getPriority());
+						right = parseExpression(line, termIterator, definedVariables, right, nextOperator.getPriority());
 					else {
 						consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
 						if (operator.isPre()) {
 							if (right == null)
 								throw new IllegalSyntaxException(termIterator, "Expression expected");
-							right = produceOperation(null, nextOperator, right, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
+							right = produceOperation(line, null, nextOperator, right, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
 						} else {
 							if (left == null)
 								throw new IllegalSyntaxException(termIterator, "Expression expected");
-							right = produceOperation(left, nextOperator, null, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
+							right = produceOperation(line, left, nextOperator, null, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
 						}
 					}
 				}
@@ -382,7 +409,7 @@ public class ScriptParser {
 					throw new IllegalSyntaxException(operatorLine, operatorColumn, "Expression expected");
 				if (right == null)
 					throw new IllegalSyntaxException(operatorLine, operatorColumn + operator.getConsumeLength(), "Expression expected");
-				left = produceOperation(left, operator, right, parameters);
+				left = produceOperation(line, left, operator, right, parameters);
 			} else {
 				consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
 				List<ExecutableStatement> parameters = null;
@@ -390,7 +417,7 @@ public class ScriptParser {
 					parameters = parseParameters(termIterator, definedVariables, operator.exactlyOneParameter(), operator.getParametersClosing());
 
 				if (operator.isLeftAssociative())
-					left = produceOperation(left, operator, null, parameters);
+					left = produceOperation(line, left, operator, null, parameters);
 				else {
 					ExecutableStatement operatorExpression;
 					if (operator.isNamedOnRight()) {
@@ -399,15 +426,15 @@ public class ScriptParser {
 						consumeCharactersFromTerm(termIterator, literal.length());
 						operatorExpression = new NamedStatement(literal);
 					} else
-						operatorExpression = parseExpression(termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables), operator.getPriority());
+						operatorExpression = parseExpression(line, termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables), operator.getPriority());
 					if (operator.isPre()) {
 						if (operatorExpression == null)
 							throw new IllegalSyntaxException(termIterator, "Expression expected");
-						left = produceOperation(operatorExpression, operator, null, parameters);
+						left = produceOperation(line, operatorExpression, operator, null, parameters);
 					} else {
 						if (left == null)
 							throw new IllegalSyntaxException(termIterator, "Expression expected");
-						left = produceOperation(null, operator, left, parameters);
+						left = produceOperation(line, null, operator, left, parameters);
 					}
 				}
 			}
@@ -506,36 +533,36 @@ public class ScriptParser {
 		return operator;
 	}
 
-	private ExecutableStatement produceOperation(ExecutableStatement left, Operator operator, ExecutableStatement right, List<ExecutableStatement> parameters) throws IllegalSyntaxException {
+	private ExecutableStatement produceOperation(int line, ExecutableStatement left, Operator operator, ExecutableStatement right, List<ExecutableStatement> parameters) throws IllegalSyntaxException {
 		if (operator == Operator.ASSIGNMENT)
 			return new AssignStatement(left, right);
 		else if (operator == Operator.FUNCTION_CALL)
-			return new FunctionCallStatement(left, parameters);
+			return new FunctionCallStatement(line, left, parameters);
 		else if (operator == Operator.ADD)
-			return new AddStatement(left, right, false);
+			return new AddStatement(line, left, right, false);
 		else if (operator == Operator.ADD_ASSIGN)
-			return new AddStatement(left, right, true);
+			return new AddStatement(line, left, right, true);
 		else if (operator == Operator.EQUALS || operator == Operator.NOT_EQUALS)
 			return new ComparisonStatement(left, operator, right);
 		else if (operator == Operator.MEMBER_ACCESS) {
 			return new MemberAccessStatement(left, ((NamedStatement) right).getName());
 		} else if (operator == Operator.AND || operator == Operator.OR)
-			return new LogicalOperatorStatement(left, operator, right);
+			return new LogicalOperatorStatement(line, left, operator, right);
 		else if (operator == Operator.NOT)
-			return new NegateStatement(left);
+			return new NegateStatement(line, left);
 		else if (operator == Operator.NEGATIVE)
-			return new NegativeStatement(left);
+			return new NegativeStatement(line, left);
 		else if (operator == Operator.MAPPED_ACCESS) {
-			return new MapAccessStatement(left, parameters.get(0));
+			return new MapAccessStatement(line, left, parameters.get(0));
 		} else if (operator == Operator.PRE_INCREMENT || operator == Operator.PRE_DECREMENT) {
-			return new IncrementDecrementStatement(left, operator == Operator.PRE_INCREMENT, true);
+			return new IncrementDecrementStatement(line, left, operator == Operator.PRE_INCREMENT, true);
 		} else if (operator == Operator.POST_INCREMENT || operator == Operator.POST_DECREMENT) {
-			return new IncrementDecrementStatement(right, operator == Operator.POST_INCREMENT, false);
+			return new IncrementDecrementStatement(line, right, operator == Operator.POST_INCREMENT, false);
 		} else if (operator == Operator.ADD_ASSIGN || operator == Operator.SUBTRACT_ASSIGN || operator == Operator.MULTIPLY_ASSIGN
 						|| operator == Operator.DIVIDE_ASSIGN || operator == Operator.MOD_ASSIGN) {
-			return new MathStatement(left, operator, right, true);
+			return new MathStatement(line, left, operator, right, true);
 		} else {
-			return new MathStatement(left, operator, right, false);
+			return new MathStatement(line, left, operator, right, false);
 		}
 	}
 

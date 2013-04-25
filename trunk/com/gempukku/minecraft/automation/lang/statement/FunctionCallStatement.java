@@ -7,21 +7,23 @@ import com.gempukku.minecraft.automation.lang.execution.FunctionCallExecution;
 import java.util.List;
 
 public class FunctionCallStatement implements ExecutableStatement {
-    private ExecutableStatement _function;
-    private List<ExecutableStatement> _parameters;
+	private int _line;
+	private ExecutableStatement _function;
+	private List<ExecutableStatement> _parameters;
 
-    public FunctionCallStatement(ExecutableStatement function, List<ExecutableStatement> parameters) {
-        _function = function;
-        _parameters = parameters;
-    }
+	public FunctionCallStatement(int line, ExecutableStatement function, List<ExecutableStatement> parameters) {
+		_line = line;
+		_function = function;
+		_parameters = parameters;
+	}
 
-    @Override
-    public Execution createExecution() {
-        return new FunctionCallExecution(_function, _parameters);
-    }
+	@Override
+	public Execution createExecution() {
+		return new FunctionCallExecution(_line, _function, _parameters);
+	}
 
-    @Override
-    public boolean requiresSemicolon() {
-        return true;
-    }
+	@Override
+	public boolean requiresSemicolon() {
+		return true;
+	}
 }

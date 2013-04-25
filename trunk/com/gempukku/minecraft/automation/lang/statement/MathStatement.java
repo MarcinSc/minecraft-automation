@@ -6,12 +6,14 @@ import com.gempukku.minecraft.automation.lang.Operator;
 import com.gempukku.minecraft.automation.lang.execution.MathExecution;
 
 public class MathStatement implements ExecutableStatement {
+	private int _line;
 	private ExecutableStatement _left;
 	private Operator _operator;
 	private ExecutableStatement _right;
 	private boolean _assignToLeft;
 
-	public MathStatement(ExecutableStatement left, Operator operator, ExecutableStatement right, boolean assignToLeft) {
+	public MathStatement(int line, ExecutableStatement left, Operator operator, ExecutableStatement right, boolean assignToLeft) {
+		_line = line;
 		_left = left;
 		_operator = operator;
 		_right = right;
@@ -20,7 +22,7 @@ public class MathStatement implements ExecutableStatement {
 
 	@Override
 	public Execution createExecution() {
-		return new MathExecution(_left, _operator, _right, _assignToLeft);
+		return new MathExecution(_line, _left, _operator, _right, _assignToLeft);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class AddExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _left;
 	private ExecutableStatement _right;
 	private boolean _assignToLeft;
@@ -14,7 +15,8 @@ public class AddExecution implements Execution {
 
 	private Variable _leftValue;
 
-	public AddExecution(ExecutableStatement left, ExecutableStatement right, boolean assignToLeft) {
+	public AddExecution(int line, ExecutableStatement left, ExecutableStatement right, boolean assignToLeft) {
+		_line = line;
 		_left = left;
 		_right = right;
 		_assignToLeft = assignToLeft;
@@ -58,7 +60,7 @@ public class AddExecution implements Execution {
 			} else if (rightValue.getType() == Variable.Type.NUMBER && _leftValue.getType() == Variable.Type.NUMBER) {
 				result = ((Number) _leftValue.getValue()).floatValue() + ((Number) rightValue.getValue()).floatValue();
 			} else {
-				throw new ExecutionException("Unable to add two values of types " + _leftValue.getType() + " and " + rightValue.getType());
+				throw new ExecutionException(_line, "Unable to add two values of types " + _leftValue.getType() + " and " + rightValue.getType());
 			}
 			if (_assignToLeft)
 				_leftValue.setValue(result);

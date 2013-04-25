@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class MathExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _left;
 	private Operator _operator;
 	private ExecutableStatement _right;
@@ -15,7 +16,8 @@ public class MathExecution implements Execution {
 
 	private Variable _leftValue;
 
-	public MathExecution(ExecutableStatement left, Operator operator, ExecutableStatement right, boolean assignToLeft) {
+	public MathExecution(int line, ExecutableStatement left, Operator operator, ExecutableStatement right, boolean assignToLeft) {
+		_line = line;
 		_left = left;
 		_operator = operator;
 		_right = right;
@@ -75,13 +77,13 @@ public class MathExecution implements Execution {
 				else if (_operator == Operator.LESS)
 					result = valueLeft < valueRight;
 				else
-					throw new ExecutionException("Unknown operator " + _operator);
+					throw new ExecutionException(_line, "Unknown operator " + _operator);
 
 				if (_assignToLeft)
 					_leftValue.setValue(result);
 				executionContext.setContextValue(new Variable(result));
 			} else {
-				throw new ExecutionException("Unable to perform mathematical operation on two non-number values " + _leftValue.getType() + " and " + rightValue.getType());
+				throw new ExecutionException(_line, "Unable to perform mathematical operation on two non-number values " + _leftValue.getType() + " and " + rightValue.getType());
 			}
 			_resolvedAndAssignedSum = true;
 			return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE + ExecutionTimes.OTHER_MATH_OPERATION + ExecutionTimes.SET_CONTEXT_VALUE);

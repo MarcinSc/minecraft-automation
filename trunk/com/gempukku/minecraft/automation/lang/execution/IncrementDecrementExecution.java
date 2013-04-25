@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class IncrementDecrementExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _expression;
 	private boolean _increment;
 	private boolean _pre;
@@ -10,7 +11,8 @@ public class IncrementDecrementExecution implements Execution {
 	private boolean _stackedExecution;
 	private boolean _finished;
 
-	public IncrementDecrementExecution(ExecutableStatement expression, boolean increment, boolean pre) {
+	public IncrementDecrementExecution(int line, ExecutableStatement expression, boolean increment, boolean pre) {
+		_line = line;
 		_expression = expression;
 		_increment = increment;
 		_pre = pre;
@@ -30,7 +32,7 @@ public class IncrementDecrementExecution implements Execution {
 		}
 		final Variable contextValue = executionContext.getContextValue();
 		if (contextValue.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException("Expected NUMBER");
+			throw new ExecutionException(_line, "Expected NUMBER");
 
 		final float original = ((Number) contextValue.getValue()).floatValue();
 		float result = original;
