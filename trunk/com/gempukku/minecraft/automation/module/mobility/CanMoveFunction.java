@@ -23,16 +23,16 @@ public class CanMoveFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final int facing = computer.getFacing();
 		Variable sideVar = parameters.get("direction");
 
 		if (sideVar.getType() != Variable.Type.STRING)
-			throw new ExecutionException("Expected forward, up or down in move function");
+			throw new ExecutionException(line, "Invalid direction received in canMove()");
 
 		String side = (String) sideVar.getValue();
 		if (!side.equals("forward") || !side.equals("up") || !side.equals("down"))
-			throw new ExecutionException("Expected forward, up or down in move function");
+			throw new ExecutionException(line, "Invalid direction received in canMove()");
 
 		int direction = facing;
 		if (side.equals("up"))

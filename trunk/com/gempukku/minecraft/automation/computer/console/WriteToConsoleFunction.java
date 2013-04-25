@@ -20,16 +20,16 @@ public class WriteToConsoleFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable x = parameters.get("x");
 		final Variable y = parameters.get("y");
 		final Variable text = parameters.get("text");
 		if (x.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException("Expected NUMBER, got " + x.getType());
+			throw new ExecutionException(line, "Expected NUMBER in write()");
 		if (y.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException("Expected NUMBER, got " + y.getType());
+			throw new ExecutionException(line, "Expected NUMBER in write()");
 		if (text.getType() != Variable.Type.STRING)
-			throw new ExecutionException("Expected STRING, got " + text.getType());
+			throw new ExecutionException(line, "Expected STRING in write()");
 
 		computer.getConsole().setCharacters(((Number) x.getValue()).intValue(), ((Number) y.getValue()).intValue(), (String) text.getValue());
 

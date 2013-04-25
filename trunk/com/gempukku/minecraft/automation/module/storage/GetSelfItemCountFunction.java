@@ -23,12 +23,12 @@ public class GetSelfItemCountFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		String functionName = "getSelfItemCount";
 
 		final Variable slotParam = parameters.get("slot");
 		if (slotParam.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException("Expected number in slot parameter in " + functionName + " function");
+			throw new ExecutionException(line, "Expected number in slot parameter in " + functionName + " function");
 
 		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
 		if (computerTileEntity == null)
@@ -39,7 +39,7 @@ public class GetSelfItemCountFunction extends JavaFunctionExecutable {
 		int inventorySize = computerTileEntity.getSizeInventory();
 
 		if (inventorySize <= slot || slot < 0)
-			throw new ExecutionException("Slot number out of accepted range in " + functionName + " function");
+			throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + " function");
 
 		ItemStack stackInSlot = computerTileEntity.getStackInSlot(slot);
 		return getSizeOfPotentialStack(stackInSlot);

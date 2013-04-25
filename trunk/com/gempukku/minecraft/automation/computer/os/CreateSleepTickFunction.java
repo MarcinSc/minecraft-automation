@@ -21,14 +21,14 @@ public class CreateSleepTickFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable ticksVar = parameters.get("ticks");
 		if (ticksVar.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException("Expected NUMBER");
+			throw new ExecutionException(line, "Expected NUMBER in createSleepTick()");
 
 		final int ticks = ((Number) ticksVar.getValue()).intValue();
 		if (ticks <= 0)
-			throw new ExecutionException("Sleep ticks must be greater than 0");
+			throw new ExecutionException(line, "Sleep ticks must be greater than 0");
 
 		return new AbstractConditionCustomObject() {
 			@Override

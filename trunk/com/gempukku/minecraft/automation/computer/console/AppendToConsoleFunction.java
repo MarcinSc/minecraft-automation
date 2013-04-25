@@ -20,10 +20,10 @@ public class AppendToConsoleFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable text = parameters.get("text");
 		if (text.getType() != Variable.Type.STRING)
-			throw new ExecutionException("Expected STRING, not " + text.getType());
+			throw new ExecutionException(line, "Expected STRING in append()");
 		computer.getConsole().appendString((String) text.getValue());
 		return null;
 	}

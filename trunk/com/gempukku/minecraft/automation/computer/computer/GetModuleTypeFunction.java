@@ -23,10 +23,10 @@ public class GetModuleTypeFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable slot = parameters.get("slot");
 		if (slot.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException("Number expected");
+			throw new ExecutionException(line, "Invalid slot number in getModuleType()");
 
 		int slotNo = ((Number) slot.getValue()).intValue();
 		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);

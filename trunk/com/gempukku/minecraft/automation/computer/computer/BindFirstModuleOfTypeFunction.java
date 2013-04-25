@@ -24,10 +24,10 @@ public class BindFirstModuleOfTypeFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable type = parameters.get("type");
 		if (type.getType() != Variable.Type.STRING)
-			throw new ExecutionException("STRING expected");
+			throw new ExecutionException(line, "Expected type of module in bindModuleOfType()");
 
 		String moduleType = (String) type.getValue();
 

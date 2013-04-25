@@ -22,13 +22,13 @@ public class GetSlotCountFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable sideParam = parameters.get("side");
 		final String functionName = "getSlotCount";
-		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(computer, world, sideParam, functionName);
+		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(line, computer, world, sideParam, functionName);
 		if (inventory == null)
 			return 0;
 
-		return StorageModuleUtils.getInventorySize(inventory, BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(computer, sideParam, functionName)));
+		return StorageModuleUtils.getInventorySize(inventory, BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(line, computer, sideParam, functionName)));
 	}
 }

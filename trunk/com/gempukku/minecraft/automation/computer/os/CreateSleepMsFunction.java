@@ -21,14 +21,14 @@ public class CreateSleepMsFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable timeVar = parameters.get("time");
 		if (timeVar.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException("Expected NUMBER");
+			throw new ExecutionException(line, "Expected NUMBER in createSleepMs()");
 
 		final long time = ((Number) timeVar.getValue()).longValue();
 		if (time <= 0)
-			throw new ExecutionException("Sleep time must be greater than 0");
+			throw new ExecutionException(line, "Sleep time must be greater than 0");
 
 		return new AbstractConditionCustomObject() {
 			@Override

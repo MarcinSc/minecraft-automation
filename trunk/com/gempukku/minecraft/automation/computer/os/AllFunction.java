@@ -24,10 +24,10 @@ public class AllFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable conditionsVar = parameters.get("conditions");
 		if (conditionsVar.getType() != Variable.Type.LIST)
-			throw new ExecutionException("Expected LIST");
+			throw new ExecutionException(line, "Expected a LIST of CONDITIONs in all()");
 
 		List<Variable> conditions = (List<Variable>) conditionsVar.getValue();
 
@@ -35,7 +35,7 @@ public class AllFunction extends JavaFunctionExecutable {
 		final List<AbstractConditionCustomObject> allConditions = new ArrayList<AbstractConditionCustomObject>();
 		for (Variable condition : conditions) {
 			if (condition.getType() != Variable.Type.CUSTOM_OBJECT || !((CustomObject) condition.getValue()).getType().equals("CONDITION"))
-				throw new ExecutionException("Expected CONDITION");
+				throw new ExecutionException(line, "Expected a LIST of CONDITIONs in all()");
 			final AbstractConditionCustomObject conditionDefinition = (AbstractConditionCustomObject) condition.getValue();
 			delay = Math.max(delay, conditionDefinition.getCreationDelay());
 			allConditions.add(conditionDefinition);

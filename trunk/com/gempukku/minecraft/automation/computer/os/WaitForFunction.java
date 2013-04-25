@@ -18,7 +18,7 @@ public class WaitForFunction implements FunctionExecutable {
 	}
 
 	@Override
-	public Execution createExecution(ExecutionContext executionContext, CallContext callContext) {
+	public Execution createExecution(final int line, ExecutionContext executionContext, CallContext callContext) {
 		return new Execution() {
 			private boolean _suspended;
 			private boolean _retrievedResult;
@@ -34,7 +34,7 @@ public class WaitForFunction implements FunctionExecutable {
 				if (!_suspended) {
 					final Variable conditionVar = executionContext.peekCallContext().getVariableValue("conditionVar");
 					if (conditionVar.getType() != Variable.Type.CUSTOM_OBJECT || (!conditionVar.getValue().equals("CONDITION")))
-						throw new ExecutionException("Expected CONDITION");
+						throw new ExecutionException(line, "Expected CONDITION in waitFor()");
 
 					final AbstractConditionCustomObject condition = (AbstractConditionCustomObject) conditionVar.getValue();
 

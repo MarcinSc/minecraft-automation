@@ -22,16 +22,16 @@ public class GetItemCountFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final String functionName = "getItemCount";
 		final Variable sideParam = parameters.get("side");
 		final Variable slotParam = parameters.get("slot");
 
-		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(computer, world, sideParam, functionName);
+		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(line, computer, world, sideParam, functionName);
 		if (inventory == null)
 			return null;
 
-		ItemStack stackInSlot = StorageModuleUtils.getStackFromInventory(computer, inventory, sideParam, slotParam, functionName);
+		ItemStack stackInSlot = StorageModuleUtils.getStackFromInventory(line, computer, inventory, sideParam, slotParam, functionName);
 		return getSizeOfPotentialStack(stackInSlot);
 	}
 

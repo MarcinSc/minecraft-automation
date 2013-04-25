@@ -9,7 +9,7 @@ import java.util.Map;
 
 public abstract class JavaFunctionExecutable implements FunctionExecutable {
 	@Override
-	public final Execution createExecution(ExecutionContext executionContext, CallContext callContext) {
+	public final Execution createExecution(final int line, ExecutionContext executionContext, CallContext callContext) {
 		return new DelayedExecution(getDuration(),
 						new SimpleExecution() {
 							@Override
@@ -23,7 +23,7 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
 								for (String parameterName : parameterNames)
 									parameters.put(parameterName, callContext.getVariableValue(parameterName));
 
-								context.setReturnValue(new Variable(executeFunction(minecraftExecutionContext.getWorld(), computer, parameters)));
+								context.setReturnValue(new Variable(executeFunction(line, minecraftExecutionContext.getWorld(), computer, parameters)));
 								return new ExecutionProgress(ExecutionTimes.SET_RETURN_VALUE);
 							}
 						});
@@ -49,6 +49,7 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
 	 * If an execution of the program should be stopped due to a fatal exception, ExecutionException should be thrown by
 	 * the method.
 	 *
+	 * @param line			 Line where the call to the function was made.
 	 * @param world			World this computer is in.
 	 * @param computer	 Computer this function is executed on.
 	 * @param parameters Parameters that were sent to this function.
@@ -56,5 +57,5 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
 	 * @throws ExecutionException Fatal exception that will be communicated to the computer console. When thrown,
 	 *                            the execution of the program will stop.
 	 */
-	protected abstract Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException;
+	protected abstract Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException;
 }

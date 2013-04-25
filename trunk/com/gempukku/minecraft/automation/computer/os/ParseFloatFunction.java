@@ -20,14 +20,14 @@ public class ParseFloatFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable text = parameters.get("text");
 		if (text.getType() != Variable.Type.STRING)
-			throw new ExecutionException("STRING expected");
+			throw new ExecutionException(line, "Expected STRING in parseFloat()");
 		try {
 			return Float.parseFloat((String) text.getValue());
 		} catch (NumberFormatException exp) {
-			throw new ExecutionException("Number format exception: " + text.getValue());
+			throw new ExecutionException(line, "Number format exception: " + text.getValue() + " in parseFloat()");
 		}
 	}
 }

@@ -113,7 +113,7 @@ public class ScriptParser {
 	}
 
 	private ExecutableStatement produceWhileStatement(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables) throws IllegalSyntaxException {
-		int line = termIterator.getLast().getTerm().getLine();
+		int line = termIterator.peek().getTerm().getLine();
 
 		consumeCharactersFromTerm(termIterator, 5);
 
@@ -131,7 +131,7 @@ public class ScriptParser {
 	}
 
 	private ExecutableStatement produceForStatement(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables) throws IllegalSyntaxException {
-		int line = termIterator.getLast().getTerm().getLine();
+		int line = termIterator.peek().getTerm().getLine();
 
 		consumeCharactersFromTerm(termIterator, 3);
 
@@ -164,12 +164,14 @@ public class ScriptParser {
 	}
 
 	private ExecutableStatement produceIfStatement(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables) throws IllegalSyntaxException {
+		int line = termIterator.peek().getTerm().getLine();
+
 		consumeCharactersFromTerm(termIterator, 2);
 
 		ExecutableStatement condition = produceConditionInBrackets(termIterator, definedVariables);
 
 		ExecutableStatement statement = produceStatementFromGroupOrTerm(termIterator, definedVariables);
-		IfStatement ifStatement = new IfStatement(condition, statement);
+		IfStatement ifStatement = new IfStatement(line, condition, statement);
 
 		boolean hasElse = false;
 

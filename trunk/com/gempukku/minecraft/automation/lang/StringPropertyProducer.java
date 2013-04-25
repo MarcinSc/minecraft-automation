@@ -35,7 +35,7 @@ public class StringPropertyProducer implements PropertyProducer {
 		}
 
 		@Override
-		protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 			final Variable limitVar = parameters.get("limit");
 			int limit;
 			if (limitVar.getType() == Variable.Type.NULL) {
@@ -43,14 +43,14 @@ public class StringPropertyProducer implements PropertyProducer {
 			} else if (limitVar.getType() == Variable.Type.NUMBER) {
 				limit = ((Number) limitVar.getValue()).intValue();
 			} else {
-				throw new ExecutionException("Expected NUMBER or NULL");
+				throw new ExecutionException(line, "Expected NUMBER or NULL in split()");
 			}
 			if (limit < 0)
 				limit = 0;
 
 			final Variable separatorVar = parameters.get("separator");
 			if (separatorVar.getType() != Variable.Type.STRING)
-				throw new ExecutionException("Expected STRING");
+				throw new ExecutionException(line, "Expected STRING in split()");
 
 			String separator = (String) separatorVar.getValue();
 			final String[] splitResult = _text.split(separator, limit);

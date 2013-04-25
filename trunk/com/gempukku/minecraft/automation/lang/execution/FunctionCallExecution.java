@@ -80,7 +80,7 @@ public class FunctionCallExecution implements Execution {
 				if (i < _parameterValues.size())
 					executionContext.setVariableValue(var, _parameterValues.get(i).getValue());
 			}
-			executionContext.stackExecutionGroup(functionContext, function.createExecution(executionContext, functionContext));
+			executionContext.stackExecutionGroup(functionContext, function.createExecution(_line, executionContext, functionContext));
 			_functionCalled = true;
 			return new ExecutionProgress(ExecutionTimes.STACK_GROUP_EXECUTION + ExecutionTimes.SET_VARIABLE * _parameterValues.size());
 		}

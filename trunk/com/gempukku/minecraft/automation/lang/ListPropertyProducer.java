@@ -38,14 +38,14 @@ public class ListPropertyProducer implements PropertyProducer {
 		}
 
 		@Override
-		protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 			final Variable indexVar = parameters.get("index");
 			if (indexVar.getType() != Variable.Type.NUMBER)
-				throw new ExecutionException("Expected NUMBER");
+				throw new ExecutionException(line, "Expected NUMBER index in remove()");
 
 			int index = ((Number) indexVar.getValue()).intValue();
 			if (index < 0 || index >= _list.size())
-				throw new ExecutionException("Index out of bounds");
+				throw new ExecutionException(line, "Index out of bounds in remove()");
 
 			return _list.remove(index).getValue();
 		}
@@ -69,7 +69,7 @@ public class ListPropertyProducer implements PropertyProducer {
 		}
 
 		@Override
-		protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 			final Object value = parameters.get("element").getValue();
 			_list.add(new Variable(value));
 			return null;
@@ -94,7 +94,7 @@ public class ListPropertyProducer implements PropertyProducer {
 		}
 
 		@Override
-		protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 			return _list.size();
 		}
 	}

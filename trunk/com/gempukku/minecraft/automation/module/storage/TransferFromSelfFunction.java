@@ -26,7 +26,7 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable sideParam = parameters.get("side");
 		final Variable slotParam = parameters.get("slot");
 		final Variable countParam = parameters.get("count");
@@ -37,7 +37,7 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 		else if (countParam.getType() == Variable.Type.NUMBER)
 			count = ((Number) countParam.getValue()).intValue();
 		else
-			throw new ExecutionException("Expected number or null in count parameter in transferFromSelf function");
+			throw new ExecutionException(line, "Expected NUMBER or NULL in transferFromSelf()");
 
 		final String functionName = "transferFromSelf";
 
@@ -45,11 +45,11 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 		if (computerTileEntity == null)
 			return false;
 
-		final int computerSlotIndex = getSpecifiedSlotIndex(computerTileEntity, slotParam, functionName);
+		final int computerSlotIndex = getSpecifiedSlotIndex(line, computerTileEntity, slotParam, functionName);
 		if (computerSlotIndex == -1)
 			return false;
 
-		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(computer, world, sideParam, functionName);
+		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(line, computer, world, sideParam, functionName);
 		if (inventory == null)
 			return false;
 
@@ -61,7 +61,7 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 		int startFrom = 0;
 		int inventorySlotIndex;
 		// Try to merge the stack items into computer available slots
-		while (transferred < toTransfer && (inventorySlotIndex = getFirstSlotOfSameTypeOrEmptyIndex(computer, inventory, sideParam, stackInSlot, startFrom, functionName)) != -1) {
+		while (transferred < toTransfer && (inventorySlotIndex = getFirstSlotOfSameTypeOrEmptyIndex(line, computer, inventory, sideParam, stackInSlot, startFrom, functionName)) != -1) {
 			final ItemStack stackInInventory = inventory.getStackInSlot(inventorySlotIndex);
 			int inventoryStackSize = (stackInInventory != null) ? stackInInventory.stackSize : 0;
 			int availableSpace = (stackInInventory != null) ? stackInInventory.getMaxStackSize() - stackInInventory.stackSize : 64;
@@ -80,9 +80,9 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 		return transferred == toTransfer;
 	}
 
-	private int getFirstSlotOfSameTypeOrEmptyIndex(ServerComputerData computer, IInventory inventory, Variable sideParam, ItemStack stack, int fromIndex, String functionName) throws ExecutionException {
+	private int getFirstSlotOfSameTypeOrEmptyIndex(int line, ServerComputerData computer, IInventory inventory, Variable sideParam, ItemStack stack, int fromIndex, String functionName) throws ExecutionException {
 		if (inventory instanceof ISidedInventory) {
-			int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(computer, sideParam, functionName));
+			int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(line, computer, sideParam, functionName));
 			int[] sideSlots = ((ISidedInventory) inventory).getSizeInventorySide(inventorySide);
 			for (int i = fromIndex; i < sideSlots.length; i++) {
 				final ItemStack stackInSlot = inventory.getStackInSlot(sideSlots[i]);
@@ -101,7 +101,7 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 		}
 	}
 
-	private int getSpecifiedSlotIndex(IInventory inventory, Variable slotParam, String functionName) throws ExecutionException {
+	private int getSpecifiedSlotIndex(int line, IInventory inventory, Variable slotParam, String functionName) throws ExecutionException {
 		int inventorySize = inventory.getSizeInventory();
 		if (slotParam.getType() == Variable.Type.NULL) {
 			for (int i = 0; i < inventorySize; i++) {
@@ -112,11 +112,11 @@ public class TransferFromSelfFunction extends JavaFunctionExecutable {
 			return -1;
 		} else {
 			if (slotParam.getType() != Variable.Type.NUMBER)
-				throw new ExecutionException("Expected number in slot parameter in " + functionName + " function");
+				throw new ExecutionException(line, "Expected NUMBER in " + functionName + "()");
 
 			int slot = ((Number) slotParam.getValue()).intValue();
 			if (inventorySize <= slot || slot < 0)
-				throw new ExecutionException("Slot number out of accepted range in " + functionName + " function");
+				throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + "()");
 
 			return slot;
 		}

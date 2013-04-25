@@ -21,10 +21,10 @@ public class BindModuleFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable slot = parameters.get("slot");
 		if (slot.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException("Number expected");
+			throw new ExecutionException(line, "Expected slot number in bindModule()");
 		int slotNo = ((Number) slot.getValue()).intValue();
 		return new SlotBindingObjectDefinition(computer, slotNo);
 	}

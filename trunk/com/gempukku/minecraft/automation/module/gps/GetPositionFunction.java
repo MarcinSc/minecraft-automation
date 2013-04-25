@@ -21,7 +21,7 @@ public class GetPositionFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		Map<String, Variable> result = new HashMap<String, Variable>();
 		result.put("x", new Variable(computer.getX()));
 		result.put("y", new Variable(computer.getY()));

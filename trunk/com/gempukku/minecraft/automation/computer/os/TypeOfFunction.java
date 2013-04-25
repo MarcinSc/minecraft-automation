@@ -21,7 +21,7 @@ public class TypeOfFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable value = parameters.get("value");
 		final Variable.Type type = value.getType();
 		if (type == Variable.Type.CUSTOM_OBJECT)

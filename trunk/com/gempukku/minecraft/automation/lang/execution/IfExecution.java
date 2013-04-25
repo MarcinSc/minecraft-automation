@@ -6,6 +6,7 @@ import com.gempukku.minecraft.automation.lang.statement.IfStatement;
 import java.util.List;
 
 public class IfExecution implements Execution {
+	private int _line;
 	private List<IfStatement.ConditionStatement> _conditionStatements;
 	private ExecutableStatement _elseStatement;
 
@@ -14,7 +15,8 @@ public class IfExecution implements Execution {
 	private int _nextStatementStackedIfNeededIndex = 0;
 	private boolean _elseStacked;
 
-	public IfExecution(List<IfStatement.ConditionStatement> conditionStatements, ExecutableStatement elseStatement) {
+	public IfExecution(int line, List<IfStatement.ConditionStatement> conditionStatements, ExecutableStatement elseStatement) {
+		_line = line;
 		_conditionStatements = conditionStatements;
 		_elseStatement = elseStatement;
 	}
@@ -38,7 +40,7 @@ public class IfExecution implements Execution {
 		if (_nextStatementStackedIfNeededIndex < _nextConditionStackedIndex) {
 			final Variable value = executionContext.getContextValue();
 			if (value.getType() != Variable.Type.BOOLEAN)
-				throw new ExecutionException("Condition not of type BOOLEAN");
+				throw new ExecutionException(_line, "Condition not of type BOOLEAN");
 
 			_nextStatementStackedIfNeededIndex++;
 			boolean ifResult = (Boolean) value.getValue();

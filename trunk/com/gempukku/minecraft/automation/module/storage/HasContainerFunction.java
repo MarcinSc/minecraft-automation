@@ -20,7 +20,7 @@ public class HasContainerFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
-		return StorageModuleUtils.getInventoryAtFace(computer, world, parameters.get("side"), "hasContainer") != null;
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		return StorageModuleUtils.getInventoryAtFace(line, computer, world, parameters.get("side"), "hasContainer") != null;
 	}
 }

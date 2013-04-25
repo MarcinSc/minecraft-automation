@@ -32,25 +32,25 @@ public class BindingFunctionWrapper implements FunctionExecutable {
 	}
 
 	@Override
-	public Execution createExecution(ExecutionContext executionContext, final CallContext callContext) {
+	public Execution createExecution(int line, ExecutionContext executionContext, final CallContext callContext) {
 		final MinecraftComputerExecutionContext minecraftExecutionContext = (MinecraftComputerExecutionContext) executionContext;
 		final ServerComputerData computerData = minecraftExecutionContext.getComputerData();
 		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(minecraftExecutionContext.getWorld(), computerData);
 		if (computerTileEntity == null)
-			return getThrowingExceptionExecution();
+			return getThrowingExceptionExecution(line);
 		final ComputerModule module = computerTileEntity.getModule(_slotNo);
 		if (module == _module) {
-			return _function.createExecution(executionContext, callContext);
+			return _function.createExecution(line, executionContext, callContext);
 		} else {
-			return getThrowingExceptionExecution();
+			return getThrowingExceptionExecution(line);
 		}
 	}
 
-	private Execution getThrowingExceptionExecution() {
+	private Execution getThrowingExceptionExecution(final int line) {
 		return new SimpleExecution() {
 			@Override
 			protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
-				throw new ExecutionException("Bound module has been removed or replaced");
+				throw new ExecutionException(line, "Bound module has been removed or replaced");
 			}
 		};
 	}

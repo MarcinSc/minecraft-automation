@@ -26,7 +26,7 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable sideParam = parameters.get("side");
 		final Variable slotParam = parameters.get("slot");
 		final Variable countParam = parameters.get("count");
@@ -37,7 +37,7 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 		else if (countParam.getType() == Variable.Type.NUMBER)
 			count = ((Number) countParam.getValue()).intValue();
 		else
-			throw new ExecutionException("Expected number or null in count parameter in transferToSelf function");
+			throw new ExecutionException(line, "Expected NUMBER or NULL in transferToSelf()");
 
 		final String functionName = "transferToSelf";
 
@@ -45,11 +45,11 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 		if (computerTileEntity == null)
 			return false;
 
-		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(computer, world, sideParam, functionName);
+		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(line, computer, world, sideParam, functionName);
 		if (inventory == null)
 			return false;
 
-		int inventoryIndex = getSpecifiedSlotIndex(computer, inventory, sideParam, slotParam, functionName);
+		int inventoryIndex = getSpecifiedSlotIndex(line, computer, inventory, sideParam, slotParam, functionName);
 		if (inventoryIndex == -1)
 			return false;
 
@@ -90,10 +90,10 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 		return -1;
 	}
 
-	private int getSpecifiedSlotIndex(ServerComputerData computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
+	private int getSpecifiedSlotIndex(int line, ServerComputerData computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
 		if (inventory instanceof ISidedInventory) {
 			final ISidedInventory sidedInventory = (ISidedInventory) inventory;
-			int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(computer, sideParam, functionName));
+			int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(line, computer, sideParam, functionName));
 			final int[] sideSlots = sidedInventory.getSizeInventorySide(inventorySide);
 			if (slotParam.getType() == Variable.Type.NULL) {
 				for (int i = 0; i < sideSlots.length; i++) {
@@ -104,11 +104,11 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 				return -1;
 			} else {
 				if (slotParam.getType() != Variable.Type.NUMBER)
-					throw new ExecutionException("Expected number in slot parameter in " + functionName + " function");
+					throw new ExecutionException(line, "Expected NUMBER in " + functionName + "()");
 
 				int slot = ((Number) slotParam.getValue()).intValue();
 				if (sideSlots.length <= slot || slot < 0)
-					throw new ExecutionException("Slot number out of accepted range in " + functionName + " function");
+					throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + "()");
 
 				return sideSlots[slot];
 			}
@@ -123,11 +123,11 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 				return -1;
 			} else {
 				if (slotParam.getType() != Variable.Type.NUMBER)
-					throw new ExecutionException("Expected number in slot parameter in " + functionName + " function");
+					throw new ExecutionException(line, "Expected NUMBER in " + functionName + "()");
 
 				int slot = ((Number) slotParam.getValue()).intValue();
 				if (inventorySize <= slot || slot < 0)
-					throw new ExecutionException("Slot number out of accepted range in " + functionName + " function");
+					throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + "()");
 
 				return slot;
 			}

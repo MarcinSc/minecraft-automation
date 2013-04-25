@@ -12,8 +12,8 @@ import net.minecraft.util.Facing;
 import net.minecraft.world.World;
 
 public class StorageModuleUtils {
-	public static TileEntity getBlockEntityAtFace(ServerComputerData computer, World world, Variable sideVar, String functionName) throws ExecutionException {
-		int lookAt = getComputerFacingSide(computer, sideVar, functionName);
+	public static TileEntity getBlockEntityAtFace(int line, ServerComputerData computer, World world, Variable sideVar, String functionName) throws ExecutionException {
+		int lookAt = getComputerFacingSide(line, computer, sideVar, functionName);
 
 		return world.getBlockTileEntity(
 						computer.getX() + Facing.offsetsXForSide[lookAt],
@@ -21,22 +21,22 @@ public class StorageModuleUtils {
 						computer.getZ() + Facing.offsetsZForSide[lookAt]);
 	}
 
-	public static IInventory getInventoryAtFace(ServerComputerData computer, World world, Variable sideVar, String functionName) throws ExecutionException {
-		final TileEntity tileEntity = getBlockEntityAtFace(computer, world, sideVar, functionName);
+	public static IInventory getInventoryAtFace(int line, ServerComputerData computer, World world, Variable sideVar, String functionName) throws ExecutionException {
+		final TileEntity tileEntity = getBlockEntityAtFace(line, computer, world, sideVar, functionName);
 		return (tileEntity instanceof IInventory) ? (IInventory) tileEntity : null;
 	}
 
-	public static ItemStack getStackFromInventory(ServerComputerData computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
+	public static ItemStack getStackFromInventory(int line, ServerComputerData computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
 		if (slotParam.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException("Expected number in slot parameter in " + functionName + " function");
+			throw new ExecutionException(line, "Expected number in slot parameter in " + functionName + "()");
 
 		int slot = ((Number) slotParam.getValue()).intValue();
 
-		int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(computer, sideParam, functionName));
+		int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(line, computer, sideParam, functionName));
 		int inventorySize = getInventorySize(inventory, inventorySide);
 
 		if (inventorySize <= slot || slot < 0)
-			throw new ExecutionException("Slot number out of accepted range in " + functionName + " function");
+			throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + "()");
 
 		ItemStack stackInSlot;
 		if (inventory instanceof ISidedInventory) {
@@ -53,15 +53,15 @@ public class StorageModuleUtils {
 			return inventory.getSizeInventory();
 	}
 
-	public static int getComputerFacingSide(ServerComputerData computer, Variable sideVar, String functionName) throws ExecutionException {
+	public static int getComputerFacingSide(int line, ServerComputerData computer, Variable sideVar, String functionName) throws ExecutionException {
 		int facing = computer.getFacing();
 
 		if (sideVar.getType() != Variable.Type.STRING)
-			throw new ExecutionException("Expected front, top, bottom, left or right in " + functionName + " function");
+			throw new ExecutionException(line, "Expected front, top, bottom, left or right in " + functionName + "()");
 
 		String side = (String) sideVar.getValue();
 		if (!side.equals("front") && !side.equals("left") && !side.equals("right") && !side.equals("top") && !side.equals("bottom"))
-			throw new ExecutionException("Expected front, top, bottom, left or right in " + functionName + " function");
+			throw new ExecutionException(line, "Expected front, top, bottom, left or right in " + functionName + "()");
 
 		int lookAt = facing;
 		if (side.equals("left"))
