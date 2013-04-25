@@ -4,6 +4,7 @@ import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.computer.ComputerConsole;
 import com.gempukku.minecraft.automation.lang.IllegalSyntaxException;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import org.lwjgl.input.Keyboard;
 
@@ -183,6 +184,8 @@ public class ProgramEditingConsoleGui {
 				handleDisplayError();
 			} else if (keyboardCharId == Keyboard.KEY_G && _computerConsoleGui.isCtrlKeyDown()) {
 				handleGotoLine();
+			} else if (keyboardCharId == Keyboard.KEY_V && _computerConsoleGui.isCtrlKeyDown()) {
+				handlePaste();
 			}
 		}
 
@@ -211,6 +214,28 @@ public class ProgramEditingConsoleGui {
 		if (_programCompileDirty) {
 			_onTheFlyCompiler.submitCompileRequest(getProgramText());
 			_programCompileDirty = false;
+		}
+	}
+
+	private void handlePaste() {
+		final String clipboard = GuiScreen.getClipboardString();
+		final String[] lines = clipboard.split("\n");
+		for (int index = 0; index < lines.length; index++) {
+			String line = lines[index];
+			final String fixedLine = ComputerConsole.stripInvalidCharacters(line);
+			final StringBuilder currentLine = _editedProgramLines.get(_editedProgramCursorY);
+			String before = currentLine.substring(0, _editedProgramCursorX);
+			String after = currentLine.substring(_editedProgramCursorX);
+			if (index < lines.length - 1) {
+				_editedProgramLines.set(_editedProgramCursorY, new StringBuilder(before + fixedLine));
+				_editedProgramLines.add(_editedProgramCursorY + 1, new StringBuilder(after));
+				_editedProgramCursorY++;
+				_editedProgramCursorX = 0;
+			} else {
+				// Last line
+				_editedProgramLines.set(_editedProgramCursorY, new StringBuilder(before + fixedLine + after));
+				_editedProgramCursorX = (before + fixedLine).length();
+			}
 		}
 	}
 
