@@ -1,11 +1,7 @@
 package com.gempukku.minecraft.automation.lang;
 
 public class ExecutionException extends Exception {
-	private int _line = -1;
-
-	public ExecutionException(String message) {
-		super(message);
-	}
+	private int _line;
 
 	public ExecutionException(int line, String message) {
 		super(message);

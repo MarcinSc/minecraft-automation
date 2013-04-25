@@ -1,6 +1,7 @@
 package com.gempukku.minecraft.automation.program;
 
 public class SuspendedProgram {
+	private int _checkAttempt;
 	private RunningProgram _runningProgram;
 	private AwaitingCondition _awaitingCondition;
 
@@ -15,5 +16,9 @@ public class SuspendedProgram {
 
 	public RunningProgram getRunningProgram() {
 		return _runningProgram;
+	}
+
+	public int getCheckAttempt() {
+		return _checkAttempt++;
 	}
 }

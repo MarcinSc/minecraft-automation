@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation.computer.os;
 
 import com.gempukku.minecraft.automation.computer.AbstractConditionCustomObject;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
+import com.gempukku.minecraft.automation.computer.ResultAwaitingCondition;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
@@ -51,7 +52,7 @@ public class CreateSleepTickFunction extends JavaFunctionExecutable {
 		}
 
 		@Override
-		public boolean isMet() {
+		public boolean isMet(int checkAttempt, World world, ServerComputerData computer) throws ExecutionException {
 			_ticks--;
 			return _ticks < 0;
 		}

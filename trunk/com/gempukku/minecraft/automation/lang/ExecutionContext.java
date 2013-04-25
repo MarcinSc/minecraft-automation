@@ -98,7 +98,7 @@ public class ExecutionContext {
 		CallContext callContext;
 		do {
 			if (_groupCallContexts.isEmpty())
-				throw new ExecutionException("Break invoked without a containing block");
+				throw new ExecutionException(-1, "Break invoked without a containing block");
 			callContext = removeLastCallContext();
 			_executionGroups.removeLast();
 		} while (!callContext.isConsumesBreak());

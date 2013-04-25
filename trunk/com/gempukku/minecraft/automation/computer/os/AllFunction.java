@@ -2,6 +2,7 @@ package com.gempukku.minecraft.automation.computer.os;
 
 import com.gempukku.minecraft.automation.computer.AbstractConditionCustomObject;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
+import com.gempukku.minecraft.automation.computer.ResultAwaitingCondition;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.CustomObject;
 import com.gempukku.minecraft.automation.lang.ExecutionException;

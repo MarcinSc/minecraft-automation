@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.computer.os;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.computer.AbstractConditionCustomObject;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
+import com.gempukku.minecraft.automation.computer.ResultAwaitingCondition;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.*;
 

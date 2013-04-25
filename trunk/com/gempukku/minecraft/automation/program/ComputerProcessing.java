@@ -185,10 +185,19 @@ public class ComputerProcessing {
 			final SuspendedProgram suspended = suspendedIterator.next();
 			final ServerComputerData computerData = suspended.getRunningProgram().getComputerData();
 			if (computerData.getDimension() == dimension) {
-				if (suspended.getAwaitingCondition().isMet()) {
+				try {
+					if (suspended.getAwaitingCondition().isMet(suspended.getCheckAttempt(), world, computerData)) {
+						suspendedIterator.remove();
+						_runningPrograms.put(computerData.getId(), suspended.getRunningProgram());
+						updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
+					}
+				} catch (ExecutionException exp) {
+					if (exp.getLine() != -1)
+						computerData.appendToConsole("ExecutionException[unknown line] - " + exp.getMessage());
+					else
+						computerData.appendToConsole("ExecutionException[line " + exp.getLine() + "] - " + exp.getMessage());
 					suspendedIterator.remove();
-					_runningPrograms.put(computerData.getId(), suspended.getRunningProgram());
-					updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
+					updateProgramState(world, computerData, ComputerTileEntity.STATE_IDLE);
 				}
 			}
 		}

@@ -27,10 +27,10 @@ public class RunningProgram {
 				while (_speedConsumed <= 0) {
 					final ExecutionProgress executionProgress = _executionContext.executeNext();
 					if (_executionContext.getStackTraceSize() > _computerData.getMaxStackSize())
-						throw new ExecutionException("StackOverflow");
+						throw new ExecutionException(-1, "StackOverflow");
 					// Memory consumption calculation is expensive, so we will do it only from time to time
 					if (++_memoryConsumptionCheck % MEMORY_CHECK_INTERVAL == 0 && _executionContext.getMemoryUsage() > _computerData.getMaxMemory())
-						throw new ExecutionException("OutOfMemory");
+						throw new ExecutionException(-1, "OutOfMemory");
 					_speedConsumed += executionProgress.getCost();
 					if (_executionContext.isFinished()) {
 						_running = false;

@@ -1,6 +1,10 @@
 package com.gempukku.minecraft.automation.computer.os;
 
+import com.gempukku.minecraft.automation.computer.ResultAwaitingCondition;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
+import net.minecraft.world.World;
 
 import java.util.*;
 
@@ -14,11 +18,11 @@ public class AllResultAwaitingCondition implements ResultAwaitingCondition {
 	}
 
 	@Override
-	public boolean isMet() {
+	public boolean isMet(int checkAttempt, World world, ServerComputerData computer) throws ExecutionException {
 		final Iterator<ResultAwaitingCondition> notMetIterator = _notMetConditions.iterator();
 		while (notMetIterator.hasNext()) {
 			final ResultAwaitingCondition notMetCondition = notMetIterator.next();
-			if (notMetCondition.isMet())
+			if (notMetCondition.isMet(checkAttempt, world, computer))
 				notMetIterator.remove();
 
 		}
