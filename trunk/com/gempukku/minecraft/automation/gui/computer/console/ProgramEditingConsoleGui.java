@@ -27,6 +27,7 @@ public class ProgramEditingConsoleGui {
 	private static final int COMPILE_OK_COLOR = 0xff00ff00;
 
 	private boolean _waitingForExitConfirmation = false;
+	private boolean _waitingForGotoLineEntered = false;
 	private boolean _displayErrorMessage = false;
 
 	private boolean _programSaveDirty;
@@ -43,6 +44,7 @@ public class ProgramEditingConsoleGui {
 
 	private ComputerConsoleGui _computerConsoleGui;
 	private CompileScriptOnTheFly _onTheFlyCompiler;
+	private StringBuilder _gotoLineNumber;
 
 	public ProgramEditingConsoleGui(ComputerConsoleGui computerConsoleGui) {
 		_computerConsoleGui = computerConsoleGui;
@@ -64,6 +66,8 @@ public class ProgramEditingConsoleGui {
 		final CompileScriptOnTheFly.CompileStatus compileStatusObj = _onTheFlyCompiler.getCompileStatus();
 		if (_waitingForExitConfirmation) {
 			_computerConsoleGui.drawMonospacedText("File was not saved, exit? [Y]es/[N]o", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
+		} else if (_waitingForGotoLineEntered) {
+			_computerConsoleGui.drawMonospacedText("Go to line: " + _gotoLineNumber.toString(), 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
 		} else if (_displayErrorMessage && compileStatusObj != null && compileStatusObj.error != null) {
 			final IllegalSyntaxException error = compileStatusObj.error;
 			_computerConsoleGui.drawMonospacedText(error.getMessage(), 0, lastLineY, PROGRAM_ERROR_MESSAGE_COLOR);
@@ -121,6 +125,20 @@ public class ProgramEditingConsoleGui {
 				_waitingForExitConfirmation = false;
 				_computerConsoleGui.exitProgramming();
 			}
+		} else if (_waitingForGotoLineEntered) {
+			if (character >= 32 && character < 127 && Character.isDigit(character) && _gotoLineNumber.length() < 5) {
+				_gotoLineNumber.append(character);
+			} else if (keyboardCharId == Keyboard.KEY_ESCAPE) {
+				_waitingForGotoLineEntered = false;
+			} else if (keyboardCharId == Keyboard.KEY_BACK && _gotoLineNumber.length() > 1) {
+				_gotoLineNumber.delete(_gotoLineNumber.length() - 1, _gotoLineNumber.length());
+			} else if (keyboardCharId == Keyboard.KEY_RETURN) {
+				if (_gotoLineNumber.length() > 0) {
+					_editedProgramCursorX = 0;
+					_editedProgramCursorY = Math.max(Integer.parseInt(_gotoLineNumber.toString()), _editedProgramLines.size() - 1);
+				}
+				_waitingForGotoLineEntered = false;
+			}
 		} else {
 			StringBuilder editedLine = _editedProgramLines.get(_editedProgramCursorY);
 			if (character >= 32 && character < 127) {
@@ -151,29 +169,31 @@ public class ProgramEditingConsoleGui {
 				handleExit();
 			} else if (keyboardCharId == Keyboard.KEY_E && _computerConsoleGui.isCtrlKeyDown()) {
 				handleDisplayError();
+			} else if (keyboardCharId == Keyboard.KEY_G && _computerConsoleGui.isCtrlKeyDown()) {
+				handleGotoLine();
 			}
+		}
 
-			// Adjust cursor X position to be within the program line
-			if (_editedProgramCursorX > _editedProgramLines.get(_editedProgramCursorY).length())
-				_editedProgramCursorX = _editedProgramLines.get(_editedProgramCursorY).length();
+		// Adjust cursor X position to be within the program line
+		if (_editedProgramCursorX > _editedProgramLines.get(_editedProgramCursorY).length())
+			_editedProgramCursorX = _editedProgramLines.get(_editedProgramCursorY).length();
 
-			final int editedLineLength = _editedProgramLines.get(_editedProgramCursorY).length();
-			if (_editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH > editedLineLength) {
-				_editedDisplayStartX = Math.max(0, editedLineLength - ComputerConsole.CONSOLE_WIDTH);
-			} else if (_editedProgramCursorX > _editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH) {
-				_editedDisplayStartX = _editedProgramCursorX - ComputerConsole.CONSOLE_WIDTH;
-			} else if (_editedProgramCursorX < _editedDisplayStartX) {
-				_editedDisplayStartX = _editedProgramCursorX;
-			}
+		final int editedLineLength = _editedProgramLines.get(_editedProgramCursorY).length();
+		if (_editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH > editedLineLength) {
+			_editedDisplayStartX = Math.max(0, editedLineLength - ComputerConsole.CONSOLE_WIDTH);
+		} else if (_editedProgramCursorX > _editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH) {
+			_editedDisplayStartX = _editedProgramCursorX - ComputerConsole.CONSOLE_WIDTH;
+		} else if (_editedProgramCursorX < _editedDisplayStartX) {
+			_editedDisplayStartX = _editedProgramCursorX;
+		}
 
-			final int linesCount = _editedProgramLines.size();
-			if (_editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 1 > linesCount) {
-				_editedDisplayStartY = Math.max(0, linesCount - ComputerConsole.CONSOLE_HEIGHT + 1);
-			} else if (_editedProgramCursorY > _editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 2) {
-				_editedDisplayStartY = _editedProgramCursorY - ComputerConsole.CONSOLE_HEIGHT + 2;
-			} else if (_editedProgramCursorY < _editedDisplayStartY) {
-				_editedDisplayStartY = _editedProgramCursorY;
-			}
+		final int linesCount = _editedProgramLines.size();
+		if (_editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 1 > linesCount) {
+			_editedDisplayStartY = Math.max(0, linesCount - ComputerConsole.CONSOLE_HEIGHT + 1);
+		} else if (_editedProgramCursorY > _editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 2) {
+			_editedDisplayStartY = _editedProgramCursorY - ComputerConsole.CONSOLE_HEIGHT + 2;
+		} else if (_editedProgramCursorY < _editedDisplayStartY) {
+			_editedDisplayStartY = _editedProgramCursorY;
 		}
 
 		if (_programCompileDirty) {
@@ -213,6 +233,11 @@ public class ProgramEditingConsoleGui {
 		} catch (IOException exp) {
 			// TODO
 		}
+	}
+
+	private void handleGotoLine() {
+		_gotoLineNumber = new StringBuilder();
+		_waitingForGotoLineEntered = true;
 	}
 
 	private void handleEnter(StringBuilder editedLine) {
