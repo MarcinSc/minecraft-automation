@@ -68,9 +68,6 @@ public class ScriptParser {
 				if (value.length() == 0)
 					throw new IllegalSyntaxException(firstTerm, "Expression expected");
 
-				int line = firstTerm.getLine();
-				int column = firstTerm.getColumn();
-
 				String literal = getFirstLiteral(value);
 				if (literal.equals("return")) {
 					return produceReturnStatement(termIterator, definedVariables);
@@ -517,8 +514,6 @@ public class ScriptParser {
 		else if (operator == Operator.EQUALS || operator == Operator.NOT_EQUALS)
 			return new ComparisonStatement(left, operator, right);
 		else if (operator == Operator.MEMBER_ACCESS) {
-			if (!(right instanceof NamedStatement))
-				throw new IllegalSyntaxException("property name expected");
 			return new MemberAccessStatement(left, ((NamedStatement) right).getName());
 		} else if (operator == Operator.AND || operator == Operator.OR)
 			return new LogicalOperatorStatement(left, operator, right);
@@ -527,8 +522,6 @@ public class ScriptParser {
 		else if (operator == Operator.NEGATIVE)
 			return new NegativeStatement(left);
 		else if (operator == Operator.MAPPED_ACCESS) {
-			if (parameters.size() != 1)
-				throw new IllegalSyntaxException("Expected one expression");
 			return new MapAccessStatement(left, parameters.get(0));
 		} else if (operator == Operator.PRE_INCREMENT || operator == Operator.PRE_DECREMENT) {
 			return new IncrementDecrementStatement(left, operator == Operator.PRE_INCREMENT, true);
