@@ -1,7 +1,7 @@
-package com.gempukku.minecraft.automation.module.storage;
+package com.gempukku.minecraft.automation.computer.module.storage;
 
+import com.gempukku.minecraft.automation.computer.module.AbstractComputerModule;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
-import com.gempukku.minecraft.automation.module.AbstractComputerModule;
 
 public class StorageModule extends AbstractComputerModule {
 	private FunctionExecutable _hasContainer = new HasContainerFunction();

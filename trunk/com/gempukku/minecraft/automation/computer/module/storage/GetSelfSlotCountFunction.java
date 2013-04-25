@@ -1,5 +1,7 @@
-package com.gempukku.minecraft.automation.module.gps;
+package com.gempukku.minecraft.automation.computer.module.storage;
 
+import com.gempukku.minecraft.automation.AutomationUtils;
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
@@ -8,7 +10,7 @@ import net.minecraft.world.World;
 
 import java.util.Map;
 
-public class GetFacingFunction extends JavaFunctionExecutable {
+public class GetSelfSlotCountFunction extends JavaFunctionExecutable {
 	@Override
 	protected int getDuration() {
 		return 100;
@@ -21,6 +23,9 @@ public class GetFacingFunction extends JavaFunctionExecutable {
 
 	@Override
 	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
-		return computer.getFacing();
+		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
+		if (computerTileEntity == null)
+			return 0;
+		return computerTileEntity.getItemSlotsCount();
 	}
 }

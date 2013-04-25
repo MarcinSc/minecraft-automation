@@ -1,10 +1,6 @@
-package com.gempukku.minecraft.automation.module.mobility;
+package com.gempukku.minecraft.automation.computer.module.mobility;
 
 import com.gempukku.minecraft.BoxSide;
-import com.gempukku.minecraft.MinecraftUtils;
-import com.gempukku.minecraft.automation.Automation;
-import com.gempukku.minecraft.automation.AutomationUtils;
-import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
@@ -15,10 +11,10 @@ import net.minecraft.world.World;
 
 import java.util.Map;
 
-public class MoveFunction extends JavaFunctionExecutable {
+public class CanMoveFunction extends JavaFunctionExecutable {
 	@Override
 	protected int getDuration() {
-		return 10000;
+		return 100;
 	}
 
 	@Override
@@ -32,11 +28,11 @@ public class MoveFunction extends JavaFunctionExecutable {
 		Variable sideVar = parameters.get("direction");
 
 		if (sideVar.getType() != Variable.Type.STRING)
-			throw new ExecutionException(line, "Invalid direction received in move()");
+			throw new ExecutionException(line, "Invalid direction received in canMove()");
 
 		String side = (String) sideVar.getValue();
 		if (!side.equals("forward") || !side.equals("up") || !side.equals("down"))
-			throw new ExecutionException(line, "Invalid direction received in move()");
+			throw new ExecutionException(line, "Invalid direction received in canMove()");
 
 		int direction = facing;
 		if (side.equals("up"))
@@ -54,19 +50,6 @@ public class MoveFunction extends JavaFunctionExecutable {
 		final Material blockMaterial = world.getBlockMaterial(newX, newY, newZ);
 		if (!blockMaterial.isReplaceable())
 			return false;
-
-		final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
-		if (tileEntity == null)
-			return false;
-
-		final int blockId = world.getBlockId(computer.getX(), computer.getY(), computer.getZ());
-
-		world.setBlockToAir(computer.getX(), computer.getY(), computer.getZ());
-		world.removeBlockTileEntity(computer.getX(), computer.getY(), computer.getZ());
-
-		world.setBlock(newX, newY, newZ, blockId, computer.getId(), 2);
-		MinecraftUtils.setTileEntity(world, newX, newY, newZ, tileEntity);
-		Automation.getServerProxy().getRegistry().updateComputerDataCoordinatesAndFacing(tileEntity);
 
 		return true;
 	}

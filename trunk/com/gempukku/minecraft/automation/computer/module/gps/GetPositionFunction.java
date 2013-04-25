@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.module.gps;
+package com.gempukku.minecraft.automation.computer.module.gps;
 
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;

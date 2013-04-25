@@ -1,7 +1,7 @@
-package com.gempukku.minecraft.automation.module.gps;
+package com.gempukku.minecraft.automation.computer.module.gps;
 
+import com.gempukku.minecraft.automation.computer.module.AbstractComputerModule;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
-import com.gempukku.minecraft.automation.module.AbstractComputerModule;
 
 public class PositioningModule extends AbstractComputerModule {
 	private FunctionExecutable _getPositionFunction = new GetPositionFunction();

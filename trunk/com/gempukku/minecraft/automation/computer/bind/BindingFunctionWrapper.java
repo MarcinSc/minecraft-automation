@@ -4,9 +4,9 @@ import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.module.ComputerModule;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.execution.SimpleExecution;
-import com.gempukku.minecraft.automation.module.ComputerModule;
 
 public class BindingFunctionWrapper implements FunctionExecutable {
 	private ServerComputerData _computer;

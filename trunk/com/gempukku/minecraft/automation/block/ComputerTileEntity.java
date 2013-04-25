@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.block;
 
 import com.gempukku.minecraft.automation.Automation;
-import com.gempukku.minecraft.automation.module.ComputerModule;
+import com.gempukku.minecraft.automation.computer.module.ComputerModule;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;

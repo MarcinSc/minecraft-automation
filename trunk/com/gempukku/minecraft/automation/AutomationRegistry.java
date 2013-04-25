@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.automation.computer.ComputerSpec;
-import com.gempukku.minecraft.automation.module.ComputerModule;
+import com.gempukku.minecraft.automation.computer.module.ComputerModule;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 

@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.module.gps;
+package com.gempukku.minecraft.automation.computer.module.gps;
 
 import com.gempukku.minecraft.automation.Automation;
 import net.minecraft.client.renderer.texture.IconRegister;

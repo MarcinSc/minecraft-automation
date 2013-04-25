@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.module.harvest;
+package com.gempukku.minecraft.automation.computer.module.harvest;
 
 import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;

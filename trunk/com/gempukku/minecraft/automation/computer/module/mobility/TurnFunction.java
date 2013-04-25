@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.module.mobility;
+package com.gempukku.minecraft.automation.computer.module.mobility;
 
 import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.MinecraftUtils;

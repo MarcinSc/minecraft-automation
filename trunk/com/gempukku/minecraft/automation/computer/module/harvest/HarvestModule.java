@@ -1,7 +1,7 @@
-package com.gempukku.minecraft.automation.module.harvest;
+package com.gempukku.minecraft.automation.computer.module.harvest;
 
+import com.gempukku.minecraft.automation.computer.module.AbstractComputerModule;
 import com.gempukku.minecraft.automation.lang.FunctionExecutable;
-import com.gempukku.minecraft.automation.module.AbstractComputerModule;
 
 public class HarvestModule extends AbstractComputerModule {
 	public static final String TYPE = "Harvest";

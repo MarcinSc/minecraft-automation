@@ -4,9 +4,9 @@ import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.module.ComputerModule;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
-import com.gempukku.minecraft.automation.module.ComputerModule;
 import net.minecraft.world.World;
 
 import java.util.Map;

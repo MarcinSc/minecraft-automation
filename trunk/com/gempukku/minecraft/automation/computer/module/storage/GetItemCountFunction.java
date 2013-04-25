@@ -1,4 +1,4 @@
-package com.gempukku.minecraft.automation.module.storage;
+package com.gempukku.minecraft.automation.computer.module.storage;
 
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;

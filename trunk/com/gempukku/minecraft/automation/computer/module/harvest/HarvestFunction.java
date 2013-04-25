@@ -1,14 +1,14 @@
-package com.gempukku.minecraft.automation.module.harvest;
+package com.gempukku.minecraft.automation.computer.module.harvest;
 
 import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.module.ComputerModuleUtils;
+import com.gempukku.minecraft.automation.computer.module.storage.StorageModuleUtils;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
-import com.gempukku.minecraft.automation.module.ComputerModuleUtils;
-import com.gempukku.minecraft.automation.module.storage.StorageModuleUtils;
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
