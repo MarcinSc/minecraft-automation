@@ -38,7 +38,10 @@ public class RunningProgram {
 					}
 				}
 			} catch (ExecutionException exp) {
-				_computerData.appendToConsole("ExecutionException - " + exp.getMessage());
+				if (exp.getLine() != -1)
+					_computerData.appendToConsole("ExecutionException[unknown line] - " + exp.getMessage());
+				else
+					_computerData.appendToConsole("ExecutionException[line " + exp.getLine() + "] - " + exp.getMessage());
 				_running = false;
 			}
 		} finally {
