@@ -72,7 +72,7 @@ public class ScriptParser {
 				if (value.length() == 0)
 					throw new IllegalSyntaxException(firstTerm, "Expression expected");
 
-				String literal = getFirstLiteral(value);
+				String literal = getFirstLiteral(firstTerm);
 				if (literal.equals("return")) {
 					return produceReturnStatement(termIterator, definedVariables);
 				} else if (literal.equals("var")) {
@@ -221,7 +221,7 @@ public class ScriptParser {
 	private boolean isNextLiteral(LastPeekingIterator<TermBlock> termIterator, String literal) throws IllegalSyntaxException {
 		if (isNextTermStartingWith(termIterator, literal)) {
 			final Term term = peekNextProgramTermSafely(termIterator);
-			if (getFirstLiteral(term.getValue()).equals(literal))
+			if (getFirstLiteral(term).equals(literal))
 				return true;
 		}
 		return false;
@@ -231,7 +231,7 @@ public class ScriptParser {
 		consumeCharactersFromTerm(termIterator, 8);
 		Term functionDefTerm = peekNextProgramTermSafely(termIterator);
 
-		String functionName = getFirstLiteral(functionDefTerm.getValue());
+		String functionName = getFirstLiteral(functionDefTerm);
 		if (LangDefinition.isReservedWord(functionName))
 			throw new IllegalSyntaxException(functionDefTerm, "Invalid function name");
 		if (definedVariables.isVariableDefinedInSameScope(functionName))
@@ -243,7 +243,7 @@ public class ScriptParser {
 
 		List<String> parameterNames = new ArrayList<String>();
 		while (!isNextTermStartingWith(termIterator, ")")) {
-			String parameterName = getFirstLiteral(functionDefTerm.getValue());
+			String parameterName = getFirstLiteral(functionDefTerm);
 			consumeCharactersFromTerm(termIterator, parameterName.length());
 			parameterNames.add(parameterName);
 			if (isNextTermStartingWith(termIterator, ","))
@@ -272,7 +272,7 @@ public class ScriptParser {
 	private DefiningExecutableStatement produceVarStatement(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables) throws IllegalSyntaxException {
 		consumeCharactersFromTerm(termIterator, 3);
 		final Term variableTerm = peekNextProgramTermSafely(termIterator);
-		String variableName = getFirstLiteral(variableTerm.getValue());
+		String variableName = getFirstLiteral(variableTerm);
 		if (LangDefinition.isReservedWord(variableName))
 			throw new IllegalSyntaxException(variableTerm, "Invalid variable name");
 		if (definedVariables.isVariableDefinedInSameScope(variableName))
@@ -351,7 +351,7 @@ public class ScriptParser {
 				ExecutableStatement right;
 				if (operator.isNamedOnRight()) {
 					final Term term = peekNextProgramTermSafely(termIterator);
-					String literal = getFirstLiteral(term.getValue());
+					String literal = getFirstLiteral(term);
 					consumeCharactersFromTerm(termIterator, literal.length());
 					right = new NamedStatement(literal);
 				} else
@@ -395,7 +395,7 @@ public class ScriptParser {
 					ExecutableStatement operatorExpression;
 					if (operator.isNamedOnRight()) {
 						final Term term = peekNextProgramTermSafely(termIterator);
-						String literal = getFirstLiteral(term.getValue());
+						String literal = getFirstLiteral(term);
 						consumeCharactersFromTerm(termIterator, literal.length());
 						operatorExpression = new NamedStatement(literal);
 					} else
@@ -565,7 +565,7 @@ public class ScriptParser {
 					result = new ConstantStatement(new Variable(Float.parseFloat(numberInStr)));
 				} else {
 					if (Character.isLetter(termValue.charAt(0))) {
-						String literal = getFirstLiteral(termValue);
+						String literal = getFirstLiteral(term);
 
 						consumeCharactersFromTerm(termIterator, literal.length());
 
@@ -606,7 +606,7 @@ public class ScriptParser {
 
 		List<String> parameterNames = new ArrayList<String>();
 		while (!isNextTermStartingWith(termIterator, ")")) {
-			String parameterName = getFirstLiteral(term.getValue());
+			String parameterName = getFirstLiteral(term);
 			consumeCharactersFromTerm(termIterator, parameterName.length());
 			parameterNames.add(parameterName);
 			if (isNextTermStartingWith(termIterator, ","))
@@ -655,7 +655,7 @@ public class ScriptParser {
 				propertyLine = property.getTerm().getLine();
 				propertyColumn = property.getTerm().getColumn();
 			} else {
-				propertyName = getFirstLiteral(property.getTerm().getValue());
+				propertyName = getFirstLiteral(property.getTerm());
 				propertyLine = property.getTerm().getLine();
 				propertyColumn = property.getTerm().getColumn();
 				consumeCharactersFromTerm(iterator, propertyName.length());
@@ -689,11 +689,11 @@ public class ScriptParser {
 		return result.toString();
 	}
 
-	private String getFirstLiteral(String text) throws IllegalSyntaxException {
+	private String getFirstLiteral(Term term) throws IllegalSyntaxException {
 		StringBuilder sb = new StringBuilder();
-		char[] chars = text.toCharArray();
+		char[] chars = term.getValue().toCharArray();
 		if (!Character.isLetter(chars[0]))
-			throw new IllegalSyntaxException("Expected expression");
+			throw new IllegalSyntaxException(term, "Expected expression");
 		for (char c : chars) {
 			if (Character.isLetterOrDigit(c))
 				sb.append(c);

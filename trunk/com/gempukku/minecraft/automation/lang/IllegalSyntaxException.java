@@ -8,10 +8,6 @@ public class IllegalSyntaxException extends Exception {
 	private int _line;
 	private int _column;
 
-	public IllegalSyntaxException(String message) {
-		this(0, 0, message);
-	}
-
 	public IllegalSyntaxException(LastPeekingIterator<TermBlock> termIterator, String message) {
 		super(message);
 		if (termIterator.hasNext()) {
