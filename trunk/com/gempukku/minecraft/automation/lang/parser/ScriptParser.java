@@ -45,11 +45,15 @@ public class ScriptParser {
 			List<ExecutableStatement> result = new LinkedList<ExecutableStatement>();
 			List<TermBlock> blocks = termBlock.getTermBlocks();
 			LastPeekingIterator<TermBlock> termBlockIter = new LastPeekingIterator<TermBlock>(Iterators.peekingIterator(blocks.iterator()));
-			while (termBlockIter.hasNext() && (!termBlockIter.peek().isTerm() || termBlockIter.peek().getTerm().getValue().length() > 0)) {
-				final ExecutableStatement resultStatement = produceStatementFromIterator(termBlockIter, definedVariables);
-				result.add(resultStatement);
-				if (resultStatement.requiresSemicolon())
-					consumeSemicolon(termBlockIter);
+			while (termBlockIter.hasNext()) {
+				if (termBlockIter.peek().isTerm() && termBlockIter.peek().getTerm().getValue().length() == 0)
+					termBlockIter.next();
+				else {
+					final ExecutableStatement resultStatement = produceStatementFromIterator(termBlockIter, definedVariables);
+					result.add(resultStatement);
+					if (resultStatement.requiresSemicolon())
+						consumeSemicolon(termBlockIter);
+				}
 			}
 			return result;
 		}
