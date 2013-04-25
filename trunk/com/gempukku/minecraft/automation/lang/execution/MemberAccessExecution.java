@@ -3,6 +3,7 @@ package com.gempukku.minecraft.automation.lang.execution;
 import com.gempukku.minecraft.automation.lang.*;
 
 public class MemberAccessExecution implements Execution {
+	private int _line;
 	private ExecutableStatement _object;
 	private String _propertyName;
 
@@ -13,7 +14,8 @@ public class MemberAccessExecution implements Execution {
 
 	private Variable _objectValue;
 
-	public MemberAccessExecution(ExecutableStatement object, String propertyName) {
+	public MemberAccessExecution(int line, ExecutableStatement object, String propertyName) {
+		_line = line;
 		_object = object;
 		_propertyName = propertyName;
 	}
@@ -42,7 +44,10 @@ public class MemberAccessExecution implements Execution {
 			return new ExecutionProgress(ExecutionTimes.GET_CONTEXT_VALUE);
 		}
 		if (!_memberAccessStored) {
-			executionContext.setContextValue(executionContext.resolveMember(_objectValue, _propertyName));
+			final Variable member = executionContext.resolveMember(_objectValue, _propertyName);
+			if (member == null)
+				throw new ExecutionException(_line, "Property " + _propertyName + " not found");
+			executionContext.setContextValue(member);
 			_memberAccessStored = true;
 			return new ExecutionProgress(ExecutionTimes.SET_CONTEXT_VALUE + ExecutionTimes.RESOLVE_MEMBER);
 		}

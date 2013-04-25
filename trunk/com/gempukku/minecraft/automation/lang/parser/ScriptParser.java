@@ -545,7 +545,7 @@ public class ScriptParser {
 		else if (operator == Operator.EQUALS || operator == Operator.NOT_EQUALS)
 			return new ComparisonStatement(left, operator, right);
 		else if (operator == Operator.MEMBER_ACCESS) {
-			return new MemberAccessStatement(left, ((NamedStatement) right).getName());
+			return new MemberAccessStatement(line, left, ((NamedStatement) right).getName());
 		} else if (operator == Operator.AND || operator == Operator.OR)
 			return new LogicalOperatorStatement(line, left, operator, right);
 		else if (operator == Operator.NOT)

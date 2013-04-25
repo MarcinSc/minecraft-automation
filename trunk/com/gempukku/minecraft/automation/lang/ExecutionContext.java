@@ -98,7 +98,7 @@ public class ExecutionContext {
 		CallContext callContext;
 		do {
 			if (_groupCallContexts.isEmpty())
-				throw new ExecutionException("break invoked without a containing block");
+				throw new ExecutionException("Break invoked without a containing block");
 			callContext = removeLastCallContext();
 			_executionGroups.removeLast();
 		} while (!callContext.isConsumesBreak());
@@ -166,7 +166,7 @@ public class ExecutionContext {
 
 	public Variable resolveMember(Variable object, String property) throws ExecutionException {
 		if (!_perTypeProperties.containsKey(object.getType()))
-			throw new ExecutionException("Expected object");
+			throw null;
 
 		return _perTypeProperties.get(object.getType()).exposePropertyFor(this, object, property);
 	}
