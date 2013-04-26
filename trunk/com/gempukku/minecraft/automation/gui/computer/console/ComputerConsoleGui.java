@@ -162,7 +162,7 @@ public class ComputerConsoleGui extends GuiScreen {
 
 	private void drawPlayerConsole(float timeSinceLastTick) {
 		if (_editingProgram) {
-			_programEditingConsoleGui.drawEditProgramConsole(timeSinceLastTick);
+			_programEditingConsoleGui.drawEditProgramConsole(timeSinceLastTick, ComputerConsole.CONSOLE_WIDTH * CHARACTER_WIDTH, ComputerConsole.CONSOLE_HEIGHT * FONT_HEIGHT);
 		} else {
 			_playerCommandConsoleGui.drawPlayerCommandConsole(timeSinceLastTick);
 		}

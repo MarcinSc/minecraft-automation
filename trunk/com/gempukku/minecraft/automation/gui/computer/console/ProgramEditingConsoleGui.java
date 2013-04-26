@@ -7,6 +7,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -47,31 +48,50 @@ public class ProgramEditingConsoleGui {
 	private CompileScriptOnTheFly _onTheFlyCompiler;
 	private StringBuilder _gotoLineNumber;
 
+	private int _scale = 3;
+	private static final float[] SCALES = new float[]{1f, 0.833f, 0.667f, 0.5f};
+	private static final int[] CHARACTER_COUNT_WIDTH = new int[]{ComputerConsole.CONSOLE_WIDTH, (int) (ComputerConsole.CONSOLE_WIDTH * 1.2f), (int) (ComputerConsole.CONSOLE_WIDTH * 1.5f), ComputerConsole.CONSOLE_WIDTH * 2};
+	private static final int[] CHARACTER_COUNT_HEIGHT = new int[]{ComputerConsole.CONSOLE_HEIGHT, (int) (ComputerConsole.CONSOLE_HEIGHT * 1.2f), (int) (ComputerConsole.CONSOLE_HEIGHT * 1.5f), ComputerConsole.CONSOLE_HEIGHT * 2};
+
 	public ProgramEditingConsoleGui(ComputerConsoleGui computerConsoleGui) {
 		_computerConsoleGui = computerConsoleGui;
 		_onTheFlyCompiler = new CompileScriptOnTheFly();
 		_onTheFlyCompiler.startCompiler();
 	}
 
-	public void drawEditProgramConsole(float timeSinceLastTick) {
-		for (int line = _editedDisplayStartY; line < Math.min(_editedProgramLines.size(), _editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 1); line++) {
-			String programLine = _editedProgramLines.get(line).toString();
-			if (programLine.length() > _editedDisplayStartX) {
-				String displayedLine = programLine.substring(_editedDisplayStartX, Math.min(programLine.length(), _editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH));
-				_computerConsoleGui.drawMonospacedText(displayedLine, 0, (line - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_TEXT_COLOR);
+	public void drawEditProgramConsole(float timeSinceLastTick, int width, int height) {
+		GL11.glPushMatrix();
+		try {
+			GL11.glScalef(SCALES[_scale], SCALES[_scale], SCALES[_scale]);
+			for (int line = _editedDisplayStartY; line < Math.min(_editedProgramLines.size(), _editedDisplayStartY + getCharactersInColumn() - 1); line++) {
+				String programLine = _editedProgramLines.get(line).toString();
+				if (programLine.length() > _editedDisplayStartX) {
+					String displayedLine = programLine.substring(_editedDisplayStartX, Math.min(programLine.length(), _editedDisplayStartX + getCharactersInRow()));
+					_computerConsoleGui.drawMonospacedText(displayedLine, 0, (line - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_TEXT_COLOR);
+				}
 			}
+
+			// Draw status line
+			drawStatusLine();
+
+			_blinkDrawTick = ((++_blinkDrawTick) % BLINK_LENGTH);
+			if (_blinkDrawTick * 2 > BLINK_LENGTH)
+				_computerConsoleGui.drawVerticalLine((_editedProgramCursorX - _editedDisplayStartX) * ComputerConsoleGui.CHARACTER_WIDTH - 1, (_editedProgramCursorY - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, 1 + (_editedProgramCursorY - _editedDisplayStartY + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_CURSOR_COLOR);
+		} finally {
+			GL11.glPopMatrix();
 		}
+	}
 
-		// Draw status line
-		drawStatusLine();
+	private int getCharactersInColumn() {
+		return CHARACTER_COUNT_HEIGHT[_scale];
+	}
 
-		_blinkDrawTick = ((++_blinkDrawTick) % BLINK_LENGTH);
-		if (_blinkDrawTick * 2 > BLINK_LENGTH)
-			_computerConsoleGui.drawVerticalLine((_editedProgramCursorX - _editedDisplayStartX) * ComputerConsoleGui.CHARACTER_WIDTH - 1, (_editedProgramCursorY - _editedDisplayStartY) * ComputerConsoleGui.FONT_HEIGHT, 1 + (_editedProgramCursorY - _editedDisplayStartY + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_CURSOR_COLOR);
+	private int getCharactersInRow() {
+		return CHARACTER_COUNT_WIDTH[_scale];
 	}
 
 	private void drawStatusLine() {
-		final int lastLineY = ComputerConsoleGui.FONT_HEIGHT * (ComputerConsole.CONSOLE_HEIGHT - 1);
+		final int lastLineY = ComputerConsoleGui.FONT_HEIGHT * (getCharactersInColumn() - 1);
 		final CompileScriptOnTheFly.CompileStatus compileStatusObj = _onTheFlyCompiler.getCompileStatus();
 		if (_waitingForExitConfirmation) {
 			_computerConsoleGui.drawMonospacedText("File was not saved, exit? [Y]es/[N]o", 0, lastLineY, PROGRAM_LAST_LINE_COLOR);
@@ -105,7 +125,7 @@ public class ProgramEditingConsoleGui {
 			}
 		}
 
-		int index = ComputerConsole.CONSOLE_WIDTH - compileStatus.length();
+		int index = getCharactersInRow() - compileStatus.length();
 		_computerConsoleGui.drawMonospacedText(compileStatus, index * ComputerConsoleGui.CHARACTER_WIDTH, lastLineY, compileColor);
 
 		if (compileStatusObj != null && compileStatusObj.error != null) {
@@ -113,8 +133,8 @@ public class ProgramEditingConsoleGui {
 			final int errorLine = error.getLine() - _editedDisplayStartY;
 			final int errorColumn = error.getColumn() - _editedDisplayStartX;
 
-			if (errorLine >= 0 && errorLine < ComputerConsole.CONSOLE_HEIGHT - 1
-							&& errorColumn >= 0 && errorColumn < ComputerConsole.CONSOLE_WIDTH)
+			if (errorLine >= 0 && errorLine < getCharactersInColumn() - 1
+							&& errorColumn >= 0 && errorColumn < getCharactersInRow())
 				_computerConsoleGui.drawHorizontalLine(errorColumn * ComputerConsoleGui.CHARACTER_WIDTH, (errorColumn + 1) * ComputerConsoleGui.CHARACTER_WIDTH, (errorLine + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_ERROR_UNDERLINE_COLOR);
 		}
 	}
@@ -125,8 +145,8 @@ public class ProgramEditingConsoleGui {
 		final int errorLine = error.getLine() - _editedDisplayStartY;
 		final int errorColumn = error.getColumn() - _editedDisplayStartX;
 
-		if (errorLine >= 0 && errorLine < ComputerConsole.CONSOLE_HEIGHT - 1
-						&& errorColumn >= 0 && errorColumn < ComputerConsole.CONSOLE_WIDTH)
+		if (errorLine >= 0 && errorLine < getCharactersInColumn() - 1
+						&& errorColumn >= 0 && errorColumn < getCharactersInRow())
 			_computerConsoleGui.drawHorizontalLine(errorColumn * ComputerConsoleGui.CHARACTER_WIDTH, (errorColumn + 1) * ComputerConsoleGui.CHARACTER_WIDTH, (errorLine + 1) * ComputerConsoleGui.FONT_HEIGHT, PROGRAM_ERROR_UNDERLINE_COLOR);
 	}
 
@@ -166,6 +186,10 @@ public class ProgramEditingConsoleGui {
 				handleLeft();
 			} else if (keyboardCharId == Keyboard.KEY_RIGHT) {
 				handleRight(editedLine);
+			} else if (keyboardCharId == Keyboard.KEY_UP && _computerConsoleGui.isCtrlKeyDown()) {
+				handleScaleUp();
+			} else if (keyboardCharId == Keyboard.KEY_DOWN && _computerConsoleGui.isCtrlKeyDown()) {
+				handleScaleDown();
 			} else if (keyboardCharId == Keyboard.KEY_UP && _editedProgramCursorY > 0) {
 				handleUp();
 			} else if (keyboardCharId == Keyboard.KEY_DOWN && _editedProgramCursorY < _editedProgramLines.size() - 1) {
@@ -194,19 +218,19 @@ public class ProgramEditingConsoleGui {
 			_editedProgramCursorX = _editedProgramLines.get(_editedProgramCursorY).length();
 
 		final int editedLineLength = _editedProgramLines.get(_editedProgramCursorY).length();
-		if (_editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH > editedLineLength) {
-			_editedDisplayStartX = Math.max(0, editedLineLength - ComputerConsole.CONSOLE_WIDTH);
-		} else if (_editedProgramCursorX > _editedDisplayStartX + ComputerConsole.CONSOLE_WIDTH) {
-			_editedDisplayStartX = _editedProgramCursorX - ComputerConsole.CONSOLE_WIDTH;
+		if (_editedDisplayStartX + getCharactersInRow() > editedLineLength) {
+			_editedDisplayStartX = Math.max(0, editedLineLength - getCharactersInRow());
+		} else if (_editedProgramCursorX > _editedDisplayStartX + getCharactersInRow()) {
+			_editedDisplayStartX = _editedProgramCursorX - getCharactersInRow();
 		} else if (_editedProgramCursorX < _editedDisplayStartX) {
 			_editedDisplayStartX = _editedProgramCursorX;
 		}
 
 		final int linesCount = _editedProgramLines.size();
-		if (_editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 1 > linesCount) {
-			_editedDisplayStartY = Math.max(0, linesCount - ComputerConsole.CONSOLE_HEIGHT + 1);
-		} else if (_editedProgramCursorY > _editedDisplayStartY + ComputerConsole.CONSOLE_HEIGHT - 2) {
-			_editedDisplayStartY = _editedProgramCursorY - ComputerConsole.CONSOLE_HEIGHT + 2;
+		if (_editedDisplayStartY + getCharactersInColumn() - 1 > linesCount) {
+			_editedDisplayStartY = Math.max(0, linesCount - getCharactersInColumn() + 1);
+		} else if (_editedProgramCursorY > _editedDisplayStartY + getCharactersInColumn() - 2) {
+			_editedDisplayStartY = _editedProgramCursorY - getCharactersInColumn() + 2;
 		} else if (_editedProgramCursorY < _editedDisplayStartY) {
 			_editedDisplayStartY = _editedProgramCursorY;
 		}
@@ -215,6 +239,16 @@ public class ProgramEditingConsoleGui {
 			_onTheFlyCompiler.submitCompileRequest(getProgramText());
 			_programCompileDirty = false;
 		}
+	}
+
+	private void handleScaleDown() {
+		if (_scale > 0)
+			_scale--;
+	}
+
+	private void handleScaleUp() {
+		if (_scale < SCALES.length - 1)
+			_scale++;
 	}
 
 	private void handlePaste() {
