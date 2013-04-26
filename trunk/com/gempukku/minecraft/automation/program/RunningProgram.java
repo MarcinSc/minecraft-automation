@@ -38,7 +38,7 @@ public class RunningProgram {
 					}
 				}
 			} catch (ExecutionException exp) {
-				if (exp.getLine() != -1)
+				if (exp.getLine() == -1)
 					_computerData.appendToConsole("ExecutionException[unknown line] - " + exp.getMessage());
 				else
 					_computerData.appendToConsole("ExecutionException[line " + exp.getLine() + "] - " + exp.getMessage());

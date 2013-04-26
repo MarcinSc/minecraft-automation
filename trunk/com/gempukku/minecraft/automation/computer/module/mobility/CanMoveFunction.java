@@ -32,7 +32,7 @@ public class CanMoveFunction implements ModuleFunctionExecutable {
 			throw new ExecutionException(line, "Invalid direction received in canMove()");
 
 		String side = (String) sideVar.getValue();
-		if (!side.equals("forward") || !side.equals("up") || !side.equals("down"))
+		if (!side.equals("forward") && !side.equals("up") && !side.equals("down"))
 			throw new ExecutionException(line, "Invalid direction received in canMove()");
 
 		int direction = facing;

@@ -61,7 +61,7 @@ public abstract class ComputerBlock extends BlockContainer {
 				}
 			}
 
-			if (MinecraftUtils.isServer(world))
+			if (MinecraftUtils.isServer(world) && !computerEntity.isMoving())
 				Automation.getServerProxy().getRegistry().unloadComputer(computerEntity);
 		}
 		super.breakBlock(world, x, y, z, par5, par6);

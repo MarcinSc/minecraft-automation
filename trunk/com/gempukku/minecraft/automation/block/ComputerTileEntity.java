@@ -25,6 +25,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 	private static final String MODULE_SLOTS_COUNT = "moduleSlots";
 	private int _computerId;
 	private short _state;
+	private boolean _moving;
 
 	private ComputerModule[] _modules;
 	private ItemStack[] _inventory = new ItemStack[0];
@@ -127,6 +128,14 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
 	public void setComputerId(int computerId) {
 		_computerId = computerId;
+	}
+
+	public boolean isMoving() {
+		return _moving;
+	}
+
+	public void setMoving(boolean moving) {
+		_moving = moving;
 	}
 
 	public int getFacing() {

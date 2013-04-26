@@ -41,7 +41,7 @@ public class HarvestFunction implements ModuleFunctionExecutable {
 			throw new ExecutionException(line, "Invalid direction received in harvest()");
 
 		String side = (String) directionVar.getValue();
-		if (side != null && (!side.equals("up") || !side.equals("down")))
+		if (side != null && (!side.equals("up") && !side.equals("down")))
 			throw new ExecutionException(line, "Invalid direction received in harvest()");
 
 		int direction = computer.getFacing();

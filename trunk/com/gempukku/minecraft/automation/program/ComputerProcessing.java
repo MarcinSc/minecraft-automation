@@ -192,7 +192,7 @@ public class ComputerProcessing {
 						updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
 					}
 				} catch (ExecutionException exp) {
-					if (exp.getLine() != -1)
+					if (exp.getLine() == -1)
 						computerData.appendToConsole("ExecutionException[unknown line] - " + exp.getMessage());
 					else
 						computerData.appendToConsole("ExecutionException[line " + exp.getLine() + "] - " + exp.getMessage());

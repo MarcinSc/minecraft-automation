@@ -27,7 +27,7 @@ public class TurnFunction implements ModuleFunctionExecutable {
 
 	@Override
 	public String[] getParameterNames() {
-		return new String[0];
+		return new String[]{""};
 	}
 
 	@Override

@@ -32,7 +32,7 @@ public class CanHarvestFunction implements ModuleFunctionExecutable {
 			throw new ExecutionException(line, "Invalid direction received in harvest()");
 
 		String side = (String) directionVar.getValue();
-		if (side != null && (!side.equals("up") || !side.equals("down")))
+		if (side != null && (!side.equals("up") && !side.equals("down")))
 			throw new ExecutionException(line, "Invalid direction received in harvest()");
 
 		final int facing = computer.getFacing();

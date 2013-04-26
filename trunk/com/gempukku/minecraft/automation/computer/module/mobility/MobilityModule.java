@@ -12,7 +12,7 @@ public class MobilityModule extends AbstractComputerModule {
 	private MoveFunction _move = new MoveFunction();
 	private CanMoveFunction _canMove = new CanMoveFunction();
 	private TurnFunction _turnLeftFunction = new TurnFunction(true);
-	private TurnFunction _turnRightFunction = new TurnFunction(true);
+	private TurnFunction _turnRightFunction = new TurnFunction(false);
 
 	@Override
 	public boolean acceptsNewModule(World world, ComputerCallback computerCallback, ComputerModule computerModule) {

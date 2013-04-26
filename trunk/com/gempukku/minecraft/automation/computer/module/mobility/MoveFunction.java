@@ -37,14 +37,14 @@ public class MoveFunction implements ModuleFunctionExecutable {
 			throw new ExecutionException(line, "Invalid direction received in move()");
 
 		String side = (String) sideVar.getValue();
-		if (!side.equals("forward") || !side.equals("up") || !side.equals("down"))
+		if (!side.equals("forward") && !side.equals("up") && !side.equals("down"))
 			throw new ExecutionException(line, "Invalid direction received in move()");
 
 		int direction = facing;
 		if (side.equals("up"))
-			direction = BoxSide.TOP;
-		else if (side.equals("down"))
 			direction = BoxSide.BOTTOM;
+		else if (side.equals("down"))
+			direction = BoxSide.TOP;
 
 		final ChunkPosition chunkPosition = computer.getChunkPosition();
 		final int newX = chunkPosition.x + Facing.offsetsXForSide[direction];
@@ -64,11 +64,15 @@ public class MoveFunction implements ModuleFunctionExecutable {
 
 		final int blockId = world.getBlockId(chunkPosition.x, chunkPosition.y, chunkPosition.z);
 
+		tileEntity.setMoving(true);
+
 		world.setBlockToAir(chunkPosition.x, chunkPosition.y, chunkPosition.z);
 		world.removeBlockTileEntity(chunkPosition.x, chunkPosition.y, chunkPosition.z);
 
 		world.setBlock(newX, newY, newZ, blockId, computer.getId(), 2);
 		MinecraftUtils.setTileEntity(world, newX, newY, newZ, tileEntity);
+		tileEntity.setMoving(false);
+
 		Automation.getServerProxy().getRegistry().updateComputerDataCoordinatesAndFacing(tileEntity);
 
 		return true;
