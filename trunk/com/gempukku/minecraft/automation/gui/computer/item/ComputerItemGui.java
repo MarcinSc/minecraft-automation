@@ -7,12 +7,14 @@ import net.minecraft.inventory.Slot;
 import org.lwjgl.opengl.GL11;
 
 public class ComputerItemGui extends GuiContainer {
+	private int _computerItemSlots;
 	private int _computerItemSlotRows;
 	private int _moduleSlotsCount;
 
 	public ComputerItemGui(InventoryPlayer inventoryPlayer, ComputerTileEntity computerTileEntity) {
 		super(new ComputerItemContainer(inventoryPlayer, computerTileEntity));
-		_computerItemSlotRows = (computerTileEntity.getItemSlotsCount() + 8) / 9;
+		_computerItemSlots = computerTileEntity.getItemSlotsCount();
+		_computerItemSlotRows = (_computerItemSlots + 8) / 9;
 		_moduleSlotsCount = computerTileEntity.getModuleSlotsCount();
 
 		xSize = ComputerItemGuiBindings.WINDOW_WIDTH;
@@ -52,6 +54,11 @@ public class ComputerItemGui extends GuiContainer {
 			yPos += ComputerItemGuiBindings.COMPUTER_INVENTORY_HEIGHT;
 			for (int row = 0; row < _computerItemSlotRows; row++) {
 				this.drawTexturedModalRect(x, y + yPos, 0, ComputerItemGuiBindings.COMPUTER_INVENTORY_ROW_START, xSize, ComputerItemGuiBindings.COMPUTER_INVENTORY_ROW_HEIGHT);
+
+				int slotsInRow = Math.min(9, _computerItemSlots - row * 9);
+				for (int i = 0; i < slotsInRow; i++)
+					this.drawTexturedModalRect(8 + x + 18 * i - 1, y + yPos + 2, 200, 20, 18, 18);
+
 				yPos += ComputerItemGuiBindings.COMPUTER_INVENTORY_ROW_HEIGHT;
 			}
 			this.drawTexturedModalRect(x, y + yPos, 0, ComputerItemGuiBindings.COMPUTER_INVENTORY_SPACER_START, xSize, ComputerItemGuiBindings.COMPUTER_INVENTORY_SPACER_HEIGHT);
