@@ -35,7 +35,6 @@ public class HarvestFunction implements ModuleFunctionExecutable {
 
 	@Override
 	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-
 		final Variable directionVar = parameters.get("direction");
 		if (directionVar.getType() != Variable.Type.STRING && directionVar.getType() != Variable.Type.NULL)
 			throw new ExecutionException(line, "Invalid direction received in harvest()");
