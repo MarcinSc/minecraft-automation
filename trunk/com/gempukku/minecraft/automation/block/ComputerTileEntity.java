@@ -265,7 +265,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 	@Override
 	public Packet getDescriptionPacket() {
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
-		this.writeToNBT(nbttagcompound, true);
+		this.writeToNBT(nbttagcompound, false);
 		return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 1, nbttagcompound);
 	}
 
@@ -322,7 +322,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 		}
 	}
 
-	private void writeToNBT(NBTTagCompound tagCompound, boolean excludeServerData) {
+	private void writeToNBT(NBTTagCompound tagCompound, boolean includeServerData) {
 		super.writeToNBT(tagCompound);
 		tagCompound.setInteger(ID_NAME, _computerId);
 		tagCompound.setInteger(FACING, _facing);
@@ -342,7 +342,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 		}
 		tagCompound.setTag("Modules", moduleList);
 
-		if (!excludeServerData) {
+		if (includeServerData) {
 			NBTTagList moduleDataList = new NBTTagList();
 			for (int i = 0; i < _modules.length; ++i) {
 				if (_modules[i] != null) {
@@ -372,6 +372,6 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
 	@Override
 	public void writeToNBT(NBTTagCompound tagCompound) {
-		writeToNBT(tagCompound, false);
+		writeToNBT(tagCompound, true);
 	}
 }
