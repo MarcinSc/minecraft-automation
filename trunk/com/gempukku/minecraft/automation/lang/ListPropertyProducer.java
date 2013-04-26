@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.lang;
 
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class ListPropertyProducer implements PropertyProducer {
 		}
 
 		@Override
-		protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		protected Object executeFunction(int line, World world, ComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 			final Variable indexVar = parameters.get("index");
 			if (indexVar.getType() != Variable.Type.NUMBER)
 				throw new ExecutionException(line, "Expected NUMBER index in remove()");
@@ -69,7 +69,7 @@ public class ListPropertyProducer implements PropertyProducer {
 		}
 
 		@Override
-		protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		protected Object executeFunction(int line, World world, ComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 			final Object value = parameters.get("element").getValue();
 			_list.add(new Variable(value));
 			return null;
@@ -94,7 +94,7 @@ public class ListPropertyProducer implements PropertyProducer {
 		}
 
 		@Override
-		protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		protected Object executeFunction(int line, World world, ComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 			return _list.size();
 		}
 	}

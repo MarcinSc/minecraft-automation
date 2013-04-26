@@ -1,10 +1,10 @@
 package com.gempukku.minecraft.automation.computer.module.mobility;
 
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.module.AbstractComputerModule;
 import com.gempukku.minecraft.automation.computer.module.ComputerModule;
 import com.gempukku.minecraft.automation.computer.module.ComputerModuleUtils;
-import com.gempukku.minecraft.automation.lang.FunctionExecutable;
+import com.gempukku.minecraft.automation.computer.module.ModuleFunctionExecutable;
 import net.minecraft.world.World;
 
 public class MobilityModule extends AbstractComputerModule {
@@ -15,13 +15,13 @@ public class MobilityModule extends AbstractComputerModule {
 	private TurnFunction _turnRightFunction = new TurnFunction(true);
 
 	@Override
-	public boolean acceptsNewModule(World world, ServerComputerData computerData, ComputerModule computerModule) {
+	public boolean acceptsNewModule(World world, ComputerCallback computerCallback, ComputerModule computerModule) {
 		return !computerModule.getModuleType().equals(TYPE);
 	}
 
 	@Override
-	public boolean canBePlacedInComputer(World world, ServerComputerData computerData) {
-		return !ComputerModuleUtils.hasModuleOfType(world, computerData, TYPE);
+	public boolean canBePlacedInComputer(World world, ComputerCallback computerCallback) {
+		return !ComputerModuleUtils.hasModuleOfType(world, computerCallback, TYPE);
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class MobilityModule extends AbstractComputerModule {
 	}
 
 	@Override
-	public FunctionExecutable getFunctionByName(String name) {
+	public ModuleFunctionExecutable getFunctionByName(String name) {
 		if (name.equals("move"))
 			return _move;
 		else if (name.equals("turnLeft"))

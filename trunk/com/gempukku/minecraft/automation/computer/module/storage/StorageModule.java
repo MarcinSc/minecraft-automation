@@ -1,17 +1,17 @@
 package com.gempukku.minecraft.automation.computer.module.storage;
 
 import com.gempukku.minecraft.automation.computer.module.AbstractComputerModule;
-import com.gempukku.minecraft.automation.lang.FunctionExecutable;
+import com.gempukku.minecraft.automation.computer.module.ModuleFunctionExecutable;
 
 public class StorageModule extends AbstractComputerModule {
-	private FunctionExecutable _hasContainer = new HasContainerFunction();
-	private FunctionExecutable _getSlotCount = new GetSlotCountFunction();
-	private FunctionExecutable _getSelfSlotCount = new GetSelfSlotCountFunction();
-	private FunctionExecutable _getItemCount = new GetItemCountFunction();
-	private FunctionExecutable _getSelfItemCount = new GetSelfItemCountFunction();
-	private FunctionExecutable _transferToSelf = new TransferToSelfFunction();
-	private FunctionExecutable _transferFromSelf = new TransferFromSelfFunction();
-	private FunctionExecutable _createWaitForItemInSelf = new CreateWaitForItemInSelfFunction();
+	private ModuleFunctionExecutable _hasContainer = new HasContainerFunction();
+	private ModuleFunctionExecutable _getSlotCount = new GetSlotCountFunction();
+	private ModuleFunctionExecutable _getSelfSlotCount = new GetSelfSlotCountFunction();
+	private ModuleFunctionExecutable _getItemCount = new GetItemCountFunction();
+	private ModuleFunctionExecutable _getSelfItemCount = new GetSelfItemCountFunction();
+	private ModuleFunctionExecutable _transferToSelf = new TransferToSelfFunction();
+	private ModuleFunctionExecutable _transferFromSelf = new TransferFromSelfFunction();
+	private ModuleFunctionExecutable _createWaitForItemInSelf = new CreateWaitForItemInSelfFunction();
 
 	@Override
 	public boolean hasInventoryManipulator() {
@@ -34,7 +34,7 @@ public class StorageModule extends AbstractComputerModule {
 	}
 
 	@Override
-	public FunctionExecutable getFunctionByName(String name) {
+	public ModuleFunctionExecutable getFunctionByName(String name) {
 		if (name.equals("hasContainer"))
 			return _hasContainer;
 		else if (name.equals("getSlotCount"))

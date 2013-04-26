@@ -1,5 +1,6 @@
 package com.gempukku.minecraft.automation.computer.module;
 
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -16,12 +17,12 @@ public abstract class AbstractComputerModule implements ComputerModule {
 	}
 
 	@Override
-	public boolean acceptsNewModule(World world, ServerComputerData computerData, ComputerModule computerModule) {
+	public boolean acceptsNewModule(World world, ComputerCallback computerCallback, ComputerModule computerModule) {
 		return true;
 	}
 
 	@Override
-	public boolean canBePlacedInComputer(World world, ServerComputerData computerData) {
+	public boolean canBePlacedInComputer(World world, ComputerCallback computerCallback) {
 		return true;
 	}
 

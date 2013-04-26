@@ -1,11 +1,11 @@
 package com.gempukku.minecraft.automation.computer.module.positioning;
 
 import com.gempukku.minecraft.automation.computer.module.AbstractComputerModule;
-import com.gempukku.minecraft.automation.lang.FunctionExecutable;
+import com.gempukku.minecraft.automation.computer.module.ModuleFunctionExecutable;
 
 public class PositioningModule extends AbstractComputerModule {
-	private FunctionExecutable _getPositionFunction = new GetPositionFunction();
-	private FunctionExecutable _getFacingFunction = new GetFacingFunction();
+	private ModuleFunctionExecutable _getPositionFunction = new GetPositionFunction();
+	private ModuleFunctionExecutable _getFacingFunction = new GetFacingFunction();
 
 	@Override
 	public String getModuleType() {
@@ -18,7 +18,7 @@ public class PositioningModule extends AbstractComputerModule {
 	}
 
 	@Override
-	public FunctionExecutable getFunctionByName(String name) {
+	public ModuleFunctionExecutable getFunctionByName(String name) {
 		if (name.equals("getPosition"))
 			return _getPositionFunction;
 		else if (name.equals("getFacing"))

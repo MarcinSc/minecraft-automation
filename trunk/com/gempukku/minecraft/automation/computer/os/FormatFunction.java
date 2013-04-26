@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.computer.os;
 
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.world.World;
@@ -21,7 +21,7 @@ public class FormatFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable formatVar = parameters.get("format");
 		if (formatVar.getType() != Variable.Type.STRING)
 			throw new ExecutionException(line, "Expected STRING pattern in format()");

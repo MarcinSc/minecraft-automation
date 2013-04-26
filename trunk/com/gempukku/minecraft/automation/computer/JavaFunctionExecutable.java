@@ -15,7 +15,7 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
 							@Override
 							protected ExecutionProgress execute(ExecutionContext context) throws ExecutionException {
 								final MinecraftComputerExecutionContext minecraftExecutionContext = (MinecraftComputerExecutionContext) context;
-								ServerComputerData computer = minecraftExecutionContext.getComputerData();
+								ComputerCallback computer = minecraftExecutionContext.getComputerCallback();
 
 								final String[] parameterNames = getParameterNames();
 								Map<String, Variable> parameters = new HashMap<String, Variable>();
@@ -57,5 +57,5 @@ public abstract class JavaFunctionExecutable implements FunctionExecutable {
 	 * @throws ExecutionException Fatal exception that will be communicated to the computer console. When thrown,
 	 *                            the execution of the program will stop.
 	 */
-	protected abstract Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException;
+	protected abstract Object executeFunction(int line, World world, ComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException;
 }

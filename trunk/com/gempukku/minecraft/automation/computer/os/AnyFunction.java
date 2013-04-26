@@ -1,9 +1,9 @@
 package com.gempukku.minecraft.automation.computer.os;
 
 import com.gempukku.minecraft.automation.computer.AbstractConditionCustomObject;
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.ResultAwaitingCondition;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.CustomObject;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
@@ -25,7 +25,7 @@ public class AnyFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable conditionsVar = parameters.get("conditions");
 		if (conditionsVar.getType() != Variable.Type.LIST)
 			throw new ExecutionException(line, "Expected a LIST of CONDITIONs in any()");

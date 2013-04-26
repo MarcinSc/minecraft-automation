@@ -2,8 +2,8 @@ package com.gempukku.minecraft.automation.computer.computer;
 
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.computer.bind.SlotBindingObjectDefinition;
 import com.gempukku.minecraft.automation.computer.module.ComputerModule;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
@@ -24,7 +24,7 @@ public class BindFirstModuleOfTypeFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable type = parameters.get("type");
 		if (type.getType() != Variable.Type.STRING)
 			throw new ExecutionException(line, "Expected type of module in bindModuleOfType()");
@@ -39,7 +39,7 @@ public class BindFirstModuleOfTypeFunction extends JavaFunctionExecutable {
 		for (int i = 0; i < moduleSlotsCount; i++) {
 			final ComputerModule module = computerTileEntity.getModule(i);
 			if (module != null && module.getModuleType().equals(moduleType))
-				return new SlotBindingObjectDefinition(computer, i);
+				return new SlotBindingObjectDefinition(i);
 		}
 		return null;
 	}

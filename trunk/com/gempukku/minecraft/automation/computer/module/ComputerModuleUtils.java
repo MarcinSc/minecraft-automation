@@ -2,11 +2,11 @@ package com.gempukku.minecraft.automation.computer.module;
 
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import net.minecraft.world.World;
 
 public class ComputerModuleUtils {
-	public static boolean canManipulateInventories(World world, ServerComputerData computerData) {
+	public static boolean canManipulateInventories(World world, ComputerCallback computerData) {
 		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
 		if (computerTileEntity == null)
 			return false;
@@ -20,7 +20,7 @@ public class ComputerModuleUtils {
 		return false;
 	}
 
-	public static boolean hasModuleOfType(World world, ServerComputerData computerData, String moduleType) {
+	public static boolean hasModuleOfType(World world, ComputerCallback computerData, String moduleType) {
 		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
 		if (computerTileEntity == null)
 			return false;

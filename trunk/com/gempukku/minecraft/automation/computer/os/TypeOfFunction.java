@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.computer.os;
 
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.lang.CustomObject;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
@@ -21,7 +21,7 @@ public class TypeOfFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	protected Object executeFunction(int line, World world, ComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable value = parameters.get("value");
 		final Variable.Type type = value.getType();
 		if (type == Variable.Type.CUSTOM_OBJECT)

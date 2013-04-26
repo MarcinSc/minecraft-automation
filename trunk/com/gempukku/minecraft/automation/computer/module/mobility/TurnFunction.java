@@ -5,15 +5,15 @@ import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
-import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.module.ModuleComputerCallback;
+import com.gempukku.minecraft.automation.computer.module.ModuleFunctionExecutable;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.world.World;
 
 import java.util.Map;
 
-public class TurnFunction extends JavaFunctionExecutable {
+public class TurnFunction implements ModuleFunctionExecutable {
 	private boolean _left;
 
 	public TurnFunction(boolean left) {
@@ -21,7 +21,7 @@ public class TurnFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected int getDuration() {
+	public int getDuration() {
 		return 100;
 	}
 
@@ -31,7 +31,7 @@ public class TurnFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 		final ComputerTileEntity tileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
 		if (tileEntity == null)
 			return false;

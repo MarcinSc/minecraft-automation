@@ -5,19 +5,20 @@ import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
-import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.module.ModuleComputerCallback;
+import com.gempukku.minecraft.automation.computer.module.ModuleFunctionExecutable;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.Facing;
+import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
 
 import java.util.Map;
 
-public class MoveFunction extends JavaFunctionExecutable {
+public class MoveFunction implements ModuleFunctionExecutable {
 	@Override
-	protected int getDuration() {
+	public int getDuration() {
 		return 10000;
 	}
 
@@ -27,7 +28,8 @@ public class MoveFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+
 		final int facing = computer.getFacing();
 		Variable sideVar = parameters.get("direction");
 
@@ -44,9 +46,10 @@ public class MoveFunction extends JavaFunctionExecutable {
 		else if (side.equals("down"))
 			direction = BoxSide.BOTTOM;
 
-		final int newX = computer.getX() + Facing.offsetsXForSide[direction];
-		final int newY = computer.getY() + Facing.offsetsYForSide[direction];
-		final int newZ = computer.getZ() + Facing.offsetsZForSide[direction];
+		final ChunkPosition chunkPosition = computer.getChunkPosition();
+		final int newX = chunkPosition.x + Facing.offsetsXForSide[direction];
+		final int newY = chunkPosition.y + Facing.offsetsYForSide[direction];
+		final int newZ = chunkPosition.z + Facing.offsetsZForSide[direction];
 
 		if (!world.getChunkProvider().chunkExists(newX >> 4, newZ >> 4))
 			return false;
@@ -59,10 +62,10 @@ public class MoveFunction extends JavaFunctionExecutable {
 		if (tileEntity == null)
 			return false;
 
-		final int blockId = world.getBlockId(computer.getX(), computer.getY(), computer.getZ());
+		final int blockId = world.getBlockId(chunkPosition.x, chunkPosition.y, chunkPosition.z);
 
-		world.setBlockToAir(computer.getX(), computer.getY(), computer.getZ());
-		world.removeBlockTileEntity(computer.getX(), computer.getY(), computer.getZ());
+		world.setBlockToAir(chunkPosition.x, chunkPosition.y, chunkPosition.z);
+		world.removeBlockTileEntity(chunkPosition.x, chunkPosition.y, chunkPosition.z);
 
 		world.setBlock(newX, newY, newZ, blockId, computer.getId(), 2);
 		MinecraftUtils.setTileEntity(world, newX, newY, newZ, tileEntity);

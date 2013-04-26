@@ -5,6 +5,7 @@ import com.gempukku.minecraft.automation.computer.module.ComputerModule;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.INetworkManager;
@@ -12,8 +13,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ComputerTileEntity extends TileEntity implements IInventory {
 	private static final String ID_NAME = "computerId";
@@ -28,6 +28,8 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
 	private ComputerModule[] _modules;
 	private ItemStack[] _inventory = new ItemStack[0];
+
+	private Map<Integer, Map<String, String>> _moduleData = new HashMap<Integer, Map<String, String>>();
 
 	private int _moduleSlotsCount;
 	private int _facing;
@@ -109,6 +111,14 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 			else
 				_modules[i] = null;
 		}
+	}
+
+	public Map<String, String> getModuleData(int slotNo) {
+		return _moduleData.get(slotNo);
+	}
+
+	public void setModuleData(int slotNo, Map<String, String> moduleData) {
+		_moduleData.put(slotNo, moduleData);
 	}
 
 	public int getComputerId() {
@@ -283,6 +293,21 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 			_modules[slot] = Automation.proxy.getRegistry().getModuleByItemId(id, metadata);
 		}
 
+		final NBTTagList moduleDataList = tagCompound.getTagList("ModuleData");
+		for (int i = 0; i < moduleDataList.tagCount(); i++) {
+			final NBTTagCompound moduleData = (NBTTagCompound) modules.tagAt(i);
+			final Collection tags = moduleData.getTags();
+			if (tags.size() > 0) {
+				Map<String, String> moduleDataMap = new HashMap<String, String>();
+				for (NBTBase nbtBase : (Collection<NBTBase>) tags) {
+					final String name = nbtBase.getName();
+					moduleDataMap.put(name, moduleData.getString(name));
+				}
+
+				_moduleData.put(i, moduleDataMap);
+			}
+		}
+
 		int itemSlotCount = getItemSlotsCount();
 		_inventory = new ItemStack[itemSlotCount];
 		NBTTagList items = tagCompound.getTagList("Items");
@@ -315,6 +340,20 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 			}
 		}
 		tagCompound.setTag("Modules", moduleList);
+
+		NBTTagList moduleDataList = new NBTTagList();
+		for (int i = 0; i < _modules.length; ++i) {
+			if (_modules[i] != null) {
+				NBTTagCompound moduleData = new NBTTagCompound();
+				final Map<String, String> moduleDataMap = _moduleData.get(i);
+				if (moduleDataMap != null) {
+					for (Map.Entry<String, String> entry : moduleDataMap.entrySet())
+						moduleData.setString(entry.getKey(), entry.getValue());
+				}
+				moduleDataList.appendTag(moduleData);
+			}
+		}
+		tagCompound.setTag("ModuleData", moduleDataList);
 
 		NBTTagList itemList = new NBTTagList();
 		for (int i = 0; i < _inventory.length; ++i) {

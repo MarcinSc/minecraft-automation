@@ -3,8 +3,9 @@ package com.gempukku.minecraft.automation.computer.module.storage;
 import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
-import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
+import com.gempukku.minecraft.automation.computer.module.ModuleComputerCallback;
+import com.gempukku.minecraft.automation.computer.module.ModuleFunctionExecutable;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.inventory.IInventory;
@@ -14,9 +15,9 @@ import net.minecraft.world.World;
 
 import java.util.Map;
 
-public class TransferToSelfFunction extends JavaFunctionExecutable {
+public class TransferToSelfFunction implements ModuleFunctionExecutable {
 	@Override
-	protected int getDuration() {
+	public int getDuration() {
 		return 100;
 	}
 
@@ -26,7 +27,7 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable sideParam = parameters.get("side");
 		final Variable slotParam = parameters.get("slot");
 		final Variable countParam = parameters.get("count");
@@ -68,7 +69,7 @@ public class TransferToSelfFunction extends JavaFunctionExecutable {
 		return transferred == toTransfer;
 	}
 
-	private int getSpecifiedSlotIndex(int line, ServerComputerData computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
+	private int getSpecifiedSlotIndex(int line, ComputerCallback computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
 		if (inventory instanceof ISidedInventory) {
 			final ISidedInventory sidedInventory = (ISidedInventory) inventory;
 			int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(line, computer, sideParam, functionName));

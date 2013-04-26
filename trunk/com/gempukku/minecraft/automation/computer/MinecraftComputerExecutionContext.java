@@ -5,10 +5,10 @@ import net.minecraft.world.World;
 
 public class MinecraftComputerExecutionContext extends ExecutionContext {
 	private World _world;
-	private ServerComputerData _computerData;
+	private ComputerCallback _computerCallback;
 
-	public MinecraftComputerExecutionContext(ServerComputerData computerData) {
-		_computerData = computerData;
+	public MinecraftComputerExecutionContext(ComputerCallback computerCallback) {
+		_computerCallback = computerCallback;
 	}
 
 	public World getWorld() {
@@ -19,7 +19,7 @@ public class MinecraftComputerExecutionContext extends ExecutionContext {
 		_world = world;
 	}
 
-	public ServerComputerData getComputerData() {
-		return _computerData;
+	public ComputerCallback getComputerCallback() {
+		return _computerCallback;
 	}
 }

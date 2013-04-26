@@ -2,16 +2,21 @@ package com.gempukku.minecraft.automation.computer.module.storage;
 
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
-import com.gempukku.minecraft.automation.computer.*;
+import com.gempukku.minecraft.automation.computer.AbstractConditionCustomObject;
+import com.gempukku.minecraft.automation.computer.PeriodicCheckResultAwaitingCondition;
+import com.gempukku.minecraft.automation.computer.ResultAwaitingCondition;
+import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.module.ModuleComputerCallback;
+import com.gempukku.minecraft.automation.computer.module.ModuleFunctionExecutable;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.world.World;
 
 import java.util.Map;
 
-public class CreateWaitForItemInSelfFunction extends JavaFunctionExecutable {
+public class CreateWaitForItemInSelfFunction implements ModuleFunctionExecutable {
 	@Override
-	protected int getDuration() {
+	public int getDuration() {
 		return 10;
 	}
 
@@ -21,7 +26,7 @@ public class CreateWaitForItemInSelfFunction extends JavaFunctionExecutable {
 	}
 
 	@Override
-	protected Object executeFunction(final int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+	public Object executeFunction(final int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 		final Variable slotVar = parameters.get("slot");
 		if (slotVar.getType() != Variable.Type.NUMBER && slotVar.getType() != Variable.Type.NULL)
 			throw new ExecutionException(line, "Expected NUMBER or NULL in createWaitForItemInSelf()");

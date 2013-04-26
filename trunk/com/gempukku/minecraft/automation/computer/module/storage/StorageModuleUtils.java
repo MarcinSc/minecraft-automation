@@ -2,7 +2,7 @@ package com.gempukku.minecraft.automation.computer.module.storage;
 
 import com.gempukku.minecraft.BoxSide;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.lang.ExecutionException;
 import com.gempukku.minecraft.automation.lang.Variable;
 import net.minecraft.inventory.IInventory;
@@ -11,24 +11,26 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Facing;
+import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
 
 public class StorageModuleUtils {
-	public static TileEntity getBlockEntityAtFace(int line, ServerComputerData computer, World world, Variable sideVar, String functionName) throws ExecutionException {
+	public static TileEntity getBlockEntityAtFace(int line, ComputerCallback computer, World world, Variable sideVar, String functionName) throws ExecutionException {
 		int lookAt = getComputerFacingSide(line, computer, sideVar, functionName);
 
+		final ChunkPosition chunkPosition = computer.getChunkPosition();
 		return world.getBlockTileEntity(
-						computer.getX() + Facing.offsetsXForSide[lookAt],
-						computer.getY() + Facing.offsetsYForSide[lookAt],
-						computer.getZ() + Facing.offsetsZForSide[lookAt]);
+						chunkPosition.x + Facing.offsetsXForSide[lookAt],
+						chunkPosition.y + Facing.offsetsYForSide[lookAt],
+						chunkPosition.z + Facing.offsetsZForSide[lookAt]);
 	}
 
-	public static IInventory getInventoryAtFace(int line, ServerComputerData computer, World world, Variable sideVar, String functionName) throws ExecutionException {
+	public static IInventory getInventoryAtFace(int line, ComputerCallback computer, World world, Variable sideVar, String functionName) throws ExecutionException {
 		final TileEntity tileEntity = getBlockEntityAtFace(line, computer, world, sideVar, functionName);
 		return (tileEntity instanceof IInventory) ? (IInventory) tileEntity : null;
 	}
 
-	public static ItemStack getStackFromInventory(int line, ServerComputerData computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
+	public static ItemStack getStackFromInventory(int line, ComputerCallback computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
 		if (slotParam.getType() != Variable.Type.NUMBER)
 			throw new ExecutionException(line, "Expected number in slot parameter in " + functionName + "()");
 
@@ -55,7 +57,7 @@ public class StorageModuleUtils {
 			return inventory.getSizeInventory();
 	}
 
-	public static int getComputerFacingSide(int line, ServerComputerData computer, Variable sideVar, String functionName) throws ExecutionException {
+	public static int getComputerFacingSide(int line, ComputerCallback computer, Variable sideVar, String functionName) throws ExecutionException {
 		int facing = computer.getFacing();
 
 		if (sideVar.getType() != Variable.Type.STRING)

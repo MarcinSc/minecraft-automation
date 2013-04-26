@@ -1,12 +1,13 @@
 package com.gempukku.minecraft.automation.computer;
 
 import com.gempukku.minecraft.automation.Automation;
+import net.minecraft.world.ChunkPosition;
 
-public class ServerComputerData {
+public class ServerComputerData implements ComputerCallback {
 	private ComputerConsole _console = new ComputerConsole();
 	private String _label;
 	private String _computerType;
-	private int[] _location = new int[3];
+	private ChunkPosition _chunkPosition;
 	private int _facing;
 	private int _id;
 	private int _dimension;
@@ -15,7 +16,7 @@ public class ServerComputerData {
 	public ServerComputerData(int id, int dimension, int x, int y, int z, int facing, String owner, String computerType) {
 		_id = id;
 		_dimension = dimension;
-		_location = new int[]{x, y, z};
+		_chunkPosition = new ChunkPosition(x, y, z);
 		_facing = facing;
 		_owner = owner;
 		_computerType = computerType;
@@ -66,7 +67,7 @@ public class ServerComputerData {
 	}
 
 	public void setLocation(int x, int y, int z) {
-		_location = new int[]{x, y, z};
+		_chunkPosition = new ChunkPosition(x, y, z);
 	}
 
 	public void setFacing(int facing) {
@@ -77,15 +78,7 @@ public class ServerComputerData {
 		return _facing;
 	}
 
-	public int getX() {
-		return _location[0];
-	}
-
-	public int getY() {
-		return _location[1];
-	}
-
-	public int getZ() {
-		return _location[2];
+	public ChunkPosition getChunkPosition() {
+		return _chunkPosition;
 	}
 }

@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.lang;
 
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.world.World;
 
 import java.util.Map;
@@ -23,7 +23,7 @@ public class MapPropertyProducer implements PropertyProducer {
 		}
 
 		@Override
-		protected Object executeFunction(int line, World world, ServerComputerData computer, Map<String, Variable> parameters) throws ExecutionException {
+		protected Object executeFunction(int line, World world, ComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
 			return _map.size();
 		}
 

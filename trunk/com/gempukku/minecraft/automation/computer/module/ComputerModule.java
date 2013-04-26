@@ -1,7 +1,7 @@
 package com.gempukku.minecraft.automation.computer.module;
 
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
-import com.gempukku.minecraft.automation.lang.FunctionExecutable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -43,23 +43,23 @@ public interface ComputerModule {
 	 * This method is for modules that should not be placed in multiples, or in combinations with other modules, as
 	 * it allows modules to control the configuration of a computer.
 	 *
-	 * @param world				World computer is running in (server).
-	 * @param computerData Computer this module is being placed in.
+	 * @param world						World computer is running in (server).
+	 * @param computerCallback
 	 * @return True, if it's ok to place this module in the computer passed as a parameter, false otherwise.
 	 */
-	public boolean canBePlacedInComputer(World world, ServerComputerData computerData);
+	public boolean canBePlacedInComputer(World world, ComputerCallback computerCallback);
 
 	/**
 	 * Checks if this module, that is already placed in the computer, is ok with adding a new module to the computer.
 	 * This method is for modules that should not be placed in multiples, or in combinations with other modules, as
 	 * it allows modules to control the configuration of a computer.
 	 *
-	 * @param world					World computer is running in (server).
-	 * @param computerData	 Computer this module is being placed in.
-	 * @param computerModule New computer module that is being placed into the computer.
+	 * @param world						World computer is running in (server).
+	 * @param computerCallback
+	 * @param computerModule	 New computer module that is being placed into the computer.
 	 * @return True, if it's ok to place the module in the computer passed as a parameter, false otherwise.
 	 */
-	public boolean acceptsNewModule(World world, ServerComputerData computerData, ComputerModule computerModule);
+	public boolean acceptsNewModule(World world, ComputerCallback computerCallback, ComputerModule computerModule);
 
 	/**
 	 * Returns a function with the specified name. To make the implementation easier, you can subclass
@@ -69,7 +69,7 @@ public interface ComputerModule {
 	 * @return Function that will be executed, when invoked by the program, or null if there is no function with this
 	 *         name.
 	 */
-	public FunctionExecutable getFunctionByName(String name);
+	public ModuleFunctionExecutable getFunctionByName(String name);
 
 	/**
 	 * Returns strength of the weak redstone signal on the specified side of the computer.

@@ -2,9 +2,11 @@ package com.gempukku.minecraft.automation;
 
 import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
+import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -20,8 +22,9 @@ public class AutomationUtils {
 		return null;
 	}
 
-	public static ComputerTileEntity getComputerEntitySafely(IBlockAccess blockAccess, ServerComputerData computerData) {
-		return getComputerEntitySafely(blockAccess, computerData.getX(), computerData.getY(), computerData.getZ());
+	public static ComputerTileEntity getComputerEntitySafely(IBlockAccess blockAccess, ComputerCallback computerData) {
+		final ChunkPosition chunkPosition = computerData.getChunkPosition();
+		return getComputerEntitySafely(blockAccess, chunkPosition.x, chunkPosition.y, chunkPosition.z);
 	}
 
 	public static ComputerTileEntity getComputerEntitySafely(IBlockAccess blockAccess, int x, int y, int z) {
