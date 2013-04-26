@@ -47,9 +47,9 @@ public class HarvestFunction implements ModuleFunctionExecutable {
 		int direction = computer.getFacing();
 		if (side != null) {
 			if (side.equals("up"))
-				direction = BoxSide.TOP;
-			else if (side.equals("down"))
 				direction = BoxSide.BOTTOM;
+			else if (side.equals("down"))
+				direction = BoxSide.TOP;
 		}
 
 		final ChunkPosition chunkPosition = computer.getChunkPosition();
