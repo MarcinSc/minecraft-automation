@@ -148,7 +148,7 @@ public class ProgramEditingConsoleGui {
 			} else if (keyboardCharId == Keyboard.KEY_RETURN) {
 				if (_gotoLineNumber.length() > 0) {
 					_editedProgramCursorX = 0;
-					_editedProgramCursorY = Math.max(Integer.parseInt(_gotoLineNumber.toString()), _editedProgramLines.size() - 1);
+					_editedProgramCursorY = Math.min(Integer.parseInt(_gotoLineNumber.toString()), _editedProgramLines.size() - 1);
 				}
 				_waitingForGotoLineEntered = false;
 			}
@@ -237,6 +237,8 @@ public class ProgramEditingConsoleGui {
 				_editedProgramCursorX = (before + fixedLine).length();
 			}
 		}
+		if (clipboard.length() > 0)
+			programModified();
 	}
 
 	private void handleDisplayError() {

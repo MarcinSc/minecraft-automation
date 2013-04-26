@@ -1,5 +1,7 @@
 package com.gempukku.minecraft.automation.computer.computer;
 
+import com.gempukku.minecraft.automation.AutomationUtils;
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.JavaFunctionExecutable;
 import com.gempukku.minecraft.automation.computer.bind.SlotBindingObjectDefinition;
@@ -26,6 +28,14 @@ public class BindModuleFunction extends JavaFunctionExecutable {
 		if (slot.getType() != Variable.Type.NUMBER)
 			throw new ExecutionException(line, "Expected slot number in bindModule()");
 		int slotNo = ((Number) slot.getValue()).intValue();
+
+		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
+		if (computerTileEntity == null)
+			return null;
+
+		if (slotNo < 0 || slotNo >= computerTileEntity.getModuleSlotsCount())
+			throw new ExecutionException(line, "Slot number outside of permitted range in bindModule()");
+
 		return new SlotBindingObjectDefinition(slotNo);
 	}
 }

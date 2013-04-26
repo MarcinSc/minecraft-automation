@@ -296,7 +296,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 		final NBTTagList moduleDataList = tagCompound.getTagList("ModuleData");
 		if (moduleDataList != null) {
 			for (int i = 0; i < moduleDataList.tagCount(); i++) {
-				final NBTTagCompound moduleData = (NBTTagCompound) modules.tagAt(i);
+				final NBTTagCompound moduleData = (NBTTagCompound) moduleDataList.tagAt(i);
 				final Collection tags = moduleData.getTags();
 				if (tags.size() > 0) {
 					Map<String, String> moduleDataMap = new HashMap<String, String>();
