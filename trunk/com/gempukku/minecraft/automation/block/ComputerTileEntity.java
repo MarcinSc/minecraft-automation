@@ -265,7 +265,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 	@Override
 	public Packet getDescriptionPacket() {
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
-		this.writeToNBT(nbttagcompound);
+		this.writeToNBT(nbttagcompound, true);
 		return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 1, nbttagcompound);
 	}
 
@@ -294,17 +294,19 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 		}
 
 		final NBTTagList moduleDataList = tagCompound.getTagList("ModuleData");
-		for (int i = 0; i < moduleDataList.tagCount(); i++) {
-			final NBTTagCompound moduleData = (NBTTagCompound) modules.tagAt(i);
-			final Collection tags = moduleData.getTags();
-			if (tags.size() > 0) {
-				Map<String, String> moduleDataMap = new HashMap<String, String>();
-				for (NBTBase nbtBase : (Collection<NBTBase>) tags) {
-					final String name = nbtBase.getName();
-					moduleDataMap.put(name, moduleData.getString(name));
-				}
+		if (moduleDataList != null) {
+			for (int i = 0; i < moduleDataList.tagCount(); i++) {
+				final NBTTagCompound moduleData = (NBTTagCompound) modules.tagAt(i);
+				final Collection tags = moduleData.getTags();
+				if (tags.size() > 0) {
+					Map<String, String> moduleDataMap = new HashMap<String, String>();
+					for (NBTBase nbtBase : (Collection<NBTBase>) tags) {
+						final String name = nbtBase.getName();
+						moduleDataMap.put(name, moduleData.getString(name));
+					}
 
-				_moduleData.put(i, moduleDataMap);
+					_moduleData.put(i, moduleDataMap);
+				}
 			}
 		}
 
@@ -320,8 +322,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 		}
 	}
 
-	@Override
-	public void writeToNBT(NBTTagCompound tagCompound) {
+	private void writeToNBT(NBTTagCompound tagCompound, boolean excludeServerData) {
 		super.writeToNBT(tagCompound);
 		tagCompound.setInteger(ID_NAME, _computerId);
 		tagCompound.setInteger(FACING, _facing);
@@ -341,19 +342,21 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 		}
 		tagCompound.setTag("Modules", moduleList);
 
-		NBTTagList moduleDataList = new NBTTagList();
-		for (int i = 0; i < _modules.length; ++i) {
-			if (_modules[i] != null) {
-				NBTTagCompound moduleData = new NBTTagCompound();
-				final Map<String, String> moduleDataMap = _moduleData.get(i);
-				if (moduleDataMap != null) {
-					for (Map.Entry<String, String> entry : moduleDataMap.entrySet())
-						moduleData.setString(entry.getKey(), entry.getValue());
+		if (!excludeServerData) {
+			NBTTagList moduleDataList = new NBTTagList();
+			for (int i = 0; i < _modules.length; ++i) {
+				if (_modules[i] != null) {
+					NBTTagCompound moduleData = new NBTTagCompound();
+					final Map<String, String> moduleDataMap = _moduleData.get(i);
+					if (moduleDataMap != null) {
+						for (Map.Entry<String, String> entry : moduleDataMap.entrySet())
+							moduleData.setString(entry.getKey(), entry.getValue());
+					}
+					moduleDataList.appendTag(moduleData);
 				}
-				moduleDataList.appendTag(moduleData);
 			}
+			tagCompound.setTag("ModuleData", moduleDataList);
 		}
-		tagCompound.setTag("ModuleData", moduleDataList);
 
 		NBTTagList itemList = new NBTTagList();
 		for (int i = 0; i < _inventory.length; ++i) {
@@ -365,5 +368,10 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 			}
 		}
 		tagCompound.setTag("Items", itemList);
+	}
+
+	@Override
+	public void writeToNBT(NBTTagCompound tagCompound) {
+		writeToNBT(tagCompound, false);
 	}
 }
