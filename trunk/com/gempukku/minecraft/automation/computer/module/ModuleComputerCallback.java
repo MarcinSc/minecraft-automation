@@ -7,5 +7,5 @@ import java.util.Map;
 public interface ModuleComputerCallback extends ComputerCallback {
 	public Map<String, String> getModuleData();
 
-	public void setModuleData(Map<String, String> moduleData, boolean notifyClient);
+	public void setModuleData(Map<String, String> moduleData);
 }

@@ -1,6 +1,5 @@
 package com.gempukku.minecraft.automation.computer.bind;
 
-import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ComputerCallback;
@@ -54,10 +53,8 @@ public class ModuleComputerCallbackImpl implements ModuleComputerCallback {
 	}
 
 	@Override
-	public void setModuleData(Map<String, String> moduleData, boolean notifyClient) {
+	public void setModuleData(Map<String, String> moduleData) {
 		final ComputerTileEntity computerEntity = AutomationUtils.getComputerEntitySafely(_world, _computerCallback);
 		computerEntity.setModuleData(_slotNo, moduleData);
-		if (notifyClient)
-			MinecraftUtils.sendTileEntityUpdateToPlayers(_world, computerEntity);
 	}
 }
