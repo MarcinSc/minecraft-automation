@@ -44,7 +44,6 @@ public class ComputerItemGui extends GuiContainer {
 		int xModuleStart = (ComputerItemGuiBindings.WINDOW_WIDTH - 18 * _moduleSlotsCount) / 2;
 		for (int i = 0; i < _moduleSlotsCount; i++)
 			this.drawTexturedModalRect(x + xModuleStart + 18 * i - 1, y + yPos + 1, 200, 0, 18, 18);
-//			addSlotToContainer(new ComputerModuleSlot(moduleInventory, i, xModuleStart + 18 * i, ComputerItemGuiBindings.MODULE_ROW_START));
 		yPos += ComputerItemGuiBindings.MODULE_ROW_HEIGHT;
 
 
