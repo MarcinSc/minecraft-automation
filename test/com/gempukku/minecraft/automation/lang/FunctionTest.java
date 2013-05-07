@@ -59,4 +59,17 @@ public class FunctionTest extends ProgramTest {
         final Variable variable = executeScript("var factorial = function(n) { if (n == 0) { return 1; } return n * factorial(n - 1); }; return factorial(3);");
         assertEquals(6, ((Number) variable.getValue()).intValue());
     }
+
+    @Test
+    public void testClosure() throws IllegalSyntaxException, IOException, ExecutionException {
+        final Variable variable = executeScript("var displayClosure = function() { var count = 0; return function () { return ++count; }; };"
+                + " var inc = displayClosure(); return \"\"+inc()+\" \"+inc()+\" \"+inc();");
+        assertEquals("1.0 2.0 3.0", variable.getValue());
+    }
+
+    @Test
+    public void anonymousFunction() throws IllegalSyntaxException, IOException, ExecutionException {
+        final Variable variable = executeScript("var v; v = 1; var getValue = (function(v) { return function() {return v;}; }(v)); v = 2; return getValue();");
+        assertEquals(1, ((Number) variable.getValue()).intValue());
+    }
 }
