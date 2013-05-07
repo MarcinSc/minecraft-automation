@@ -1,84 +1,80 @@
 package com.gempukku.minecraft.automation.computer;
 
 import com.gempukku.minecraft.automation.Automation;
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import net.minecraft.world.ChunkPosition;
 
 public class ServerComputerData implements ComputerCallback {
-	private ComputerConsole _console = new ComputerConsole();
-	private String _label;
-	private String _computerType;
-	private ChunkPosition _chunkPosition;
-	private int _facing;
-	private int _id;
-	private int _dimension;
-	private String _owner;
+    private ComputerConsole _console = new ComputerConsole();
+    private String _computerType;
+    private int _id;
+    private String _label;
+    private String _owner;
+    private ComputerTileEntity _tileEntity;
 
-	public ServerComputerData(int id, int dimension, int x, int y, int z, int facing, String owner, String computerType) {
-		_id = id;
-		_dimension = dimension;
-		_chunkPosition = new ChunkPosition(x, y, z);
-		_facing = facing;
-		_owner = owner;
-		_computerType = computerType;
-	}
+    public ServerComputerData(int id, String owner, String computerType) {
+        _id = id;
+        _owner = owner;
+        _computerType = computerType;
+    }
 
-	public ComputerConsole getConsole() {
-		return _console;
-	}
+    public void setTileEntity(ComputerTileEntity tileEntity) {
+        _tileEntity = tileEntity;
+    }
 
-	public int getId() {
-		return _id;
-	}
+    public void resetTileEntity() {
+        _tileEntity = null;
+    }
 
-	public int getDimension() {
-		return _dimension;
-	}
+    public ComputerConsole getConsole() {
+        return _console;
+    }
 
-	public String getLabel() {
-		return _label;
-	}
+    public int getId() {
+        return _id;
+    }
 
-	public void setLabel(String label) {
-		_label = label;
-	}
+    public int getDimension() {
+        return _tileEntity.worldObj.provider.dimensionId;
+    }
 
-	public String getOwner() {
-		return _owner;
-	}
+    public String getLabel() {
+        return _label;
+    }
 
-	public String getComputerType() {
-		return _computerType;
-	}
+    public void setLabel(String label) {
+        _label = label;
+    }
 
-	public int getSpeed() {
-		return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).speed;
-	}
+    public String getOwner() {
+        return _owner;
+    }
 
-	public int getMaxStackSize() {
-		return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).maxStackSize;
-	}
+    public String getComputerType() {
+        return _computerType;
+    }
 
-	public int getMaxMemory() {
-		return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).memory;
-	}
+    public int getSpeed() {
+        return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).speed;
+    }
 
-	public void appendToConsole(String text) {
-		_console.appendString(text);
-	}
+    public int getMaxStackSize() {
+        return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).maxStackSize;
+    }
 
-	public void setLocation(int x, int y, int z) {
-		_chunkPosition = new ChunkPosition(x, y, z);
-	}
+    public int getMaxMemory() {
+        return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).memory;
+    }
 
-	public void setFacing(int facing) {
-		_facing = facing;
-	}
+    public void appendToConsole(String text) {
+        _console.appendString(text);
+    }
 
-	public int getFacing() {
-		return _facing;
-	}
+    public int getFacing() {
+        return _tileEntity.getFacing();
+    }
 
-	public ChunkPosition getChunkPosition() {
-		return _chunkPosition;
-	}
+    public ChunkPosition getChunkPosition() {
+        return new ChunkPosition(_tileEntity.xCoord, _tileEntity.yCoord, _tileEntity.zCoord);
+    }
 }
