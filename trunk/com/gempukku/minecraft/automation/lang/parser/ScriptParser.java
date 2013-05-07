@@ -365,82 +365,96 @@ public class ScriptParser {
         Operator operator;
         while ((operator = peekNextOperator(termIterator, left != null)) != null &&
                 operator.getPriority() <= maxPriority) {
-            if (operator.isBinary()) {
-                final Term operatorTerm = termIterator.peek().getTerm();
-                int operatorLine = operatorTerm.getLine();
-                int operatorColumn = operatorTerm.getColumn();
-                consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
-
-                List<ExecutableStatement> parameters = null;
-                if (operator.isHasParameters())
-                    parameters = parseParameters(termIterator, definedVariables, operator.exactlyOneParameter(), operator.getParametersClosing());
-
-                ExecutableStatement right;
-                if (operator.isNamedOnRight()) {
-                    final Term term = peekNextProgramTermSafely(termIterator);
-                    String literal = getFirstLiteral(term);
-                    consumeCharactersFromTerm(termIterator, literal.length());
-                    right = new NamedStatement(literal);
-                } else
-                    right = parseNextOperationToken(termIterator, definedVariables);
-                if (right == null)
-                    throw new IllegalSyntaxException(termIterator, "Expression expected");
-                Operator nextOperator;
-                while ((nextOperator = peekNextOperator(termIterator, left != null)) != null &&
-                        (nextOperator.getPriority() < operator.getPriority() ||
-                                (nextOperator.getPriority() == operator.getPriority() && !nextOperator.isLeftAssociative()))) {
-                    if (operator.isBinary())
-                        right = parseExpression(line, termIterator, definedVariables, right, nextOperator.getPriority());
-                    else {
-                        consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
-                        if (operator.isPre()) {
-                            if (right == null)
-                                throw new IllegalSyntaxException(termIterator, "Expression expected");
-                            right = produceOperation(line, null, nextOperator, right, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
-                        } else {
-                            if (left == null)
-                                throw new IllegalSyntaxException(termIterator, "Expression expected");
-                            right = produceOperation(line, left, nextOperator, null, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
-                        }
-                    }
-                }
-
-                if (left == null)
-                    throw new IllegalSyntaxException(operatorLine, operatorColumn, "Expression expected");
-                if (right == null)
-                    throw new IllegalSyntaxException(operatorLine, operatorColumn + operator.getConsumeLength(), "Expression expected");
-                left = produceOperation(line, left, operator, right, parameters);
-            } else {
-                consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
-                List<ExecutableStatement> parameters = null;
-                if (operator.isHasParameters())
-                    parameters = parseParameters(termIterator, definedVariables, operator.exactlyOneParameter(), operator.getParametersClosing());
-
-                if (operator.isLeftAssociative())
-                    left = produceOperation(line, left, operator, null, parameters);
-                else {
-                    ExecutableStatement operatorExpression;
-                    if (operator.isNamedOnRight()) {
-                        final Term term = peekNextProgramTermSafely(termIterator);
-                        String literal = getFirstLiteral(term);
-                        consumeCharactersFromTerm(termIterator, literal.length());
-                        operatorExpression = new NamedStatement(literal);
-                    } else
-                        operatorExpression = parseExpression(line, termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables), operator.getPriority());
-                    if (operator.isPre()) {
-                        if (operatorExpression == null)
-                            throw new IllegalSyntaxException(termIterator, "Expression expected");
-                        left = produceOperation(line, operatorExpression, operator, null, parameters);
-                    } else {
-                        if (left == null)
-                            throw new IllegalSyntaxException(termIterator, "Expression expected");
-                        left = produceOperation(line, null, operator, left, parameters);
-                    }
-                }
-            }
+            if (operator.isBinary())
+                left = produceBinaryExpression(line, termIterator, definedVariables, left, operator);
+            else
+                left = produceUnaryExpression(line, termIterator, definedVariables, left, operator);
         }
 
         return left;
+    }
+
+    private ExecutableStatement produceUnaryExpression(int line, LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, ExecutableStatement left, Operator operator) throws IllegalSyntaxException {
+        consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+        List<ExecutableStatement> parameters = null;
+        if (operator.isHasParameters())
+            parameters = parseParameters(termIterator, definedVariables, operator.exactlyOneParameter(), operator.getParametersClosing());
+
+        if (operator.isLeftAssociative())
+            left = produceOperation(line, left, operator, null, parameters);
+        else {
+            ExecutableStatement operatorExpression;
+            if (operator.isNamedOnRight()) {
+                final Term term = peekNextProgramTermSafely(termIterator);
+                String literal = getFirstLiteral(term);
+                consumeCharactersFromTerm(termIterator, literal.length());
+                operatorExpression = new NamedStatement(literal);
+            } else
+                operatorExpression = parseExpression(line, termIterator, definedVariables, parseNextOperationToken(termIterator, definedVariables), operator.getPriority());
+            if (operator.isPre()) {
+                if (operatorExpression == null)
+                    throw new IllegalSyntaxException(termIterator, "Expression expected");
+                left = produceOperation(line, operatorExpression, operator, null, parameters);
+            } else {
+                if (left == null)
+                    throw new IllegalSyntaxException(termIterator, "Expression expected");
+                left = produceOperation(line, null, operator, left, parameters);
+            }
+        }
+        return left;
+    }
+
+    private ExecutableStatement produceBinaryExpression(int line, LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, ExecutableStatement left, Operator operator) throws IllegalSyntaxException {
+        final Term operatorTerm = termIterator.peek().getTerm();
+        int operatorLine = operatorTerm.getLine();
+        int operatorColumn = operatorTerm.getColumn();
+        consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+
+        List<ExecutableStatement> parameters = null;
+        if (operator.isHasParameters())
+            parameters = parseParameters(termIterator, definedVariables, operator.exactlyOneParameter(), operator.getParametersClosing());
+
+        ExecutableStatement right;
+        if (operator.isNamedOnRight()) {
+            final Term term = peekNextProgramTermSafely(termIterator);
+            String literal = getFirstLiteral(term);
+            consumeCharactersFromTerm(termIterator, literal.length());
+            right = new NamedStatement(literal);
+        } else
+            right = parseNextOperationToken(termIterator, definedVariables);
+        if (right == null)
+            throw new IllegalSyntaxException(termIterator, "Expression expected");
+        right = produceExpressionOnRightSide(line, termIterator, definedVariables, left, operator, right);
+
+        if (left == null)
+            throw new IllegalSyntaxException(operatorLine, operatorColumn, "Expression expected");
+        if (right == null)
+            throw new IllegalSyntaxException(operatorLine, operatorColumn + operator.getConsumeLength(), "Expression expected");
+        left = produceOperation(line, left, operator, right, parameters);
+        return left;
+    }
+
+    private ExecutableStatement produceExpressionOnRightSide(int line, LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, ExecutableStatement left, Operator operator, ExecutableStatement right) throws IllegalSyntaxException {
+        Operator nextOperator;
+        while ((nextOperator = peekNextOperator(termIterator, left != null)) != null &&
+                (nextOperator.getPriority() < operator.getPriority() ||
+                        (nextOperator.getPriority() == operator.getPriority() && !nextOperator.isLeftAssociative()))) {
+            if (operator.isBinary())
+                right = parseExpression(line, termIterator, definedVariables, right, nextOperator.getPriority());
+            else {
+                consumeCharactersFromTerm(termIterator, operator.getConsumeLength());
+                if (operator.isPre()) {
+                    if (right == null)
+                        throw new IllegalSyntaxException(termIterator, "Expression expected");
+                    right = produceOperation(line, null, nextOperator, right, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
+                } else {
+                    if (left == null)
+                        throw new IllegalSyntaxException(termIterator, "Expression expected");
+                    right = produceOperation(line, left, nextOperator, null, parseParameters(termIterator, definedVariables, nextOperator.exactlyOneParameter(), nextOperator.getParametersClosing()));
+                }
+            }
+        }
+        return right;
     }
 
     private List<ExecutableStatement> parseParameters(LastPeekingIterator<TermBlock> termIterator, DefinedVariables definedVariables, boolean exactlyOneParameter, String parametersClosing) throws IllegalSyntaxException {
