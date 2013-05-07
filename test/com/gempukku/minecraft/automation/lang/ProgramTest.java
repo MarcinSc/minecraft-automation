@@ -33,8 +33,14 @@ public class ProgramTest {
         return executionContext;
     }
 
-    protected Variable executeScript(String script) throws IllegalSyntaxException, IOException, ExecutionException {
-        ScriptExecutable exec = new ScriptParser().parseScript(new StringReader(script));
-        return executeScript(exec);
+    protected Variable executeScript(String script) throws IllegalSyntaxException, ExecutionException {
+        ScriptParser parser = new ScriptParser();
+        try {
+            final ScriptExecutable exec = parser.parseScript(new StringReader(script));
+            return executeScript(exec);
+        } catch (IOException exp) {
+            // Cannot happen, we are parsing String from StringReader
+            return null;
+        }
     }
 }
