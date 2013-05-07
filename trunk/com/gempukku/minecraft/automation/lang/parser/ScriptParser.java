@@ -76,10 +76,7 @@ public class ScriptParser {
                 if (literal.equals("return")) {
                     return produceReturnStatement(termIterator, definedVariables);
                 } else if (literal.equals("var")) {
-                    final DefiningExecutableStatement definingExecutableStatement = produceVarStatement(termIterator, definedVariables);
-                    String variableName = definingExecutableStatement.getDefinedVariableName();
-                    definedVariables.addDefinedVariable(variableName);
-                    return definingExecutableStatement;
+                    return produceVarStatement(termIterator, definedVariables);
                 } else if (literal.equals("function")) {
                     return produceDefineFunctionStatement(termIterator, definedVariables);
                 } else if (literal.equals("if")) {
@@ -284,6 +281,8 @@ public class ScriptParser {
             throw new IllegalSyntaxException(variableTerm, "Variable already defined");
 
         consumeCharactersFromTerm(termIterator, variableName.length());
+
+        definedVariables.addDefinedVariable(variableName);
 
         if (isNextTermStartingWith(termIterator, ";"))
             return new DefineStatement(variableName);

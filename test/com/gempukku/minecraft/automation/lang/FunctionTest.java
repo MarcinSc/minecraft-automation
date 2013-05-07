@@ -53,4 +53,10 @@ public class FunctionTest extends ProgramTest {
         final Variable variable = executeScript("function factorial(n) { if (n == 0) { return 1; } return n * factorial(n - 1); } return factorial(3);");
         assertEquals(6, ((Number) variable.getValue()).intValue());
     }
+
+    @Test
+    public void recursiveFunctionCall2() throws IllegalSyntaxException, IOException, ExecutionException {
+        final Variable variable = executeScript("var factorial = function(n) { if (n == 0) { return 1; } return n * factorial(n - 1); }; return factorial(3);");
+        assertEquals(6, ((Number) variable.getValue()).intValue());
+    }
 }
