@@ -1,7 +1,6 @@
 package com.gempukku.minecraft.automation.computer.module;
 
 import com.gempukku.minecraft.automation.computer.ComputerCallback;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -27,12 +26,12 @@ public abstract class AbstractComputerModule implements ComputerModule {
 	}
 
 	@Override
-	public int getStrongRedstoneSignalStrengthOnSide(ServerComputerData computerData, int input, IBlockAccess blockAccess, int side) {
+	public int getStrongRedstoneSignalStrengthOnSide(ModuleComputerCallback computerCallback, int input, IBlockAccess blockAccess, int side) {
 		return input;
 	}
 
 	@Override
-	public int getWeakRedstoneSignalStrengthOnSide(ServerComputerData computerData, int input, IBlockAccess blockAccess, int side) {
+	public int getWeakRedstoneSignalStrengthOnSide(ModuleComputerCallback computerCallback, int input, IBlockAccess blockAccess, int side) {
 		return input;
 	}
 }

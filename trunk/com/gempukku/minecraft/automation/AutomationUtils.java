@@ -3,25 +3,13 @@ package com.gempukku.minecraft.automation;
 import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.ComputerCallback;
-import com.gempukku.minecraft.automation.computer.ServerComputerData;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 
 import java.io.File;
 
 public class AutomationUtils {
-	public static World getWorldComputerIsIn(ServerComputerData computerData) {
-		for (WorldServer worldServer : MinecraftServer.getServer().worldServers) {
-			if (worldServer.provider.dimensionId == computerData.getDimension())
-				return worldServer;
-		}
-		return null;
-	}
-
 	public static ComputerTileEntity getComputerEntitySafely(IBlockAccess blockAccess, ComputerCallback computerData) {
 		final ChunkPosition chunkPosition = computerData.getChunkPosition();
 		return getComputerEntitySafely(blockAccess, chunkPosition.x, chunkPosition.y, chunkPosition.z);
@@ -36,9 +24,13 @@ public class AutomationUtils {
 		return null;
 	}
 
+    public static File getAutomationSavesFolder(File savesFolder) {
+        File worldFolder = new File(savesFolder, MinecraftUtils.getWorldNameOnServer());
+        return new File(worldFolder, "automation");
+    }
+
 	public static File getComputerSavesFolder(File savesFolder, int computerId) {
-		File worldFolder = new File(savesFolder, MinecraftUtils.getWorldNameOnServer());
-		File automationFolder = new File(worldFolder, "automation");
+        File automationFolder = getAutomationSavesFolder(savesFolder);
 		return new File(automationFolder, String.valueOf(computerId));
 	}
 }

@@ -27,6 +27,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
     private int _computerId;
     private short _state;
     private boolean _moving;
+    private boolean _initializedOnServer;
 
     private ComputerModule[] _modules;
     private ItemStack[] _inventory = new ItemStack[0];
@@ -63,7 +64,7 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
         @Override
         public String getInvName() {
-            return "Computer modules";    //To change body of implemented methods use File | Settings | File Templates.
+            return "Computer modules";
         }
 
         @Override
@@ -87,8 +88,8 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
         }
 
         @Override
-        public boolean isStackValidForSlot(int i, ItemStack itemstack) {
-            final ComputerModule module = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
+        public boolean isStackValidForSlot(int i, ItemStack itemStack) {
+            final ComputerModule module = Automation.proxy.getRegistry().getModuleByItemId(itemStack.itemID, itemStack.getItemDamage());
             return module != null;
         }
 
@@ -107,16 +108,24 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
         }
 
         @Override
-        public void setInventorySlotContents(int i, ItemStack itemstack) {
-            if (itemstack != null)
-                _modules[i] = Automation.proxy.getRegistry().getModuleByItemId(itemstack.itemID, itemstack.getItemDamage());
+        public void setInventorySlotContents(int i, ItemStack itemStack) {
+            // Clean up module data for the specified slot, as it is being replaced/removed
+            _moduleData.remove(i);
+            // Set new module
+            if (itemStack != null)
+                _modules[i] = Automation.proxy.getRegistry().getModuleByItemId(itemStack.itemID, itemStack.getItemDamage());
             else
                 _modules[i] = null;
         }
     }
 
     public Map<String, String> getModuleData(int slotNo) {
-        return _moduleData.get(slotNo);
+        Map<String, String> map = _moduleData.get(slotNo);
+        if (map == null) {
+            map = new HashMap<String, String>();
+            _moduleData.put(slotNo, map);
+        }
+        return map;
     }
 
     public void setModuleData(int slotNo, Map<String, String> moduleData) {
@@ -274,8 +283,19 @@ public class ComputerTileEntity extends TileEntity implements IInventory {
 
     @Override
     public void updateEntity() {
-        if (MinecraftUtils.isServer(worldObj))
+        if (MinecraftUtils.isServer(worldObj)) {
+            if (!_initializedOnServer) {
+                _initializedOnServer = true;
+                Automation.getServerProxy().getRegistry().ensureComputerLoaded(this);
+            }
             Automation.getServerProxy().getComputerProcessing().processProgram(this);
+        }
+    }
+
+    @Override
+    public void onChunkUnload() {
+        if (MinecraftUtils.isServer(worldObj))
+            Automation.getServerProxy().getRegistry().ensureComputerLoaded(this);
     }
 
     @Override

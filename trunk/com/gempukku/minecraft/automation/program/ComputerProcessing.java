@@ -14,7 +14,6 @@ import com.gempukku.minecraft.automation.computer.os.OSObjectDefinition;
 import com.gempukku.minecraft.automation.lang.*;
 import com.gempukku.minecraft.automation.lang.parser.ScriptParser;
 import com.gempukku.minecraft.automation.server.ServerAutomationRegistry;
-import cpw.mods.fml.common.FMLLog;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeSubscribe;
 
@@ -23,7 +22,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
 
 /**
  * This class is used on server only and controls processing of programs and computer ticks.
@@ -55,15 +53,9 @@ public class ComputerProcessing {
         final ServerComputerData computerData = Automation.getServerProxy().getRegistry().getComputerData(evt.computerId);
         final ComputerConsole computerConsole = computerData.getConsole();
         computerConsole.appendString("Staring startup program");
-        final World world = AutomationUtils.getWorldComputerIsIn(computerData);
-        if (world != null) {
-            updateProgramState(world, computerData, ComputerTileEntity.STATE_IDLE);
-            String startupProgramResult = startProgram(world, computerData.getId(), STARTUP_PROGRAM);
-            if (startupProgramResult != null)
-                computerConsole.appendString(startupProgramResult);
-        } else {
-            FMLLog.log(Level.WARNING, "Couldn't find a world for computer id=%d", evt.computerId);
-        }
+        String startupProgramResult = startProgram(computerData.getId(), STARTUP_PROGRAM);
+        if (startupProgramResult != null)
+            computerConsole.appendString(startupProgramResult);
     }
 
     @ForgeSubscribe
@@ -72,7 +64,7 @@ public class ComputerProcessing {
         _suspendedPrograms.remove(evt.computerId);
     }
 
-    public String startProgram(World world, int computerId, String name) {
+    public String startProgram(int computerId, String name) {
         if (isRunningProgram(computerId))
             return "Computer already runs a program.";
 
@@ -97,8 +89,6 @@ public class ComputerProcessing {
             }
             exec.stackExecutionGroup(context, parsedScript.createExecution(context));
             _runningPrograms.put(computerId, new RunningProgram(computerData, exec));
-
-            updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
 
             return null;
         } catch (IllegalSyntaxException exp) {
@@ -174,6 +164,8 @@ public class ComputerProcessing {
             final SuspendedProgram suspendedProgram = _suspendedPrograms.get(computerId);
             if (suspendedProgram != null)
                 processSuspendedProgram(computerEntity, computerId, suspendedProgram);
+            else
+                updateProgramState(computerEntity.worldObj, Automation.getServerProxy().getRegistry().getComputerData(computerId), ComputerTileEntity.STATE_IDLE);
         }
     }
 
@@ -187,6 +179,8 @@ public class ComputerProcessing {
                     _suspendedPrograms.remove(computerId);
                     _runningPrograms.put(computerData.getId(), suspendedProgram.getRunningProgram());
                     updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
+                } else {
+                    updateProgramState(world, computerData, ComputerTileEntity.STATE_SUSPENDED);
                 }
             } catch (ExecutionException exp) {
                 if (exp.getLine() == -1)
@@ -212,6 +206,8 @@ public class ComputerProcessing {
             if (!runningProgram.isRunning()) {
                 _runningPrograms.remove(computerId);
                 updateProgramState(world, computerData, ComputerTileEntity.STATE_IDLE);
+            } else {
+                updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
             }
         } catch (Exception exp) {
             // TODO
@@ -223,8 +219,11 @@ public class ComputerProcessing {
     private void updateProgramState(World world, ServerComputerData computerData, short state) {
         ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
         if (computerTileEntity != null) {
-            computerTileEntity.setState(state);
-            MinecraftUtils.sendTileEntityUpdateToPlayers(world, computerTileEntity);
+            short oldState = computerTileEntity.getState();
+            if (oldState != state) {
+                computerTileEntity.setState(state);
+                MinecraftUtils.sendTileEntityUpdateToPlayers(world, computerTileEntity);
+            }
         }
     }
 

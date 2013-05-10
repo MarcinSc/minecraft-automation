@@ -1,7 +1,6 @@
 package com.gempukku.minecraft.automation.server;
 
 import com.gempukku.minecraft.automation.Automation;
-import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import com.gempukku.minecraft.automation.gui.computer.console.ComputerConsoleContainerOnServer;
 import cpw.mods.fml.common.network.IPacketHandler;
@@ -73,7 +72,7 @@ public class ServerAutomationPacketHandler implements IPacketHandler {
 				try {
 					String programName = is.readUTF();
 					final ServerComputerData computerData = container.getComputerData();
-					String executeResult = Automation.getServerProxy().getComputerProcessing().startProgram(AutomationUtils.getWorldComputerIsIn(computerData), computerData.getId(), programName);
+					String executeResult = Automation.getServerProxy().getComputerProcessing().startProgram(computerData.getId(), programName);
 					if (executeResult == null)
 						executeResult = "Program " + programName + " executed successfully";
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();

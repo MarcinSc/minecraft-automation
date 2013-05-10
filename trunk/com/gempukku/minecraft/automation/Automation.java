@@ -18,10 +18,7 @@ import com.gempukku.minecraft.automation.server.ServerAutomationPacketHandler;
 import com.gempukku.minecraft.automation.server.ServerAutomationProxy;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
+import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -152,6 +149,18 @@ public class Automation {
         // Initialize server Proxy (and all server-side objects)
         // This is needed to be able to initialize server objects in single-player mode
         Automation.getServerProxy();
+    }
+
+    @Mod.ServerStarted
+    public void initializeRegistry(FMLServerStartedEvent event) {
+        Automation.getServerProxy().getRegistry().initializeServer();
+    }
+
+    @Mod.ServerStopped
+    public void removeLoadedComputers(FMLServerStoppedEvent event) {
+        // We need to unload all loaded computers, as onChunkUnload is not called on TileEntities, when server is stopping
+        // in single-player mode
+        Automation.getServerProxy().getRegistry().closeDownServer();
     }
 
     public static synchronized ServerAutomationProxy getServerProxy() {

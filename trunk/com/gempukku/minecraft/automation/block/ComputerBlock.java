@@ -4,6 +4,7 @@ import com.gempukku.minecraft.MinecraftUtils;
 import com.gempukku.minecraft.automation.Automation;
 import com.gempukku.minecraft.automation.AutomationUtils;
 import com.gempukku.minecraft.automation.computer.ServerComputerData;
+import com.gempukku.minecraft.automation.computer.bind.ModuleComputerCallbackImpl;
 import com.gempukku.minecraft.automation.computer.module.ComputerModule;
 import com.gempukku.minecraft.automation.gui.computer.ComputerGuiHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -152,7 +153,7 @@ public abstract class ComputerBlock extends BlockContainer {
 			for (int i = 0; i < count; i++) {
 				final ComputerModule module = tileEntity.getModule(i);
 				if (module != null)
-					input = module.getStrongRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
+					input = module.getStrongRedstoneSignalStrengthOnSide(new ModuleComputerCallbackImpl(blockAccess, i, computerData), input, blockAccess, side);
 			}
 
 			return input;
@@ -171,7 +172,7 @@ public abstract class ComputerBlock extends BlockContainer {
 			for (int i = 0; i < count; i++) {
 				final ComputerModule module = tileEntity.getModule(i);
 				if (module != null)
-					input = module.getWeakRedstoneSignalStrengthOnSide(computerData, input, blockAccess, side);
+					input = module.getWeakRedstoneSignalStrengthOnSide(new ModuleComputerCallbackImpl(blockAccess, i, computerData), input, blockAccess, side);
 			}
 
 			return input;

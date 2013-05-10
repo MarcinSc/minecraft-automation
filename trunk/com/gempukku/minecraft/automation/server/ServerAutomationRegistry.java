@@ -8,12 +8,8 @@ import com.gempukku.minecraft.automation.computer.ServerComputerData;
 import cpw.mods.fml.common.FMLLog;
 import net.minecraftforge.common.MinecraftForge;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -27,13 +23,16 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         _savesFolder = savesFolder;
     }
 
+    public void initializeServer() {
+        loadNextIdFromDisk();
+    }
+
     public void ensureComputerLoaded(ComputerTileEntity computerTileEntity) {
         final int computerId = computerTileEntity.getComputerId();
         if (!_computerDataMap.containsKey(computerId)) {
             final ServerComputerData computerData = readComputerDataFromDisk(computerId);
             _computerDataMap.put(computerId, computerData);
-            MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(computerTileEntity.getComputerId(),
-                    computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing()));
+            MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerAddedToWorldEvent(computerTileEntity.getComputerId()));
             FMLLog.log("Automation", Level.FINE, "Added to world computer with id %d", computerId);
         } else {
             FMLLog.log("Automation", Level.WARNING, "Asked to load computer with id %d, but already had it", computerId);
@@ -44,24 +43,29 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         int computerId = computerTileEntity.getComputerId();
         if (_computerDataMap.containsKey(computerId)) {
             FMLLog.log("Automation", Level.FINE, "Removing from world computer with id %d", computerId);
-            MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(computerTileEntity.getComputerId(),
-                    computerTileEntity.xCoord, computerTileEntity.yCoord, computerTileEntity.zCoord, computerTileEntity.getFacing()));
+            MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(computerTileEntity.getComputerId()));
             _computerDataMap.remove(computerId);
         } else {
             FMLLog.log("Automation", Level.WARNING, "Asked to unload computer with id %d, but it wasn't there", computerId);
         }
     }
 
-    public void unloadComputersFromDimension(int dimension) {
-        final Iterator<ServerComputerData> computerIterator = _computerDataMap.values().iterator();
-        while (computerIterator.hasNext()) {
-            final ServerComputerData computer = computerIterator.next();
-            if (computer.getDimension() == dimension) {
-                FMLLog.log("Automation", Level.FINE, "Removing from world computer with id %d due to World unload", computer.getId());
-                computerIterator.remove();
-            }
-        }
+    public void closeDownServer() {
+        for (ServerComputerData serverComputerData : _computerDataMap.values())
+            MinecraftForge.EVENT_BUS.post(new ComputerEvent.ComputerRemovedFromWorldEvent(serverComputerData.getId()));
+        _computerDataMap.clear();
     }
+
+//    public void unloadComputersFromDimension(int dimension) {
+//        final Iterator<ServerComputerData> computerIterator = _computerDataMap.values().iterator();
+//        while (computerIterator.hasNext()) {
+//            final ServerComputerData computer = computerIterator.next();
+//            if (computer.getDimension() == dimension) {
+//                FMLLog.log("Automation", Level.FINE, "Removing from world computer with id %d due to World unload", computer.getId());
+//                computerIterator.remove();
+//            }
+//        }
+//    }
 
     @Override
     public String getComputerLabel(int computerId) {
@@ -72,6 +76,7 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
         int computerId = _nextId;
         _nextId++;
         saveComputerDataToDisk(computerId, owner, computerType, null);
+        saveNextIdToDisk();
         return computerId;
     }
 
@@ -125,6 +130,36 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 
     private void saveComputerDataToDisk(ServerComputerData serverComputerData) {
         saveComputerDataToDisk(serverComputerData.getId(), serverComputerData.getOwner(), serverComputerData.getComputerType(), serverComputerData.getLabel());
+    }
+
+    private void saveNextIdToDisk() {
+        File nextIdFile = new File(AutomationUtils.getAutomationSavesFolder(_savesFolder), "nextId");
+        try {
+            FileWriter writer = new FileWriter(nextIdFile);
+            try {
+                writer.write(String.valueOf(_nextId));
+            } finally {
+                writer.close();
+            }
+        } catch (IOException exp) {
+            // TODO
+        }
+    }
+
+    private void loadNextIdFromDisk() {
+        File nextIdFile = new File(AutomationUtils.getAutomationSavesFolder(_savesFolder), "nextId");
+        if (nextIdFile.exists()) {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(nextIdFile));
+                try {
+                    _nextId = Integer.parseInt(reader.readLine());
+                } finally {
+                    reader.close();
+                }
+            } catch (IOException exp) {
+                // TODO
+            }
+        }
     }
 
     private void saveComputerDataToDisk(int computerId, String owner, String computerType, String label) {
