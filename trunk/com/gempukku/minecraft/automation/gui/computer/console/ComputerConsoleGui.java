@@ -299,6 +299,8 @@ public class ComputerConsoleGui extends GuiScreen {
     }
 
     private boolean isValidProgramName(String programName) {
+        if (programName.length() > 10 || programName.length() == 0)
+            return false;
         for (char c : programName.toCharArray()) {
             if (!Character.isDigit(c) && !Character.isLetter(c))
                 return false;
