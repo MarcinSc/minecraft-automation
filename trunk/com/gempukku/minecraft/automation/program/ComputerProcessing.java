@@ -96,10 +96,11 @@ public class ComputerProcessing {
         }
     }
 
-    public void suspendProgramWithCondition(World world, int computerId, AwaitingCondition condition) {
+    public void suspendProgramWithCondition(ComputerTileEntity computerEntity, AwaitingCondition condition) {
+        int computerId = computerEntity.getComputerId();
         final RunningProgram runningProgram = _runningPrograms.remove(computerId);
         _suspendedPrograms.put(computerId, new SuspendedProgram(runningProgram, condition));
-        updateProgramState(world, runningProgram.getComputerData(), ComputerTileEntity.STATE_SUSPENDED);
+        updateProgramState(computerEntity, ComputerTileEntity.STATE_SUSPENDED);
     }
 
     public String stopProgram(World world, int computerId) {
@@ -111,10 +112,6 @@ public class ComputerProcessing {
             final SuspendedProgram suspendedProgram = _suspendedPrograms.remove(computerId);
             if (suspendedProgram != null)
                 stoppedProgram = suspendedProgram.getRunningProgram();
-        }
-        if (stoppedProgram != null) {
-            final ServerComputerData computerData = stoppedProgram.getComputerData();
-            updateProgramState(world, computerData, ComputerTileEntity.STATE_IDLE);
         }
         return null;
     }
@@ -165,7 +162,7 @@ public class ComputerProcessing {
             if (suspendedProgram != null)
                 processSuspendedProgram(computerEntity, computerId, suspendedProgram);
             else
-                updateProgramState(computerEntity.worldObj, Automation.getServerProxy().getRegistry().getComputerData(computerId), ComputerTileEntity.STATE_IDLE);
+                updateProgramState(computerEntity, ComputerTileEntity.STATE_IDLE);
         }
     }
 
@@ -178,9 +175,9 @@ public class ComputerProcessing {
                 if (suspendedProgram.getAwaitingCondition().isMet(suspendedProgram.getCheckAttempt(), world, computerData)) {
                     _suspendedPrograms.remove(computerId);
                     _runningPrograms.put(computerData.getId(), suspendedProgram.getRunningProgram());
-                    updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
+                    updateProgramState(computerEntity, ComputerTileEntity.STATE_RUNNING);
                 } else {
-                    updateProgramState(world, computerData, ComputerTileEntity.STATE_SUSPENDED);
+                    updateProgramState(computerEntity, ComputerTileEntity.STATE_SUSPENDED);
                 }
             } catch (ExecutionException exp) {
                 if (exp.getLine() == -1)
@@ -188,7 +185,7 @@ public class ComputerProcessing {
                 else
                     computerData.appendToConsole("ExecutionException[line " + exp.getLine() + "] - " + exp.getMessage());
                 _suspendedPrograms.remove(computerId);
-                updateProgramState(world, computerData, ComputerTileEntity.STATE_IDLE);
+                updateProgramState(computerEntity, ComputerTileEntity.STATE_IDLE);
             }
         } catch (Exception exp) {
             // TODO
@@ -205,9 +202,9 @@ public class ComputerProcessing {
             runningProgram.progressProgram(world);
             if (!runningProgram.isRunning()) {
                 _runningPrograms.remove(computerId);
-                updateProgramState(world, computerData, ComputerTileEntity.STATE_IDLE);
+                updateProgramState(computerEntity, ComputerTileEntity.STATE_IDLE);
             } else {
-                updateProgramState(world, computerData, ComputerTileEntity.STATE_RUNNING);
+                updateProgramState(computerEntity, ComputerTileEntity.STATE_RUNNING);
             }
         } catch (Exception exp) {
             // TODO
@@ -216,13 +213,12 @@ public class ComputerProcessing {
         }
     }
 
-    private void updateProgramState(World world, ServerComputerData computerData, short state) {
-        ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computerData);
+    private void updateProgramState(ComputerTileEntity computerTileEntity, short state) {
         if (computerTileEntity != null) {
             short oldState = computerTileEntity.getState();
             if (oldState != state) {
                 computerTileEntity.setState(state);
-                MinecraftUtils.sendTileEntityUpdateToPlayers(world, computerTileEntity);
+                MinecraftUtils.sendTileEntityUpdateToPlayers(computerTileEntity.worldObj, computerTileEntity);
             }
         }
     }

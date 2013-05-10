@@ -1,6 +1,8 @@
 package com.gempukku.minecraft.automation.computer.os;
 
 import com.gempukku.minecraft.automation.Automation;
+import com.gempukku.minecraft.automation.AutomationUtils;
+import com.gempukku.minecraft.automation.block.ComputerTileEntity;
 import com.gempukku.minecraft.automation.computer.AbstractConditionCustomObject;
 import com.gempukku.minecraft.automation.computer.ComputerCallback;
 import com.gempukku.minecraft.automation.computer.MinecraftComputerExecutionContext;
@@ -33,8 +35,8 @@ public class WaitForFunction implements FunctionExecutable {
 			@Override
 			public ExecutionProgress executeNextStatement(ExecutionContext executionContext) throws ExecutionException {
 				if (!_suspended) {
-					final Variable conditionVar = executionContext.peekCallContext().getVariableValue("conditionVar");
-					if (conditionVar.getType() != Variable.Type.CUSTOM_OBJECT || (!conditionVar.getValue().equals("CONDITION")))
+					final Variable conditionVar = executionContext.peekCallContext().getVariableValue("condition");
+					if (conditionVar.getType() != Variable.Type.CUSTOM_OBJECT || !((CustomObject) conditionVar.getValue()).getType().equals("CONDITION"))
 						throw new ExecutionException(line, "Expected CONDITION in waitFor()");
 
 					final AbstractConditionCustomObject condition = (AbstractConditionCustomObject) conditionVar.getValue();
@@ -43,7 +45,8 @@ public class WaitForFunction implements FunctionExecutable {
 					final ComputerCallback computerData = minecraftExecutionContext.getComputerCallback();
 
 					_condition = condition.createAwaitingCondition();
-					Automation.getServerProxy().getComputerProcessing().suspendProgramWithCondition(minecraftExecutionContext.getWorld(), computerData.getId(), _condition);
+                    ComputerTileEntity computerEntity = AutomationUtils.getComputerEntitySafely(minecraftExecutionContext.getWorld(), computerData);
+                    Automation.getServerProxy().getComputerProcessing().suspendProgramWithCondition(computerEntity, _condition);
 					_suspended = true;
 					return new ExecutionProgress(condition.getCreationDelay());
 				}

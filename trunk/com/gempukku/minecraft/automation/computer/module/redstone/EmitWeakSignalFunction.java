@@ -37,6 +37,7 @@ public class EmitWeakSignalFunction implements ModuleFunctionExecutable {
             throw new ExecutionException(line, "Expected strength in range of 0-15");
         Map<String, String> moduleData = new HashMap<String, String>(computer.getModuleData());
         moduleData.put("weak-"+side, String.valueOf(strength));
+        computer.setModuleData(moduleData);
 
         ChunkPosition position = computer.getChunkPosition();
         world.notifyBlocksOfNeighborChange(position.x, position.y, position.z,

@@ -10,6 +10,7 @@ import com.gempukku.minecraft.automation.computer.module.harvest.HarvestModule;
 import com.gempukku.minecraft.automation.computer.module.mobility.MobilityModule;
 import com.gempukku.minecraft.automation.computer.module.positioning.ComputerModuleItem;
 import com.gempukku.minecraft.automation.computer.module.positioning.PositioningModule;
+import com.gempukku.minecraft.automation.computer.module.redstone.RedstoneModule;
 import com.gempukku.minecraft.automation.computer.module.storage.StorageModule;
 import com.gempukku.minecraft.automation.gui.computer.ComputerGuiHandler;
 import com.gempukku.minecraft.automation.item.ComputerItemBlock;
@@ -77,6 +78,7 @@ public class Automation {
     public static final int STORAGE_MODULE_METADATA = 1;
     public static final int MOBILITY_MODULE_METADATA = 2;
     public static final int HARVEST_MODULE_METADATA = 3;
+    public static final int REDSTONE_MODULE_METADATA = 4;
 
     @SidedProxy(clientSide = "com.gempukku.minecraft.automation.client.ClientAutomationProxy",
             serverSide = "com.gempukku.minecraft.automation.server.ServerAutomationProxy")
@@ -144,6 +146,7 @@ public class Automation {
         proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
         proxy.getRegistry().registerComputerModule(moduleItem, MOBILITY_MODULE_METADATA, new MobilityModule());
         proxy.getRegistry().registerComputerModule(moduleItem, HARVEST_MODULE_METADATA, new HarvestModule());
+        proxy.getRegistry().registerComputerModule(moduleItem, REDSTONE_MODULE_METADATA, new RedstoneModule());
     }
 
     @Mod.ServerAboutToStart

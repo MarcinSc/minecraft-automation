@@ -8,6 +8,11 @@ import net.minecraft.world.IBlockAccess;
 import java.util.Map;
 
 public class RedstoneModule extends AbstractComputerModule {
+    private ModuleFunctionExecutable _emitStrongSignal = new EmitStrongSignalFunction();
+    private ModuleFunctionExecutable _emitWeakSignal = new EmitWeakSignalFunction();
+    private ModuleFunctionExecutable _getStrongSignal = new GetStrongSignalFunction();
+    private ModuleFunctionExecutable _getWeakSignal = new GetWeakSignalFunction();
+
     @Override
     public String getModuleType() {
         return "Redstone";
@@ -20,6 +25,14 @@ public class RedstoneModule extends AbstractComputerModule {
 
     @Override
     public ModuleFunctionExecutable getFunctionByName(String name) {
+        if (name.equals("emitStrongSignal"))
+            return _emitStrongSignal;
+        else if (name.equals("emitWeakSignal"))
+            return _emitWeakSignal;
+        else if (name.equals("getStrongSignal"))
+            return _getStrongSignal;
+        else if (name.equals("getWeakSignal"))
+            return _getWeakSignal;
         return null;
     }
 
