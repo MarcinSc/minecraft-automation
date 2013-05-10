@@ -128,6 +128,7 @@ public class Automation {
         GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, STORAGE_MODULE_METADATA), "xyx", "xzx", 'x', ironIngot, 'y', chest, 'z', redstone);
         GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, MOBILITY_MODULE_METADATA), "xxx", "yzy", "xxx", 'x', ironIngot, 'y', redstone, 'z', goldIngot);
         GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, HARVEST_MODULE_METADATA), "xyz", "iri", "iri", 'x', diamondShovel, 'y', diamondPickaxe, 'z', diamondAxe, 'i', ironIngot, 'r', redstone);
+        GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, REDSTONE_MODULE_METADATA), "xyx", "yxy", "xxx", 'x', ironIngot, 'y', redstone);
 
         LanguageRegistry.addName(personalComputerBlock, "Personal Computer");
         LanguageRegistry.addName(terminalItem, "Terminal");
