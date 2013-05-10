@@ -36,12 +36,12 @@ import java.io.File;
         clientPacketHandlerSpec = @NetworkMod.SidedPacketHandler(
                 channels = {Automation.UPDATE_COMPUTER_LABEL, Automation.CLEAR_CONSOLE_SCREEN,
                         Automation.SET_CONSOLE_STATE, Automation.SET_CHARACTERS_IN_CONSOLE, Automation.APPEND_LINES_TO_CONSOLE,
-                        Automation.PROGRAM_TEXT, Automation.DISPLAY_EXECUTION_RESULT},
+                        Automation.PROGRAM_TEXT, Automation.DISPLAY_EXECUTION_RESULT, Automation.DISPLAY_LIST_OF_PROGRAMS},
                 packetHandler = ClientAutomationPacketHandler.class),
         serverPacketHandlerSpec = @NetworkMod.SidedPacketHandler(
                 channels = {Automation.UPDATE_COMPUTER_LABEL,
                         Automation.DOWNLOAD_PROGRAM, Automation.SAVE_PROGRAM,
-                        Automation.INIT_CONSOLE, Automation.EXECUTE_PROGRAM},
+                        Automation.INIT_CONSOLE, Automation.EXECUTE_PROGRAM, Automation.LIST_PROGRAMS},
                 packetHandler = ServerAutomationPacketHandler.class))
 public class Automation {
     private static final String AUTOMATION_CHANNEL_PREFIX = "automation.";
@@ -56,6 +56,8 @@ public class Automation {
     public static final String INIT_CONSOLE = AUTOMATION_CHANNEL_PREFIX + "10";
     public static final String EXECUTE_PROGRAM = AUTOMATION_CHANNEL_PREFIX + "11";
     public static final String DISPLAY_EXECUTION_RESULT = AUTOMATION_CHANNEL_PREFIX + "12";
+    public static final String LIST_PROGRAMS = AUTOMATION_CHANNEL_PREFIX + "13";
+    public static final String DISPLAY_LIST_OF_PROGRAMS = AUTOMATION_CHANNEL_PREFIX + "14";
 
     @Mod.Instance("MarcinSc_Automation")
     public static Automation instance;

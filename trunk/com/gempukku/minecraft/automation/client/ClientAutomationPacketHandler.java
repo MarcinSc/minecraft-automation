@@ -96,7 +96,19 @@ public class ClientAutomationPacketHandler implements IPacketHandler {
 					// TODO
 				}
 			}
-		}
+		} else if (channel.equals(Automation.DISPLAY_LIST_OF_PROGRAMS)) {
+            ComputerConsoleGui consoleGui = getComputerConsoleSafely();
+            if (consoleGui != null) {
+                try {
+                    DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+                    String[] programs = is.readUTF().split(",");
+                    for (String program : programs)
+                        consoleGui.appendToPlayerConsole(program);
+                } catch (IOException exp) {
+                    // TODO
+                }
+            }
+        }
 	}
 
 	private ComputerConsoleGui getComputerConsoleSafely() {

@@ -12,85 +12,107 @@ import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 
 import java.io.*;
+import java.util.List;
 
 public class ServerAutomationPacketHandler implements IPacketHandler {
-	@Override
-	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) {
-		final String channel = packet.channel;
-		if (channel.equals(Automation.UPDATE_COMPUTER_LABEL)) {
-			DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
-			try {
-				int compId = is.readInt();
-				final String label = Automation.getServerProxy().getRegistry().getComputerLabel(compId);
-				if (label != null) {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					DataOutputStream os = new DataOutputStream(baos);
-					os.writeInt(compId);
-					os.writeUTF(label);
-					PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.UPDATE_COMPUTER_LABEL, baos.toByteArray()), player);
-				}
-			} catch (IOException exp) {
-				// Ignore
-			}
-		} else if (channel.equals(Automation.DOWNLOAD_PROGRAM)) {
-			ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
-			if (container != null) {
-				DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
-				try {
-					String programName = is.readUTF();
-					String programText = Automation.getServerProxy().getComputerProcessing().getProgram(container.getComputerData().getId(), programName);
-					if (programText != null) {
-						ByteArrayOutputStream baos = new ByteArrayOutputStream();
-						DataOutputStream os = new DataOutputStream(baos);
-						os.writeUTF(programText);
-						PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.PROGRAM_TEXT, baos.toByteArray()), player);
-					}
-				} catch (IOException exp) {
-					// Ignore
-				}
-			}
-		} else if (channel.equals(Automation.SAVE_PROGRAM)) {
-			ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
-			if (container != null) {
-				DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
-				try {
-					String programName = is.readUTF();
-					String programText = is.readUTF();
-					Automation.getServerProxy().getComputerProcessing().saveProgram(container.getComputerData().getId(), programName, programText);
-				} catch (IOException exp) {
-					// Ignore
-				}
-			}
-		} else if (channel.equals(Automation.INIT_CONSOLE)) {
-			final ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
-			if (container != null)
-				container.initConsole();
-		} else if (channel.equals(Automation.EXECUTE_PROGRAM)) {
-			ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
-			if (container != null) {
-				DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
-				try {
-					String programName = is.readUTF();
-					final ServerComputerData computerData = container.getComputerData();
-					String executeResult = Automation.getServerProxy().getComputerProcessing().startProgram(computerData.getId(), programName);
-					if (executeResult == null)
-						executeResult = "Program " + programName + " executed successfully";
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					DataOutputStream os = new DataOutputStream(baos);
-					os.writeUTF(executeResult);
-					PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.DISPLAY_EXECUTION_RESULT, baos.toByteArray()), player);
-				} catch (IOException exp) {
-					// Ignore
-				}
-			}
-		}
-	}
+    @Override
+    public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) {
+        final String channel = packet.channel;
+        if (channel.equals(Automation.UPDATE_COMPUTER_LABEL)) {
+            DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+            try {
+                int compId = is.readInt();
+                final String label = Automation.getServerProxy().getRegistry().getComputerLabel(compId);
+                if (label != null) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    DataOutputStream os = new DataOutputStream(baos);
+                    os.writeInt(compId);
+                    os.writeUTF(label);
+                    PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.UPDATE_COMPUTER_LABEL, baos.toByteArray()), player);
+                }
+            } catch (IOException exp) {
+                // Ignore
+            }
+        } else if (channel.equals(Automation.DOWNLOAD_PROGRAM)) {
+            ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
+            if (container != null) {
+                DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+                try {
+                    String programName = is.readUTF();
+                    String programText = Automation.getServerProxy().getComputerProcessing().getProgram(container.getComputerData().getId(), programName);
+                    if (programText != null) {
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        DataOutputStream os = new DataOutputStream(baos);
+                        os.writeUTF(programText);
+                        PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.PROGRAM_TEXT, baos.toByteArray()), player);
+                    }
+                } catch (IOException exp) {
+                    // Ignore
+                }
+            }
+        } else if (channel.equals(Automation.SAVE_PROGRAM)) {
+            ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
+            if (container != null) {
+                DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+                try {
+                    String programName = is.readUTF();
+                    String programText = is.readUTF();
+                    Automation.getServerProxy().getComputerProcessing().saveProgram(container.getComputerData().getId(), programName, programText);
+                } catch (IOException exp) {
+                    // Ignore
+                }
+            }
+        } else if (channel.equals(Automation.INIT_CONSOLE)) {
+            final ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
+            if (container != null)
+                container.initConsole();
+        } else if (channel.equals(Automation.EXECUTE_PROGRAM)) {
+            ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
+            if (container != null) {
+                DataInputStream is = new DataInputStream(new ByteArrayInputStream(packet.data));
+                try {
+                    String programName = is.readUTF();
+                    final ServerComputerData computerData = container.getComputerData();
+                    String executeResult = Automation.getServerProxy().getComputerProcessing().startProgram(computerData.getId(), programName);
+                    if (executeResult == null)
+                        executeResult = "Program " + programName + " executed successfully";
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    DataOutputStream os = new DataOutputStream(baos);
+                    os.writeUTF(executeResult);
+                    PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.DISPLAY_EXECUTION_RESULT, baos.toByteArray()), player);
+                } catch (IOException exp) {
+                    // Ignore
+                }
+            }
+        } else if (channel.equals(Automation.LIST_PROGRAMS)) {
+            ComputerConsoleContainerOnServer container = getComputerConsoleContainerSafely(player);
+            if (container != null) {
+                final ServerComputerData computerData = container.getComputerData();
+                List<String> programList = Automation.getServerProxy().getComputerProcessing().listPrograms(computerData.getId());
+                StringBuilder sb = new StringBuilder();
+                for (String program : programList) {
+                    if (sb.length() > 0)
+                        sb.append(",");
+                    sb.append(program);
+                }
+                try {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    DataOutputStream os = new DataOutputStream(baos);
+                    os.writeUTF(sb.toString());
+                    PacketDispatcher.sendPacketToPlayer(new Packet250CustomPayload(Automation.DISPLAY_LIST_OF_PROGRAMS, baos.toByteArray()), player);
+                } catch (IOException exp) {
+                    // Ignore
+                }
+            }
+        }
 
-	private ComputerConsoleContainerOnServer getComputerConsoleContainerSafely(Player player) {
-		EntityPlayerMP playerMP = (EntityPlayerMP) player;
-		Container container = playerMP.openContainer;
-		if (container instanceof ComputerConsoleContainerOnServer)
-			return (ComputerConsoleContainerOnServer) container;
-		return null;
-	}
+    }
+
+    private ComputerConsoleContainerOnServer getComputerConsoleContainerSafely(Player player) {
+        EntityPlayerMP playerMP = (EntityPlayerMP) player;
+        Container container = playerMP.openContainer;
+        if (container instanceof ComputerConsoleContainerOnServer)
+            return (ComputerConsoleContainerOnServer) container;
+        return null;
+    }
 }
