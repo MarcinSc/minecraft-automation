@@ -54,10 +54,6 @@ public class ServerComputerData implements ComputerCallback {
         return _computerType;
     }
 
-    public int getSpeed() {
-        return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).speed;
-    }
-
     public int getMaxStackSize() {
         return Automation.proxy.getRegistry().getComputerSpecByType(_computerType).maxStackSize;
     }

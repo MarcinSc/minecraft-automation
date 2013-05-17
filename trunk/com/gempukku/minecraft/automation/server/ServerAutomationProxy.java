@@ -2,7 +2,7 @@ package com.gempukku.minecraft.automation.server;
 
 import com.gempukku.minecraft.automation.CommonAutomationProxy;
 import com.gempukku.minecraft.automation.program.ComputerProcessing;
-import com.gempukku.minecraft.automation.program.ComputerSpeedProgramScheduler;
+import com.gempukku.minecraft.automation.program.ProgramScheduler;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.io.File;
@@ -12,10 +12,10 @@ public class ServerAutomationProxy extends CommonAutomationProxy {
     private ComputerProcessing _programProcessing;
 
     @Override
-    public void initialize(File modConfigDirectory) {
+    public void initialize(File modConfigDirectory, ProgramScheduler programScheduler) {
         File savesFolder = new File(modConfigDirectory.getParentFile(), "saves");
         _automationRegistry = new ServerAutomationRegistry(savesFolder);
-        _programProcessing = new ComputerProcessing(savesFolder, _automationRegistry, new ComputerSpeedProgramScheduler());
+        _programProcessing = new ComputerProcessing(savesFolder, _automationRegistry, programScheduler);
         MinecraftForge.EVENT_BUS.register(_programProcessing);
     }
 

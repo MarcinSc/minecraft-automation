@@ -15,6 +15,8 @@ import com.gempukku.minecraft.automation.computer.module.storage.StorageModule;
 import com.gempukku.minecraft.automation.gui.computer.ComputerGuiHandler;
 import com.gempukku.minecraft.automation.item.ComputerItemBlock;
 import com.gempukku.minecraft.automation.item.ItemTerminal;
+import com.gempukku.minecraft.automation.program.ComputerSpeedProgramScheduler;
+import com.gempukku.minecraft.automation.program.ProgramScheduler;
 import com.gempukku.minecraft.automation.server.ServerAutomationPacketHandler;
 import com.gempukku.minecraft.automation.server.ServerAutomationProxy;
 import cpw.mods.fml.common.Mod;
@@ -64,6 +66,7 @@ public class Automation {
     public static Automation instance;
 
     private static File _modConfigDirectory;
+    private static ProgramScheduler _programScheduler;
 
     public static ComputerBlock personalComputerBlock;
     private static int _smallComputerBlockId;
@@ -95,6 +98,10 @@ public class Automation {
         _smallComputerBlockId = conf.getBlock("smallComputerBlock", 3624, "This is an ID of a computer block").getInt();
         _moduleItemId = conf.getItem("computerModule", 4124, "This is an ID of a computer module item").getInt();
         _terminalItemId = conf.getItem("keyboard", 4125, "This is an ID of a keyboard item").getInt();
+
+        final ComputerSpeedProgramScheduler programScheduler = new ComputerSpeedProgramScheduler();
+        programScheduler.setComputerTypeSpeed("personal", 100);
+        _programScheduler = programScheduler;
     }
 
     @Mod.Init
@@ -133,7 +140,7 @@ public class Automation {
         LanguageRegistry.addName(personalComputerBlock, "Personal Computer");
         LanguageRegistry.addName(terminalItem, "Terminal");
 
-        proxy.initialize(_modConfigDirectory);
+        proxy.initialize(_modConfigDirectory, _programScheduler);
         MinecraftForge.EVENT_BUS.register(proxy);
 
         NetworkRegistry.instance().registerGuiHandler(instance, new ComputerGuiHandler());
@@ -141,7 +148,7 @@ public class Automation {
 
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
-        proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 100, 100 * 1024, 100));
+        proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 100, 100 * 1024));
 
         proxy.getRegistry().registerComputerModule(moduleItem, POSITIONING_MODULE_METADATA, new PositioningModule());
         proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
@@ -191,13 +198,13 @@ public class Automation {
 
     private static ClientAutomationProxy createClientProxy() {
         ClientAutomationProxy proxy = new ClientAutomationProxy();
-        proxy.initialize(_modConfigDirectory);
+        proxy.initialize(_modConfigDirectory, _programScheduler);
         return proxy;
     }
 
     private static ServerAutomationProxy createServerProxy() {
         ServerAutomationProxy proxy = new ServerAutomationProxy();
-        proxy.initialize(_modConfigDirectory);
+        proxy.initialize(_modConfigDirectory, _programScheduler);
         return proxy;
     }
 }

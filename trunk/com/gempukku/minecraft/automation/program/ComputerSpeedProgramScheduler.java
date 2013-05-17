@@ -10,6 +10,11 @@ import java.util.Map;
 
 public class ComputerSpeedProgramScheduler implements ProgramScheduler {
     private Map<Integer, Integer> _consumedSpeeds = new HashMap<Integer, Integer>();
+    private Map<String, Integer> _computerTypeSpeeds = new HashMap<String, Integer>();
+
+    public void setComputerTypeSpeed(String type, int speed) {
+        _computerTypeSpeeds.put(type, speed);
+    }
 
     @Override
     public void addRunningProgram(RunningProgram runningProgram) {
@@ -21,7 +26,7 @@ public class ComputerSpeedProgramScheduler implements ProgramScheduler {
         final ServerComputerData computerData = runningProgram.getComputerData();
         final int computerId = computerData.getId();
         int speedConsumed = _consumedSpeeds.get(computerId);
-        speedConsumed -= computerData.getSpeed();
+        speedConsumed -= _computerTypeSpeeds.get(computerData.getComputerType());
         final MinecraftComputerExecutionContext executionContext = runningProgram.getExecutionContext();
         while (speedConsumed <= 0) {
             final ExecutionProgress executionProgress = executionContext.executeNext();
