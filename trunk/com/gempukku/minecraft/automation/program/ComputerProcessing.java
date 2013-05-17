@@ -30,14 +30,16 @@ public class ComputerProcessing {
     public static final String STARTUP_PROGRAM = "startup";
     private File _savesFolder;
     private ServerAutomationRegistry _registry;
+    private ProgramScheduler _programScheduler;
     private ScriptParser _scriptParser;
     private Map<Integer, RunningProgram> _runningPrograms = new HashMap<Integer, RunningProgram>();
     private Map<Integer, SuspendedProgram> _suspendedPrograms = new HashMap<Integer, SuspendedProgram>();
     private Set<String> _predefinedVariables = new HashSet<String>();
 
-    public ComputerProcessing(File savesFolder, ServerAutomationRegistry registry) {
+    public ComputerProcessing(File savesFolder, ServerAutomationRegistry registry, ProgramScheduler programScheduler) {
         _savesFolder = savesFolder;
         _registry = registry;
+        _programScheduler = programScheduler;
         _scriptParser = new ScriptParser();
         _predefinedVariables.add("os");
         _predefinedVariables.add("console");
@@ -45,7 +47,7 @@ public class ComputerProcessing {
     }
 
     public boolean isRunningProgram(int computerId) {
-        return _runningPrograms.containsKey(computerId) || _suspendedPrograms.containsKey(computerId);
+        return _runningPrograms.containsKey(computerId);
     }
 
     @ForgeSubscribe
@@ -60,8 +62,20 @@ public class ComputerProcessing {
 
     @ForgeSubscribe
     public void shutdownComputer(ComputerEvent.ComputerRemovedFromWorldEvent evt) {
-        _runningPrograms.remove(evt.computerId);
-        _suspendedPrograms.remove(evt.computerId);
+        removeRunningProgram(evt.computerId);
+    }
+
+    private void addRunningProgram(int computerId, RunningProgram runningProgram) {
+        _runningPrograms.put(computerId, runningProgram);
+        _programScheduler.addRunningProgram(runningProgram);
+    }
+
+    private void removeRunningProgram(int computerId) {
+        final RunningProgram runningProgram = _runningPrograms.remove(computerId);
+        if (runningProgram != null) {
+            _programScheduler.removeRunningProgram(runningProgram);
+            _suspendedPrograms.remove(computerId);
+        }
     }
 
     public String startProgram(int computerId, String name) {
@@ -88,7 +102,7 @@ public class ComputerProcessing {
                 // Ignore
             }
             exec.stackExecutionGroup(context, parsedScript.createExecution(context));
-            _runningPrograms.put(computerId, new RunningProgram(computerData, exec));
+            addRunningProgram(computerId, new RunningProgram(computerData, exec));
 
             return null;
         } catch (IllegalSyntaxException exp) {
@@ -98,21 +112,15 @@ public class ComputerProcessing {
 
     public void suspendProgramWithCondition(ComputerTileEntity computerEntity, AwaitingCondition condition) {
         int computerId = computerEntity.getComputerId();
-        final RunningProgram runningProgram = _runningPrograms.remove(computerId);
+        final RunningProgram runningProgram = _runningPrograms.get(computerId);
         _suspendedPrograms.put(computerId, new SuspendedProgram(runningProgram, condition));
-        updateProgramState(computerEntity, ComputerTileEntity.STATE_SUSPENDED);
     }
 
     public String stopProgram(World world, int computerId) {
         if (!isRunningProgram(computerId))
             return "Computer is not running any programs.";
 
-        RunningProgram stoppedProgram = _runningPrograms.remove(computerId);
-        if (stoppedProgram == null) {
-            final SuspendedProgram suspendedProgram = _suspendedPrograms.remove(computerId);
-            if (suspendedProgram != null)
-                stoppedProgram = suspendedProgram.getRunningProgram();
-        }
+        removeRunningProgram(computerId);
         return null;
     }
 
@@ -157,13 +165,8 @@ public class ComputerProcessing {
         final RunningProgram runningProgram = _runningPrograms.get(computerId);
         if (runningProgram != null)
             processRunningProgram(computerEntity, computerId, runningProgram);
-        else {
-            final SuspendedProgram suspendedProgram = _suspendedPrograms.get(computerId);
-            if (suspendedProgram != null)
-                processSuspendedProgram(computerEntity, computerId, suspendedProgram);
-            else
-                updateProgramState(computerEntity, ComputerTileEntity.STATE_IDLE);
-        }
+        else
+            updateProgramState(computerEntity, ComputerTileEntity.STATE_IDLE);
     }
 
     private void processSuspendedProgram(ComputerTileEntity computerEntity, int computerId, SuspendedProgram suspendedProgram) {
@@ -174,10 +177,7 @@ public class ComputerProcessing {
             try {
                 if (suspendedProgram.getAwaitingCondition().isMet(suspendedProgram.getCheckAttempt(), world, computerData)) {
                     _suspendedPrograms.remove(computerId);
-                    _runningPrograms.put(computerData.getId(), suspendedProgram.getRunningProgram());
-                    updateProgramState(computerEntity, ComputerTileEntity.STATE_RUNNING);
-                } else {
-                    updateProgramState(computerEntity, ComputerTileEntity.STATE_SUSPENDED);
+                    suspendedProgram.getRunningProgram().getExecutionContext().setSuspended(false);
                 }
             } catch (ExecutionException exp) {
                 if (exp.getLine() == -1)
@@ -185,7 +185,6 @@ public class ComputerProcessing {
                 else
                     computerData.appendToConsole("ExecutionException[line " + exp.getLine() + "] - " + exp.getMessage());
                 _suspendedPrograms.remove(computerId);
-                updateProgramState(computerEntity, ComputerTileEntity.STATE_IDLE);
             }
         } catch (Exception exp) {
             // TODO
@@ -195,22 +194,26 @@ public class ComputerProcessing {
     }
 
     private void processRunningProgram(ComputerTileEntity computerEntity, int computerId, RunningProgram runningProgram) {
-        final ServerComputerData computerData = runningProgram.getComputerData();
-        computerData.setTileEntity(computerEntity);
-        try {
-            final World world = computerEntity.worldObj;
-            runningProgram.progressProgram(world);
-            if (!runningProgram.isRunning()) {
-                _runningPrograms.remove(computerId);
-                updateProgramState(computerEntity, ComputerTileEntity.STATE_IDLE);
-            } else {
-                updateProgramState(computerEntity, ComputerTileEntity.STATE_RUNNING);
+        if (runningProgram.isSuspended()) {
+            processSuspendedProgram(computerEntity, computerId, _suspendedPrograms.get(computerId));
+        } else {
+            final ServerComputerData computerData = runningProgram.getComputerData();
+            computerData.setTileEntity(computerEntity);
+            try {
+                final World world = computerEntity.worldObj;
+                runningProgram.progressProgram(world, _programScheduler);
+            } catch (Exception exp) {
+                // TODO
+            } finally {
+                computerData.resetTileEntity();
             }
-        } catch (Exception exp) {
-            // TODO
-        } finally {
-            computerData.resetTileEntity();
         }
+        if (runningProgram.isFinished()) {
+            removeRunningProgram(computerId);
+        } else if (runningProgram.isSuspended()) {
+            updateProgramState(computerEntity, ComputerTileEntity.STATE_SUSPENDED);
+        } else
+            updateProgramState(computerEntity, ComputerTileEntity.STATE_RUNNING);
     }
 
     private void updateProgramState(ComputerTileEntity computerTileEntity, short state) {
