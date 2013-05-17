@@ -12,40 +12,45 @@ import net.minecraft.world.World;
 import java.util.Map;
 
 public class GetSelfItemCountFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 100;
-	}
+    @Override
+    public int getDuration() {
+        return 100;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[]{"slot"};
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 1;
+    }
 
-	@Override
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		String functionName = "getSelfItemCount";
+    @Override
+    public String[] getParameterNames() {
+        return new String[]{"slot"};
+    }
 
-		final Variable slotParam = parameters.get("slot");
-		if (slotParam.getType() != Variable.Type.NUMBER)
-			throw new ExecutionException(line, "Expected number in slot parameter in " + functionName + " function");
+    @Override
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        String functionName = "getSelfItemCount";
 
-		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
-		if (computerTileEntity == null)
-			return null;
+        final Variable slotParam = parameters.get("slot");
+        if (slotParam.getType() != Variable.Type.NUMBER)
+            throw new ExecutionException(line, "Expected number in slot parameter in " + functionName + " function");
 
-		int slot = ((Number) slotParam.getValue()).intValue();
+        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
+        if (computerTileEntity == null)
+            return null;
 
-		int inventorySize = computerTileEntity.getSizeInventory();
+        int slot = ((Number) slotParam.getValue()).intValue();
 
-		if (inventorySize <= slot || slot < 0)
-			throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + " function");
+        int inventorySize = computerTileEntity.getSizeInventory();
 
-		ItemStack stackInSlot = computerTileEntity.getStackInSlot(slot);
-		return getSizeOfPotentialStack(stackInSlot);
-	}
+        if (inventorySize <= slot || slot < 0)
+            throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + " function");
 
-	private int getSizeOfPotentialStack(ItemStack stackInSlot) {
-		return stackInSlot != null ? stackInSlot.stackSize : 0;
-	}
+        ItemStack stackInSlot = computerTileEntity.getStackInSlot(slot);
+        return getSizeOfPotentialStack(stackInSlot);
+    }
+
+    private int getSizeOfPotentialStack(ItemStack stackInSlot) {
+        return stackInSlot != null ? stackInSlot.stackSize : 0;
+    }
 }

@@ -16,100 +16,105 @@ import net.minecraft.world.World;
 import java.util.Map;
 
 public class TransferToSelfFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 100;
-	}
+    @Override
+    public int getDuration() {
+        return 100;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[]{"side", "slot", "count"};
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 5;
+    }
 
-	@Override
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		final Variable sideParam = parameters.get("side");
-		final Variable slotParam = parameters.get("slot");
-		final Variable countParam = parameters.get("count");
+    @Override
+    public String[] getParameterNames() {
+        return new String[]{"side", "slot", "count"};
+    }
 
-		int count;
-		if (countParam.getType() == Variable.Type.NULL)
-			count = Integer.MAX_VALUE;
-		else if (countParam.getType() == Variable.Type.NUMBER)
-			count = ((Number) countParam.getValue()).intValue();
-		else
-			throw new ExecutionException(line, "Expected NUMBER or NULL in transferToSelf()");
+    @Override
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        final Variable sideParam = parameters.get("side");
+        final Variable slotParam = parameters.get("slot");
+        final Variable countParam = parameters.get("count");
 
-		final String functionName = "transferToSelf";
+        int count;
+        if (countParam.getType() == Variable.Type.NULL)
+            count = Integer.MAX_VALUE;
+        else if (countParam.getType() == Variable.Type.NUMBER)
+            count = ((Number) countParam.getValue()).intValue();
+        else
+            throw new ExecutionException(line, "Expected NUMBER or NULL in transferToSelf()");
 
-		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
-		if (computerTileEntity == null)
-			return false;
+        final String functionName = "transferToSelf";
 
-		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(line, computer, world, sideParam, functionName);
-		if (inventory == null)
-			return false;
+        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
+        if (computerTileEntity == null)
+            return false;
 
-		int inventoryIndex = getSpecifiedSlotIndex(line, computer, inventory, sideParam, slotParam, functionName);
-		if (inventoryIndex == -1)
-			return false;
+        final IInventory inventory = StorageModuleUtils.getInventoryAtFace(line, computer, world, sideParam, functionName);
+        if (inventory == null)
+            return false;
 
-		ItemStack stackInSlot = inventory.getStackInSlot(inventoryIndex);
-		if (stackInSlot == null)
-			return false;
-		int toTransfer = Math.min(stackInSlot.stackSize, count);
-		int transferred = StorageModuleUtils.mergeItemStackIntoComputerInventory(computerTileEntity, stackInSlot, toTransfer);
-		inventory.decrStackSize(inventoryIndex, transferred);
+        int inventoryIndex = getSpecifiedSlotIndex(line, computer, inventory, sideParam, slotParam, functionName);
+        if (inventoryIndex == -1)
+            return false;
 
-		if (transferred > 0) {
-			inventory.onInventoryChanged();
-			computerTileEntity.onInventoryChanged();
-		}
+        ItemStack stackInSlot = inventory.getStackInSlot(inventoryIndex);
+        if (stackInSlot == null)
+            return false;
+        int toTransfer = Math.min(stackInSlot.stackSize, count);
+        int transferred = StorageModuleUtils.mergeItemStackIntoComputerInventory(computerTileEntity, stackInSlot, toTransfer);
+        inventory.decrStackSize(inventoryIndex, transferred);
 
-		return transferred == toTransfer;
-	}
+        if (transferred > 0) {
+            inventory.onInventoryChanged();
+            computerTileEntity.onInventoryChanged();
+        }
 
-	private int getSpecifiedSlotIndex(int line, ComputerCallback computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
-		if (inventory instanceof ISidedInventory) {
-			final ISidedInventory sidedInventory = (ISidedInventory) inventory;
-			int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(line, computer, sideParam, functionName));
-			final int[] sideSlots = sidedInventory.getSizeInventorySide(inventorySide);
-			if (slotParam.getType() == Variable.Type.NULL) {
-				for (int i = 0; i < sideSlots.length; i++) {
-					final ItemStack stack = sidedInventory.getStackInSlot(sideSlots[i]);
-					if (stack != null)
-						return sideSlots[i];
-				}
-				return -1;
-			} else {
-				if (slotParam.getType() != Variable.Type.NUMBER)
-					throw new ExecutionException(line, "Expected NUMBER in " + functionName + "()");
+        return transferred == toTransfer;
+    }
 
-				int slot = ((Number) slotParam.getValue()).intValue();
-				if (sideSlots.length <= slot || slot < 0)
-					throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + "()");
+    private int getSpecifiedSlotIndex(int line, ComputerCallback computer, IInventory inventory, Variable sideParam, Variable slotParam, String functionName) throws ExecutionException {
+        if (inventory instanceof ISidedInventory) {
+            final ISidedInventory sidedInventory = (ISidedInventory) inventory;
+            int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(line, computer, sideParam, functionName));
+            final int[] sideSlots = sidedInventory.getSizeInventorySide(inventorySide);
+            if (slotParam.getType() == Variable.Type.NULL) {
+                for (int i = 0; i < sideSlots.length; i++) {
+                    final ItemStack stack = sidedInventory.getStackInSlot(sideSlots[i]);
+                    if (stack != null)
+                        return sideSlots[i];
+                }
+                return -1;
+            } else {
+                if (slotParam.getType() != Variable.Type.NUMBER)
+                    throw new ExecutionException(line, "Expected NUMBER in " + functionName + "()");
 
-				return sideSlots[slot];
-			}
-		} else {
-			int inventorySize = inventory.getSizeInventory();
-			if (slotParam.getType() == Variable.Type.NULL) {
-				for (int i = 0; i < inventorySize; i++) {
-					final ItemStack stack = inventory.getStackInSlot(i);
-					if (stack != null)
-						return i;
-				}
-				return -1;
-			} else {
-				if (slotParam.getType() != Variable.Type.NUMBER)
-					throw new ExecutionException(line, "Expected NUMBER in " + functionName + "()");
+                int slot = ((Number) slotParam.getValue()).intValue();
+                if (sideSlots.length <= slot || slot < 0)
+                    throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + "()");
 
-				int slot = ((Number) slotParam.getValue()).intValue();
-				if (inventorySize <= slot || slot < 0)
-					throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + "()");
+                return sideSlots[slot];
+            }
+        } else {
+            int inventorySize = inventory.getSizeInventory();
+            if (slotParam.getType() == Variable.Type.NULL) {
+                for (int i = 0; i < inventorySize; i++) {
+                    final ItemStack stack = inventory.getStackInSlot(i);
+                    if (stack != null)
+                        return i;
+                }
+                return -1;
+            } else {
+                if (slotParam.getType() != Variable.Type.NUMBER)
+                    throw new ExecutionException(line, "Expected NUMBER in " + functionName + "()");
 
-				return slot;
-			}
-		}
-	}
+                int slot = ((Number) slotParam.getValue()).intValue();
+                if (inventorySize <= slot || slot < 0)
+                    throw new ExecutionException(line, "Slot number out of accepted range in " + functionName + "()");
+
+                return slot;
+            }
+        }
+    }
 }

@@ -9,18 +9,23 @@ import net.minecraft.world.World;
 import java.util.Map;
 
 public class GetFacingFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 100;
-	}
+    @Override
+    public int getDuration() {
+        return 100;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[0];
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 1;
+    }
 
-	@Override
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		return computer.getFacing();
-	}
+    @Override
+    public String[] getParameterNames() {
+        return new String[0];
+    }
+
+    @Override
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        return computer.getFacing();
+    }
 }

@@ -15,51 +15,56 @@ import net.minecraftforge.event.ForgeEventFactory;
 import java.util.Map;
 
 public class CanHarvestFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 100;
-	}
+    @Override
+    public int getDuration() {
+        return 100;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[]{"direction"};
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 1;
+    }
 
-	@Override
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		final Variable directionVar = parameters.get("direction");
-		if (directionVar.getType() != Variable.Type.STRING && directionVar.getType() != Variable.Type.NULL)
-			throw new ExecutionException(line, "Invalid direction received in harvest()");
+    @Override
+    public String[] getParameterNames() {
+        return new String[]{"direction"};
+    }
 
-		String side = (String) directionVar.getValue();
-		if (side != null && (!side.equals("up") && !side.equals("down")))
-			throw new ExecutionException(line, "Invalid direction received in harvest()");
+    @Override
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        final Variable directionVar = parameters.get("direction");
+        if (directionVar.getType() != Variable.Type.STRING && directionVar.getType() != Variable.Type.NULL)
+            throw new ExecutionException(line, "Invalid direction received in harvest()");
 
-		final int facing = computer.getFacing();
+        String side = (String) directionVar.getValue();
+        if (side != null && (!side.equals("up") && !side.equals("down")))
+            throw new ExecutionException(line, "Invalid direction received in harvest()");
 
-		int direction = facing;
-		if (side != null) {
-			if (side.equals("up"))
-				direction = BoxSide.TOP;
-			else if (side.equals("down"))
-				direction = BoxSide.BOTTOM;
-		}
+        final int facing = computer.getFacing();
 
-		final ChunkPosition chunkPosition = computer.getChunkPosition();
-		final int harvestX = chunkPosition.x + Facing.offsetsXForSide[direction];
-		final int harvestY = chunkPosition.y + Facing.offsetsYForSide[direction];
-		final int harvestZ = chunkPosition.z + Facing.offsetsZForSide[direction];
+        int direction = facing;
+        if (side != null) {
+            if (side.equals("up"))
+                direction = BoxSide.TOP;
+            else if (side.equals("down"))
+                direction = BoxSide.BOTTOM;
+        }
 
-		if (!world.getChunkProvider().chunkExists(harvestX >> 4, harvestZ >> 4))
-			return false;
+        final ChunkPosition chunkPosition = computer.getChunkPosition();
+        final int harvestX = chunkPosition.x + Facing.offsetsXForSide[direction];
+        final int harvestY = chunkPosition.y + Facing.offsetsYForSide[direction];
+        final int harvestZ = chunkPosition.z + Facing.offsetsZForSide[direction];
 
-		final Block block = Block.blocksList[world.getBlockId(harvestX, harvestY, harvestZ)];
-		if (block == null)
-			// Can't harvest air
-			return false;
+        if (!world.getChunkProvider().chunkExists(harvestX >> 4, harvestZ >> 4))
+            return false;
 
-		final float blockHardness = block.getBlockHardness(world, harvestX, harvestY, harvestZ);
+        final Block block = Block.blocksList[world.getBlockId(harvestX, harvestY, harvestZ)];
+        if (block == null)
+            // Can't harvest air
+            return false;
 
-		return ForgeEventFactory.doPlayerHarvestCheck(new FakePlayer(world, computer.getOwner()), block, blockHardness >= 0);
-	}
+        final float blockHardness = block.getBlockHardness(world, harvestX, harvestY, harvestZ);
+
+        return ForgeEventFactory.doPlayerHarvestCheck(new FakePlayer(world, computer.getOwner()), block, blockHardness >= 0);
+    }
 }

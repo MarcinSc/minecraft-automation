@@ -19,8 +19,13 @@ public class GetWeakSignalFunction implements ModuleFunctionExecutable {
     }
 
     @Override
+    public int getMinimumExecutionTicks() {
+        return 1;
+    }
+
+    @Override
     public String[] getParameterNames() {
-        return new String[] {"side"};
+        return new String[]{"side"};
     }
 
     @Override
@@ -30,8 +35,8 @@ public class GetWeakSignalFunction implements ModuleFunctionExecutable {
 
         ChunkPosition position = computer.getChunkPosition();
         return world.getIndirectPowerLevelTo(
-                position.x+ Facing.offsetsXForSide[side],
-                position.y+Facing.offsetsYForSide[side],
-                position.z+Facing.offsetsZForSide[side], BoxSide.getOpposite(side));
+                position.x + Facing.offsetsXForSide[side],
+                position.y + Facing.offsetsYForSide[side],
+                position.z + Facing.offsetsZForSide[side], BoxSide.getOpposite(side));
     }
 }

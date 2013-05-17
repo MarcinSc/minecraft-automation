@@ -13,46 +13,51 @@ import net.minecraft.world.World;
 import java.util.Map;
 
 public class CanMoveFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 100;
-	}
+    @Override
+    public int getDuration() {
+        return 100;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[]{"direction"};
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 1;
+    }
 
-	@Override
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		final int facing = computer.getFacing();
-		Variable sideVar = parameters.get("direction");
+    @Override
+    public String[] getParameterNames() {
+        return new String[]{"direction"};
+    }
 
-		if (sideVar.getType() != Variable.Type.STRING)
-			throw new ExecutionException(line, "Invalid direction received in canMove()");
+    @Override
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        final int facing = computer.getFacing();
+        Variable sideVar = parameters.get("direction");
 
-		String side = (String) sideVar.getValue();
-		if (!side.equals("forward") && !side.equals("up") && !side.equals("down"))
-			throw new ExecutionException(line, "Invalid direction received in canMove()");
+        if (sideVar.getType() != Variable.Type.STRING)
+            throw new ExecutionException(line, "Invalid direction received in canMove()");
 
-		int direction = facing;
-		if (side.equals("up"))
-			direction = BoxSide.TOP;
-		else if (side.equals("down"))
-			direction = BoxSide.BOTTOM;
+        String side = (String) sideVar.getValue();
+        if (!side.equals("forward") && !side.equals("up") && !side.equals("down"))
+            throw new ExecutionException(line, "Invalid direction received in canMove()");
 
-		final ChunkPosition chunkPosition = computer.getChunkPosition();
-		final int newX = chunkPosition.x + Facing.offsetsXForSide[direction];
-		final int newY = chunkPosition.y + Facing.offsetsYForSide[direction];
-		final int newZ = chunkPosition.z + Facing.offsetsZForSide[direction];
+        int direction = facing;
+        if (side.equals("up"))
+            direction = BoxSide.TOP;
+        else if (side.equals("down"))
+            direction = BoxSide.BOTTOM;
 
-		if (!world.getChunkProvider().chunkExists(newX >> 4, newZ >> 4))
-			return false;
+        final ChunkPosition chunkPosition = computer.getChunkPosition();
+        final int newX = chunkPosition.x + Facing.offsetsXForSide[direction];
+        final int newY = chunkPosition.y + Facing.offsetsYForSide[direction];
+        final int newZ = chunkPosition.z + Facing.offsetsZForSide[direction];
 
-		final Material blockMaterial = world.getBlockMaterial(newX, newY, newZ);
-		if (!blockMaterial.isReplaceable())
-			return false;
+        if (!world.getChunkProvider().chunkExists(newX >> 4, newZ >> 4))
+            return false;
 
-		return true;
-	}
+        final Material blockMaterial = world.getBlockMaterial(newX, newY, newZ);
+        if (!blockMaterial.isReplaceable())
+            return false;
+
+        return true;
+    }
 }

@@ -11,23 +11,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GetPositionFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 100;
-	}
+    @Override
+    public int getDuration() {
+        return 100;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[0];
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 1;
+    }
 
-	@Override
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		Map<String, Variable> result = new HashMap<String, Variable>();
-		final ChunkPosition chunkPosition = computer.getChunkPosition();
-		result.put("x", new Variable(chunkPosition.x));
-		result.put("y", new Variable(chunkPosition.y));
-		result.put("z", new Variable(chunkPosition.z));
-		return result;
-	}
+    @Override
+    public String[] getParameterNames() {
+        return new String[0];
+    }
+
+    @Override
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        Map<String, Variable> result = new HashMap<String, Variable>();
+        final ChunkPosition chunkPosition = computer.getChunkPosition();
+        result.put("x", new Variable(chunkPosition.x));
+        result.put("y", new Variable(chunkPosition.y));
+        result.put("z", new Variable(chunkPosition.z));
+        return result;
+    }
 }

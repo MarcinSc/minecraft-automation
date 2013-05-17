@@ -9,18 +9,23 @@ import net.minecraft.world.World;
 import java.util.Map;
 
 public class HasContainerFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 100;
-	}
+    @Override
+    public int getDuration() {
+        return 100;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[]{"side"};
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 1;
+    }
 
-	@Override
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		return StorageModuleUtils.getInventoryAtFace(line, computer, world, parameters.get("side"), "hasContainer") != null;
-	}
+    @Override
+    public String[] getParameterNames() {
+        return new String[]{"side"};
+    }
+
+    @Override
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        return StorageModuleUtils.getInventoryAtFace(line, computer, world, parameters.get("side"), "hasContainer") != null;
+    }
 }

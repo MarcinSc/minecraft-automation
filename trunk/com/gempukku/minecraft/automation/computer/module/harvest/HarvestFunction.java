@@ -23,82 +23,87 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class HarvestFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 10000;
-	}
+    @Override
+    public int getDuration() {
+        return 10000;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[]{"direction"};
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 20;
+    }
 
-	@Override
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		final Variable directionVar = parameters.get("direction");
-		if (directionVar.getType() != Variable.Type.STRING && directionVar.getType() != Variable.Type.NULL)
-			throw new ExecutionException(line, "Invalid direction received in harvest()");
+    @Override
+    public String[] getParameterNames() {
+        return new String[]{"direction"};
+    }
 
-		String side = (String) directionVar.getValue();
-		if (side != null && (!side.equals("up") && !side.equals("down")))
-			throw new ExecutionException(line, "Invalid direction received in harvest()");
+    @Override
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        final Variable directionVar = parameters.get("direction");
+        if (directionVar.getType() != Variable.Type.STRING && directionVar.getType() != Variable.Type.NULL)
+            throw new ExecutionException(line, "Invalid direction received in harvest()");
 
-		int direction = computer.getFacing();
-		if (side != null) {
-			if (side.equals("up"))
-				direction = BoxSide.BOTTOM;
-			else if (side.equals("down"))
-				direction = BoxSide.TOP;
-		}
+        String side = (String) directionVar.getValue();
+        if (side != null && (!side.equals("up") && !side.equals("down")))
+            throw new ExecutionException(line, "Invalid direction received in harvest()");
 
-		final ChunkPosition chunkPosition = computer.getChunkPosition();
-		final int harvestX = chunkPosition.x + Facing.offsetsXForSide[direction];
-		final int harvestY = chunkPosition.y + Facing.offsetsYForSide[direction];
-		final int harvestZ = chunkPosition.z + Facing.offsetsZForSide[direction];
+        int direction = computer.getFacing();
+        if (side != null) {
+            if (side.equals("up"))
+                direction = BoxSide.BOTTOM;
+            else if (side.equals("down"))
+                direction = BoxSide.TOP;
+        }
 
-		if (!world.getChunkProvider().chunkExists(harvestX >> 4, harvestZ >> 4))
-			return false;
+        final ChunkPosition chunkPosition = computer.getChunkPosition();
+        final int harvestX = chunkPosition.x + Facing.offsetsXForSide[direction];
+        final int harvestY = chunkPosition.y + Facing.offsetsYForSide[direction];
+        final int harvestZ = chunkPosition.z + Facing.offsetsZForSide[direction];
 
-		final Block block = Block.blocksList[world.getBlockId(harvestX, harvestY, harvestZ)];
-		if (block == null)
-			// Can't harvest air
-			return false;
+        if (!world.getChunkProvider().chunkExists(harvestX >> 4, harvestZ >> 4))
+            return false;
 
-		final float blockHardness = block.getBlockHardness(world, harvestX, harvestY, harvestZ);
+        final Block block = Block.blocksList[world.getBlockId(harvestX, harvestY, harvestZ)];
+        if (block == null)
+            // Can't harvest air
+            return false;
 
-		final FakePlayer fakePlayer = new FakePlayer(world, computer.getOwner());
-		final boolean canHarvest = ForgeEventFactory.doPlayerHarvestCheck(fakePlayer, block, blockHardness >= 0);
-		if (!canHarvest)
-			return false;
+        final float blockHardness = block.getBlockHardness(world, harvestX, harvestY, harvestZ);
 
-		final int blockMetadata = world.getBlockMetadata(harvestX, harvestY, harvestZ);
+        final FakePlayer fakePlayer = new FakePlayer(world, computer.getOwner());
+        final boolean canHarvest = ForgeEventFactory.doPlayerHarvestCheck(fakePlayer, block, blockHardness >= 0);
+        if (!canHarvest)
+            return false;
 
-		final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
-		if (computerTileEntity == null)
-			return false;
+        final int blockMetadata = world.getBlockMetadata(harvestX, harvestY, harvestZ);
 
-		block.onBlockHarvested(world, harvestX, harvestY, harvestZ, blockMetadata, fakePlayer);
-		block.removeBlockByPlayer(world, fakePlayer, harvestX, harvestY, harvestZ);
+        final ComputerTileEntity computerTileEntity = AutomationUtils.getComputerEntitySafely(world, computer);
+        if (computerTileEntity == null)
+            return false;
 
-		final ArrayList<ItemStack> droppedItems = block.getBlockDropped(world, harvestX, harvestY, harvestZ, blockMetadata, 0);
-		if (ComputerModuleUtils.canManipulateInventories(world, computer)) {
-			for (ItemStack droppedItem : droppedItems) {
-				final int transferred = StorageModuleUtils.mergeItemStackIntoComputerInventory(computerTileEntity, droppedItem, droppedItem.stackSize);
-				if (transferred < droppedItem.stackSize)
-					dropItemsOnGround(world, harvestX, harvestY, harvestZ, droppedItem.itemID, droppedItem.getItemDamage(), droppedItem.stackSize - transferred, droppedItem.getTagCompound());
-			}
-		} else {
-			for (ItemStack droppedItem : droppedItems)
-				dropItemsOnGround(world, harvestX, harvestY, harvestZ, droppedItem.itemID, droppedItem.getItemDamage(), droppedItem.stackSize, droppedItem.getTagCompound());
-		}
+        block.onBlockHarvested(world, harvestX, harvestY, harvestZ, blockMetadata, fakePlayer);
+        block.removeBlockByPlayer(world, fakePlayer, harvestX, harvestY, harvestZ);
 
-		return true;
-	}
+        final ArrayList<ItemStack> droppedItems = block.getBlockDropped(world, harvestX, harvestY, harvestZ, blockMetadata, 0);
+        if (ComputerModuleUtils.canManipulateInventories(world, computer)) {
+            for (ItemStack droppedItem : droppedItems) {
+                final int transferred = StorageModuleUtils.mergeItemStackIntoComputerInventory(computerTileEntity, droppedItem, droppedItem.stackSize);
+                if (transferred < droppedItem.stackSize)
+                    dropItemsOnGround(world, harvestX, harvestY, harvestZ, droppedItem.itemID, droppedItem.getItemDamage(), droppedItem.stackSize - transferred, droppedItem.getTagCompound());
+            }
+        } else {
+            for (ItemStack droppedItem : droppedItems)
+                dropItemsOnGround(world, harvestX, harvestY, harvestZ, droppedItem.itemID, droppedItem.getItemDamage(), droppedItem.stackSize, droppedItem.getTagCompound());
+        }
 
-	private void dropItemsOnGround(World world, int x, int y, int z, int itemId, int itemDamage, int count, NBTTagCompound tagCompound) {
-		EntityItem entityItem = new EntityItem(world, x, y, z, new ItemStack(itemId, count, itemDamage));
-		world.spawnEntityInWorld(entityItem);
-		if (tagCompound != null)
-			entityItem.getEntityItem().setTagCompound((NBTTagCompound) tagCompound.copy());
-	}
+        return true;
+    }
+
+    private void dropItemsOnGround(World world, int x, int y, int z, int itemId, int itemDamage, int count, NBTTagCompound tagCompound) {
+        EntityItem entityItem = new EntityItem(world, x, y, z, new ItemStack(itemId, count, itemDamage));
+        world.spawnEntityInWorld(entityItem);
+        if (tagCompound != null)
+            entityItem.getEntityItem().setTagCompound((NBTTagCompound) tagCompound.copy());
+    }
 }

@@ -25,6 +25,11 @@ public class TurnFunction implements ModuleFunctionExecutable {
     }
 
     @Override
+    public int getMinimumExecutionTicks() {
+        return 10;
+    }
+
+    @Override
     public String[] getParameterNames() {
         return new String[]{""};
     }

@@ -18,6 +18,11 @@ public class EmitWeakSignalFunction implements ModuleFunctionExecutable {
     }
 
     @Override
+    public int getMinimumExecutionTicks() {
+        return 10;
+    }
+
+    @Override
     public String[] getParameterNames() {
         return new String[]{"side", "strength"};
     }
@@ -36,7 +41,7 @@ public class EmitWeakSignalFunction implements ModuleFunctionExecutable {
         if (strength < 0 || strength > 15)
             throw new ExecutionException(line, "Expected strength in range of 0-15");
         Map<String, String> moduleData = new HashMap<String, String>(computer.getModuleData());
-        moduleData.put("weak-"+side, String.valueOf(strength));
+        moduleData.put("weak-" + side, String.valueOf(strength));
         computer.setModuleData(moduleData);
 
         ChunkPosition position = computer.getChunkPosition();

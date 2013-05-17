@@ -7,9 +7,11 @@ import net.minecraft.world.World;
 import java.util.Map;
 
 public interface ModuleFunctionExecutable {
-	public int getDuration();
+    public int getDuration();
 
-	public String[] getParameterNames();
+    public int getMinimumExecutionTicks();
 
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException;
+    public String[] getParameterNames();
+
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException;
 }

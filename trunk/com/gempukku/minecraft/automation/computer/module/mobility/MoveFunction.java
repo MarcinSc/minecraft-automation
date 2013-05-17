@@ -22,6 +22,11 @@ public class MoveFunction implements ModuleFunctionExecutable {
     }
 
     @Override
+    public int getMinimumExecutionTicks() {
+        return 20;
+    }
+
+    @Override
     public String[] getParameterNames() {
         return new String[]{"direction"};
     }

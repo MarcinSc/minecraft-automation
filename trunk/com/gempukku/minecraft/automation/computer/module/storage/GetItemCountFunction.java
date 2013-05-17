@@ -11,31 +11,36 @@ import net.minecraft.world.World;
 import java.util.Map;
 
 public class GetItemCountFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 100;
-	}
+    @Override
+    public int getDuration() {
+        return 100;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[]{"side", "slot"};
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 1;
+    }
 
-	@Override
-	public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		final String functionName = "getItemCount";
-		final Variable sideParam = parameters.get("side");
-		final Variable slotParam = parameters.get("slot");
+    @Override
+    public String[] getParameterNames() {
+        return new String[]{"side", "slot"};
+    }
 
-		final IInventory inventory = StorageModuleUtils.getInventoryAtFace(line, computer, world, sideParam, functionName);
-		if (inventory == null)
-			return null;
+    @Override
+    public Object executeFunction(int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        final String functionName = "getItemCount";
+        final Variable sideParam = parameters.get("side");
+        final Variable slotParam = parameters.get("slot");
 
-		ItemStack stackInSlot = StorageModuleUtils.getStackFromInventory(line, computer, inventory, sideParam, slotParam, functionName);
-		return getSizeOfPotentialStack(stackInSlot);
-	}
+        final IInventory inventory = StorageModuleUtils.getInventoryAtFace(line, computer, world, sideParam, functionName);
+        if (inventory == null)
+            return null;
 
-	private int getSizeOfPotentialStack(ItemStack stackInSlot) {
-		return stackInSlot != null ? stackInSlot.stackSize : 0;
-	}
+        ItemStack stackInSlot = StorageModuleUtils.getStackFromInventory(line, computer, inventory, sideParam, slotParam, functionName);
+        return getSizeOfPotentialStack(stackInSlot);
+    }
+
+    private int getSizeOfPotentialStack(ItemStack stackInSlot) {
+        return stackInSlot != null ? stackInSlot.stackSize : 0;
+    }
 }

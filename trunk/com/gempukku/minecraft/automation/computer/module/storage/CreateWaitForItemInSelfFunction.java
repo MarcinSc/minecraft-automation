@@ -15,79 +15,84 @@ import net.minecraft.world.World;
 import java.util.Map;
 
 public class CreateWaitForItemInSelfFunction implements ModuleFunctionExecutable {
-	@Override
-	public int getDuration() {
-		return 10;
-	}
+    @Override
+    public int getDuration() {
+        return 10;
+    }
 
-	@Override
-	public String[] getParameterNames() {
-		return new String[]{"slot"};
-	}
+    @Override
+    public int getMinimumExecutionTicks() {
+        return 0;
+    }
 
-	@Override
-	public Object executeFunction(final int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
-		final Variable slotVar = parameters.get("slot");
-		if (slotVar.getType() != Variable.Type.NUMBER && slotVar.getType() != Variable.Type.NULL)
-			throw new ExecutionException(line, "Expected NUMBER or NULL in createWaitForItemInSelf()");
+    @Override
+    public String[] getParameterNames() {
+        return new String[]{"slot"};
+    }
 
-		final ComputerTileEntity computerEntity = AutomationUtils.getComputerEntitySafely(world, computer);
-		if (computerEntity == null)
-			return null;
+    @Override
+    public Object executeFunction(final int line, World world, ModuleComputerCallback computer, Map<String, Variable> parameters) throws ExecutionException {
+        final Variable slotVar = parameters.get("slot");
+        if (slotVar.getType() != Variable.Type.NUMBER && slotVar.getType() != Variable.Type.NULL)
+            throw new ExecutionException(line, "Expected NUMBER or NULL in createWaitForItemInSelf()");
 
-		final int slot = slotVar.getType() == Variable.Type.NULL ? -1 : ((Number) slotVar.getValue()).intValue();
-		if (slot < -2 || slot >= computerEntity.getItemSlotsCount())
-			throw new ExecutionException(line, "Slot number out of accepted range in createWaitForItemInSelf()");
+        final ComputerTileEntity computerEntity = AutomationUtils.getComputerEntitySafely(world, computer);
+        if (computerEntity == null)
+            return null;
 
-		return new AbstractConditionCustomObject() {
-			@Override
-			public int getCreationDelay() {
-				return 0;
-			}
+        final int slot = slotVar.getType() == Variable.Type.NULL ? -1 : ((Number) slotVar.getValue()).intValue();
+        if (slot < -2 || slot >= computerEntity.getItemSlotsCount())
+            throw new ExecutionException(line, "Slot number out of accepted range in createWaitForItemInSelf()");
 
-			@Override
-			public ResultAwaitingCondition createAwaitingCondition() {
-				return new PeriodicCheckResultAwaitingCondition(new CheckSelfSlotAwaitingCondition(line, slot), 10);
-			}
-		};
-	}
+        return new AbstractConditionCustomObject() {
+            @Override
+            public int getCreationDelay() {
+                return 0;
+            }
 
-	private static class CheckSelfSlotAwaitingCondition implements ResultAwaitingCondition {
-		private int _foundInSlot;
-		private int _line;
-		private int _slot;
+            @Override
+            public ResultAwaitingCondition createAwaitingCondition() {
+                return new PeriodicCheckResultAwaitingCondition(new CheckSelfSlotAwaitingCondition(line, slot), 10);
+            }
+        };
+    }
 
-		private CheckSelfSlotAwaitingCondition(int line, int slot) {
-			_line = line;
-			_slot = slot;
-		}
+    private static class CheckSelfSlotAwaitingCondition implements ResultAwaitingCondition {
+        private int _foundInSlot;
+        private int _line;
+        private int _slot;
 
-		@Override
-		public boolean isMet(int checkAttempt, World world, ServerComputerData computer) throws ExecutionException {
-			final ComputerTileEntity computerEntity = AutomationUtils.getComputerEntitySafely(world, computer);
-			if (computerEntity == null)
-				return false;
+        private CheckSelfSlotAwaitingCondition(int line, int slot) {
+            _line = line;
+            _slot = slot;
+        }
 
-			final int itemSlotsCount = computerEntity.getItemSlotsCount();
-			if (_slot >= itemSlotsCount)
-				throw new ExecutionException(_line, "Slot number out of accepted range while waiting for createWaitForItemInSelf()");
+        @Override
+        public boolean isMet(int checkAttempt, World world, ServerComputerData computer) throws ExecutionException {
+            final ComputerTileEntity computerEntity = AutomationUtils.getComputerEntitySafely(world, computer);
+            if (computerEntity == null)
+                return false;
 
-			if (_slot == -1) {
-				for (int i = 0; i < itemSlotsCount; i++)
-					if (computerEntity.getStackInSlot(_slot) != null) {
-						_foundInSlot = i;
-						return true;
-					}
-			} else if (computerEntity.getStackInSlot(_slot) != null) {
-				_foundInSlot = _slot;
-				return true;
-			}
-			return false;
-		}
+            final int itemSlotsCount = computerEntity.getItemSlotsCount();
+            if (_slot >= itemSlotsCount)
+                throw new ExecutionException(_line, "Slot number out of accepted range while waiting for createWaitForItemInSelf()");
 
-		@Override
-		public Variable getReturnValue() {
-			return new Variable(_foundInSlot);
-		}
-	}
+            if (_slot == -1) {
+                for (int i = 0; i < itemSlotsCount; i++)
+                    if (computerEntity.getStackInSlot(_slot) != null) {
+                        _foundInSlot = i;
+                        return true;
+                    }
+            } else if (computerEntity.getStackInSlot(_slot) != null) {
+                _foundInSlot = _slot;
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Variable getReturnValue() {
+            return new Variable(_foundInSlot);
+        }
+    }
 }
