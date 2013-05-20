@@ -78,7 +78,7 @@ public class TransferToSelfFunction implements ModuleFunctionExecutable {
         if (inventory instanceof ISidedInventory) {
             final ISidedInventory sidedInventory = (ISidedInventory) inventory;
             int inventorySide = BoxSide.getOpposite(StorageModuleUtils.getComputerFacingSide(line, computer, sideParam, functionName));
-            final int[] sideSlots = sidedInventory.getSizeInventorySide(inventorySide);
+            final int[] sideSlots = sidedInventory.getAccessibleSlotsFromSide(inventorySide);
             if (slotParam.getType() == Variable.Type.NULL) {
                 for (int i = 0; i < sideSlots.length; i++) {
                     final ItemStack stack = sidedInventory.getStackInSlot(sideSlots[i]);

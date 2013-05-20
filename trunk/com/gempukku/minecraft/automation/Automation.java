@@ -146,7 +146,7 @@ public class Automation {
         final ItemStack chest = new ItemStack(Block.chest);
         final ItemStack goldIngot = new ItemStack(Item.ingotGold);
         final ItemStack compass = new ItemStack(Item.compass);
-        final ItemStack netherQuartz = new ItemStack(Item.field_94583_ca);
+        final ItemStack netherQuartz = new ItemStack(Item.netherQuartz);
         final ItemStack diamond = new ItemStack(Item.diamond);
 
         final ItemStack diamondPickaxe = new ItemStack(Item.pickaxeDiamond);
