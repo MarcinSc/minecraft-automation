@@ -69,7 +69,15 @@ public class Automation {
     private static ProgramScheduler _programScheduler;
 
     public static ComputerBlock personalComputerBlock;
+    private static int _personalComputerBlockId;
+    public static ComputerBlock smallComputerBlock;
     private static int _smallComputerBlockId;
+    public static ComputerBlock advancedComputerBlock;
+    private static int _advancedComputerBlockId;
+    public static ComputerBlock industrialComputerBlock;
+    private static int _industrialComputerBlockId;
+    public static ComputerBlock superComputerBlock;
+    private static int _superComputerBlockId;
 
     public static Item terminalItem;
     private static int _terminalItemId;
@@ -95,18 +103,32 @@ public class Automation {
         Configuration conf = new Configuration(evt.getSuggestedConfigurationFile());
         conf.load();
         _modConfigDirectory = evt.getModConfigurationDirectory();
-        _smallComputerBlockId = conf.getBlock("smallComputerBlock", 3624, "This is an ID of a computer block").getInt();
+
+        _personalComputerBlockId = conf.getBlock("personalComputerBlock", 3624, "This is an ID of a personal computer block").getInt();
+        _smallComputerBlockId = conf.getBlock("smallComputerBlock", 3625, "This is an ID of a small computer block").getInt();
+        _advancedComputerBlockId = conf.getBlock("advancedComputerBlock", 3626, "This is an ID of a advanced computer block").getInt();
+        _industrialComputerBlockId = conf.getBlock("industrialComputerBlock", 3627, "This is an ID of a industrial computer block").getInt();
+        _superComputerBlockId = conf.getBlock("superComputerBlock", 3628, "This is an ID of a super computer block").getInt();
+
         _moduleItemId = conf.getItem("computerModule", 4124, "This is an ID of a computer module item").getInt();
         _terminalItemId = conf.getItem("keyboard", 4125, "This is an ID of a keyboard item").getInt();
 
         final ComputerSpeedProgramScheduler programScheduler = new ComputerSpeedProgramScheduler();
         programScheduler.setComputerTypeSpeed("personal", 100);
+        programScheduler.setComputerTypeSpeed("small", 200);
+        programScheduler.setComputerTypeSpeed("advanced", 400);
+        programScheduler.setComputerTypeSpeed("industrial", 800);
+        programScheduler.setComputerTypeSpeed("super", 1200);
         _programScheduler = programScheduler;
     }
 
     @Mod.Init
     public void initialize(FMLInitializationEvent evt) {
-        personalComputerBlock = new PersonalComputerBlock(_smallComputerBlockId, "personal");
+        personalComputerBlock = new PersonalComputerBlock(_personalComputerBlockId, "personal");
+        smallComputerBlock = new PersonalComputerBlock(_smallComputerBlockId, "small");
+        advancedComputerBlock = new PersonalComputerBlock(_advancedComputerBlockId, "advanced");
+        industrialComputerBlock = new PersonalComputerBlock(_industrialComputerBlockId, "industrial");
+        superComputerBlock = new PersonalComputerBlock(_superComputerBlockId, "super");
 
         moduleItem = new ComputerModuleItem(_moduleItemId);
         terminalItem = new ItemTerminal(_terminalItemId);
@@ -124,12 +146,19 @@ public class Automation {
         final ItemStack chest = new ItemStack(Block.chest);
         final ItemStack goldIngot = new ItemStack(Item.ingotGold);
         final ItemStack compass = new ItemStack(Item.compass);
+        final ItemStack netherQuartz = new ItemStack(Item.field_94583_ca);
+        final ItemStack diamond = new ItemStack(Item.diamond);
 
         final ItemStack diamondPickaxe = new ItemStack(Item.pickaxeDiamond);
         final ItemStack diamondAxe = new ItemStack(Item.axeDiamond);
         final ItemStack diamondShovel = new ItemStack(Item.shovelDiamond);
 
-        GameRegistry.addShapedRecipe(new ItemStack(personalComputerBlock), "xyx", "xxx", 'x', ironIngot, 'y', redstone);
+        GameRegistry.addShapedRecipe(new ItemStack(personalComputerBlock), "iri", "iii", 'i', ironIngot, 'r', redstone);
+        GameRegistry.addShapedRecipe(new ItemStack(smallComputerBlock), "iri", "iqi", 'i', ironIngot, 'r', redstone, 'q', netherQuartz);
+        GameRegistry.addShapedRecipe(new ItemStack(advancedComputerBlock), "iri", "ggg", " q ", 'i', ironIngot, 'r', redstone, 'q', netherQuartz, 'g', goldIngot);
+        GameRegistry.addShapedRecipe(new ItemStack(industrialComputerBlock), "iri", "gdg", "iqi", 'i', ironIngot, 'r', redstone, 'q', netherQuartz, 'g', goldIngot, 'd', diamond);
+        GameRegistry.addShapedRecipe(new ItemStack(superComputerBlock), "iri", "ddd", "iqi", 'i', ironIngot, 'r', redstone, 'q', netherQuartz, 'd', diamond);
+
         GameRegistry.addShapedRecipe(new ItemStack(terminalItem), "xyx", "zzz", 'x', redstone, 'y', glassPane, 'z', woodenButton);
         GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, POSITIONING_MODULE_METADATA), " x ", " x ", "yzy", 'x', coal, 'y', ironIngot, 'z', compass);
         GameRegistry.addShapedRecipe(new ItemStack(moduleItem, 1, STORAGE_MODULE_METADATA), "xyx", "xzx", 'x', ironIngot, 'y', chest, 'z', redstone);
@@ -148,7 +177,11 @@ public class Automation {
 
     @Mod.PostInit
     public void postInitialize(FMLPostInitializationEvent evt) {
-        proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 100, 100 * 1024));
+        proxy.getRegistry().registerComputerSpec(personalComputerBlock, new ComputerSpec("personal", 10, 10 * 1024));
+        proxy.getRegistry().registerComputerSpec(smallComputerBlock, new ComputerSpec("small", 20, 20 * 1024));
+        proxy.getRegistry().registerComputerSpec(advancedComputerBlock, new ComputerSpec("advanced", 40, 40 * 1024));
+        proxy.getRegistry().registerComputerSpec(industrialComputerBlock, new ComputerSpec("industrial", 80, 80 * 1024));
+        proxy.getRegistry().registerComputerSpec(superComputerBlock, new ComputerSpec("super", 160, 160 * 1024));
 
         proxy.getRegistry().registerComputerModule(moduleItem, POSITIONING_MODULE_METADATA, new PositioningModule());
         proxy.getRegistry().registerComputerModule(moduleItem, STORAGE_MODULE_METADATA, new StorageModule());
