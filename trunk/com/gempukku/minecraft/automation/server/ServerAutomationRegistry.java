@@ -67,7 +67,6 @@ public class ServerAutomationRegistry extends AbstractAutomationRegistry {
 //        }
 //    }
 
-    @Override
     public String getComputerLabel(int computerId) {
         return readLabelFromDisk(computerId);
     }

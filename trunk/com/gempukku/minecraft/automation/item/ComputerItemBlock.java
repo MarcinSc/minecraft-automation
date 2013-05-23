@@ -61,7 +61,7 @@ public class ComputerItemBlock extends ItemBlock {
     }
 
     private String getComputerLabel(ItemStack itemStack) {
-        return Automation.proxy.getRegistry().getComputerLabel(itemStack.getItemDamage());
+        return itemStack.getTagCompound().getString("label");
     }
 
     @Override

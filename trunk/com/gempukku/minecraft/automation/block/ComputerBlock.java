@@ -13,14 +13,14 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
 
 public abstract class ComputerBlock extends BlockContainer {
     private Icon _frontWorkingIcon;
@@ -45,26 +45,39 @@ public abstract class ComputerBlock extends BlockContainer {
 
     protected abstract String getComputerSideIcon();
 
+    @Override
+    public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune) {
+        ArrayList<ItemStack> droppedItems = new ArrayList<ItemStack>();
+        if (MinecraftUtils.isServer(world)) {
+            final ComputerTileEntity computerEntity = AutomationUtils.getComputerEntitySafely(world, x, y, z);
+
+            if (computerEntity != null) {
+                // Eject all items in computer's inventory.
+                // The modules are not ejected - by design.
+                for (int inventoryIndex = 0; inventoryIndex < computerEntity.getSizeInventory(); inventoryIndex++) {
+                    ItemStack itemInSlot = computerEntity.getStackInSlot(inventoryIndex);
+                    if (itemInSlot != null)
+                        droppedItems.add(itemInSlot);
+                }
+
+                // Now create a computer item stack that will be ejected
+                ItemStack computerItemStack = new ItemStack(this, 1, metadata);
+                final String computerLabel = Automation.getServerProxy().getRegistry().getComputerLabel(computerEntity.getComputerId());
+                if (computerLabel != null)
+                    computerItemStack.getTagCompound().setString("label", computerLabel);
+                droppedItems.add(computerItemStack);
+            }
+        }
+
+        return droppedItems;
+    }
+
+    @Override
     public void breakBlock(World world, int x, int y, int z, int par5, int par6) {
         final ComputerTileEntity computerEntity = AutomationUtils.getComputerEntitySafely(world, x, y, z);
+        if (computerEntity != null && MinecraftUtils.isServer(world) && !computerEntity.isMoving())
+            Automation.getServerProxy().getRegistry().unloadComputer(computerEntity);
 
-        if (computerEntity != null) {
-            // Eject all items in computer's inventory.
-            // The modules are not ejected - by design.
-            for (int inventoryIndex = 0; inventoryIndex < computerEntity.getSizeInventory(); inventoryIndex++) {
-                ItemStack itemstack = computerEntity.getStackInSlot(inventoryIndex);
-
-                if (itemstack != null) {
-                    EntityItem entityItem = new EntityItem(world, x, y, z, new ItemStack(itemstack.itemID, itemstack.stackSize, itemstack.getItemDamage()));
-                    world.spawnEntityInWorld(entityItem);
-                    if (itemstack.hasTagCompound())
-                        entityItem.getEntityItem().setTagCompound((NBTTagCompound) itemstack.getTagCompound().copy());
-                }
-            }
-
-            if (MinecraftUtils.isServer(world) && !computerEntity.isMoving())
-                Automation.getServerProxy().getRegistry().unloadComputer(computerEntity);
-        }
         super.breakBlock(world, x, y, z, par5, par6);
     }
 
@@ -88,11 +101,6 @@ public abstract class ComputerBlock extends BlockContainer {
         }
 
         return _sideIcon;
-    }
-
-    @Override
-    public int damageDropped(int par1) {
-        return par1;
     }
 
     @Override
@@ -135,9 +143,6 @@ public abstract class ComputerBlock extends BlockContainer {
             computerId = Automation.getServerProxy().getRegistry().storeNewComputerData(playerPlacing, _computerType);
 
         result.setModuleSlotsCount(_moduleSlotCount);
-        // On the client we have to forget the label for this computer, as it might change after it's placed
-        if (!MinecraftUtils.isClient(world))
-            Automation.getClientProxy().getRegistry().clearLabelCache(computerId);
         result.setComputerId(computerId);
         result.setFacing(blockFacing);
         return result;
